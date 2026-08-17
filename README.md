@@ -5,11 +5,11 @@ Offline-first Android app to transcribe shared WhatsApp voice messages (`.opus`)
 ## Stack
 - Java
 - Android SDK 34 / minSdk 26
-- FFmpegKit Audio LGPL (`com.arthenica:ffmpeg-kit-audio:5.1`)
-- Vosk Android (`com.alphacephei:vosk-android:0.3.47@aar`)
+- FFmpegKit Audio LGPL (`dev.ffmpegkit-maintained:ffmpeg-kit-audio:8.1.7`)
+- Vosk Android (`com.alphacephei:vosk-android:0.3.47`)
 
 ## Build & Run
-1. Open project in Android Studio (Hedgehog+ recommended).
+1. Open project in a recent version of Android Studio (supporting AGP 9.3+).
 2. Let Gradle sync.
 3. Build and run on device/emulator.
 
