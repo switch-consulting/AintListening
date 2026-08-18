@@ -9,6 +9,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.IntentCompat;
 
@@ -27,12 +28,15 @@ import java.util.concurrent.Executors;
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "AintListening";
+    private static final String MODEL_NAME = "vosk-model-small-de-0.15";
+    private static final String MODEL_URL = "https://alphacephei.com/vosk/models/vosk-model-small-de-0.15.zip";
 
     private LinearProgressIndicator progressIndicator;
     private TextView transcriptTextView;
 
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
     private Model voskModel;
+    private boolean isDownloading = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,7 +49,11 @@ public class MainActivity extends AppCompatActivity {
 
         closeButton.setOnClickListener(v -> finish());
 
-        handleIncomingIntent(getIntent());
+        if (isModelMissing()) {
+            showDownloadDialog();
+        } else {
+            handleIncomingIntent(getIntent());
+        }
     }
 
     @Override
@@ -61,7 +69,77 @@ public class MainActivity extends AppCompatActivity {
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
         setIntent(intent);
-        handleIncomingIntent(intent);
+        if (!isDownloading) {
+            if (isModelMissing()) {
+                showDownloadDialog();
+            } else {
+                handleIncomingIntent(intent);
+            }
+        }
+    }
+
+    private boolean isModelMissing() {
+        File modelDir = new File(getFilesDir(), MODEL_NAME);
+        return !modelDir.exists() || !modelDir.isDirectory();
+    }
+
+    private void showDownloadDialog() {
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.dialog_download_title)
+                .setMessage(R.string.dialog_download_message)
+                .setPositiveButton(R.string.button_download, (dialog, which) -> startDownload())
+                .setNegativeButton(R.string.button_cancel, (dialog, which) -> {
+                    Toast.makeText(this, R.string.error_model_setup_cancelled, Toast.LENGTH_LONG).show();
+                    finish();
+                })
+                .setCancelable(false)
+                .show();
+    }
+
+    private void startDownload() {
+        isDownloading = true;
+        progressIndicator.setVisibility(View.VISIBLE);
+        progressIndicator.setIndeterminate(false);
+        progressIndicator.setProgress(0);
+        transcriptTextView.setText(getString(R.string.status_downloading, 0));
+
+        ModelDownloader.downloadAndExtract(MODEL_URL, getFilesDir(), new ModelDownloader.Callback() {
+            @Override
+            public void onProgress(int percentage) {
+                runOnUiThread(() -> {
+                    progressIndicator.setProgress(percentage);
+                    transcriptTextView.setText(getString(R.string.status_downloading, percentage));
+                });
+            }
+
+            @Override
+            public void onExtracting() {
+                runOnUiThread(() -> {
+                    progressIndicator.setIndeterminate(true);
+                    transcriptTextView.setText(R.string.status_extracting);
+                });
+            }
+
+            @Override
+            public void onSuccess() {
+                runOnUiThread(() -> {
+                    isDownloading = false;
+                    progressIndicator.setVisibility(View.GONE);
+                    Toast.makeText(MainActivity.this, "Model ready", Toast.LENGTH_SHORT).show();
+                    handleIncomingIntent(getIntent());
+                });
+            }
+
+            @Override
+            public void onError(Exception e) {
+                runOnUiThread(() -> {
+                    isDownloading = false;
+                    progressIndicator.setVisibility(View.GONE);
+                    showError(getString(R.string.error_download_failed));
+                    showDownloadDialog();
+                });
+            }
+        });
     }
 
     private void handleIncomingIntent(Intent intent) {
@@ -82,6 +160,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         progressIndicator.setVisibility(View.VISIBLE);
+        progressIndicator.setIndeterminate(true);
         transcriptTextView.setText(R.string.status_preparing);
 
         executorService.execute(() -> transcribeFromUri(audioUri));
@@ -131,10 +210,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private Model loadGermanModel() throws Exception {
-        File modelDir = new File(getFilesDir(), "vosk-model-small-de-0.15");
+        File modelDir = new File(getFilesDir(), MODEL_NAME);
         if (!modelDir.exists() || !modelDir.isDirectory()) {
-            throw new IllegalStateException("Vosk model not found at: " + modelDir.getAbsolutePath() +
-                    "\nPlease copy the unpacked model folder there.");
+            throw new IllegalStateException("Vosk model not found at: " + modelDir.getAbsolutePath());
         }
         return new Model(modelDir.getAbsolutePath());
     }

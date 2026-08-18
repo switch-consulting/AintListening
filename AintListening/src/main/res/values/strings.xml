@@ -12,4 +12,13 @@
     <string name="error_transcription_failed">Transcription failed. Check if model is available.</string>
     <string name="waiting_for_audio">Waiting for shared audio&#8230;</string>
     <string name="button_done">Done / Close</string>
+
+    <string name="dialog_download_title">Download Required</string>
+    <string name="dialog_download_message">The German speech model (~45MB) needs to be downloaded for offline transcription. Do you want to download it now from alphacephei.com?</string>
+    <string name="button_download">Download</string>
+    <string name="button_cancel">Cancel</string>
+    <string name="status_downloading">Downloading model: %1$d%%</string>
+    <string name="status_extracting">Extracting model&#8230;</string>
+    <string name="error_download_failed">Download failed. Please check your internet connection.</string>
+    <string name="error_model_setup_cancelled">Setup cancelled. The app cannot function without the speech model.</string>
 </resources>

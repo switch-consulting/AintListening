@@ -12,4 +12,13 @@
     <string name="error_transcription_failed">Transkription fehlgeschlagen. Prüfe, ob das Modell verfügbar ist.</string>
     <string name="waiting_for_audio">Warten auf geteiltes Audio&#8230;</string>
     <string name="button_done">Fertig / Schließen</string>
+
+    <string name="dialog_download_title">Download erforderlich</string>
+    <string name="dialog_download_message">Das deutsche Sprachmodell (~45MB) muss für die Offline-Transkription heruntergeladen werden. Möchtest du es jetzt von alphacephei.com herunterladen?</string>
+    <string name="button_download">Herunterladen</string>
+    <string name="button_cancel">Abbrechen</string>
+    <string name="status_downloading">Modell wird heruntergeladen: %1$d%%</string>
+    <string name="status_extracting">Modell wird entpackt&#8230;</string>
+    <string name="error_download_failed">Download fehlgeschlagen. Bitte überprüfe deine Internetverbindung.</string>
+    <string name="error_model_setup_cancelled">Einrichtung abgebrochen. Die App kann ohne das Sprachmodell nicht funktionieren.</string>
 </resources>
