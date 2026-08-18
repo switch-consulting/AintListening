@@ -70,19 +70,19 @@ public class MainActivity extends AppCompatActivity {
 
         if (!Intent.ACTION_SEND.equals(action) || type == null || !type.startsWith("audio/")) {
             progressIndicator.setVisibility(View.GONE);
-            transcriptTextView.setText("Share a WhatsApp voice message (.opus) with this app to transcribe it offline.");
+            transcriptTextView.setText(R.string.intro_instruction);
             return;
         }
 
         Uri audioUri = intent.getParcelableExtra(Intent.EXTRA_STREAM);
         if (audioUri == null) {
             progressIndicator.setVisibility(View.GONE);
-            transcriptTextView.setText("No audio stream found in shared intent.");
+            transcriptTextView.setText(R.string.error_no_stream);
             return;
         }
 
         progressIndicator.setVisibility(View.VISIBLE);
-        transcriptTextView.setText("Preparing audio...");
+        transcriptTextView.setText(R.string.status_preparing);
 
         executorService.execute(() -> transcribeFromUri(audioUri));
     }
@@ -91,7 +91,7 @@ public class MainActivity extends AppCompatActivity {
         File wavFile = new File(getCacheDir(), "incoming_audio_16k_mono.wav");
 
         try {
-            runOnUiThread(() -> transcriptTextView.setText("Converting audio..."));
+            runOnUiThread(() -> transcriptTextView.setText(R.string.status_converting));
 
             boolean success = OpusToWavDecoder.decodeOpusToWav(this, audioUri, wavFile);
 
@@ -99,34 +99,34 @@ public class MainActivity extends AppCompatActivity {
                 executorService.execute(() -> runVoskRecognition(wavFile));
             } else {
                 Log.e(TAG, "Native conversion failed");
-                showError("Audio conversion failed. Please try another file.");
+                showError(getString(R.string.error_conversion_failed));
             }
 
         } catch (Exception e) {
             Log.e(TAG, "Failed preparing audio", e);
-            showError("Could not read shared audio file.");
+            showError(getString(R.string.error_read_failed));
         }
     }
 
     private void runVoskRecognition(@NonNull File wavFile) {
         try {
-            runOnUiThread(() -> transcriptTextView.setText("Loading speech model..."));
+            runOnUiThread(() -> transcriptTextView.setText(R.string.status_loading_model));
             if (voskModel == null) {
                 voskModel = loadGermanModel();
             }
 
-            runOnUiThread(() -> transcriptTextView.setText("Transcribing offline..."));
+            runOnUiThread(() -> transcriptTextView.setText(R.string.status_transcribing));
 
             String transcript = recognizeWav(voskModel, wavFile);
             runOnUiThread(() -> {
                 progressIndicator.setVisibility(View.GONE);
                 transcriptTextView.setText(transcript == null || transcript.trim().isEmpty()
-                        ? "No speech recognized."
+                        ? getString(R.string.status_no_speech)
                         : transcript.trim());
             });
         } catch (Exception e) {
             Log.e(TAG, "Vosk transcription failed", e);
-            showError("Transcription failed. Check if model is available.");
+            showError(getString(R.string.error_transcription_failed));
         }
     }
 

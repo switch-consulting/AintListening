@@ -28,7 +28,7 @@
             android:id="@+id/transcriptTextView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Waiting for shared audio..."
+            android:text="@string/waiting_for_audio"
             android:textIsSelectable="true"
             android:textSize="16sp" />
     </ScrollView>
@@ -39,7 +39,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
-        android:text="Done / Close"
+        android:text="@string/button_done"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />

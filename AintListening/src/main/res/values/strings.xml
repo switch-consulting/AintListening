@@ -1,3 +1,15 @@
 <resources>
     <string name="app_name">Ain\'t Listening</string>
+    <string name="intro_instruction">Share a WhatsApp voice message (.opus) with this app to transcribe it offline.</string>
+    <string name="error_no_stream">No audio stream found in shared intent.</string>
+    <string name="status_preparing">Preparing audio&#8230;</string>
+    <string name="status_converting">Converting audio&#8230;</string>
+    <string name="error_conversion_failed">Audio conversion failed. Please try another file.</string>
+    <string name="error_read_failed">Could not read shared audio file.</string>
+    <string name="status_loading_model">Loading speech model&#8230;</string>
+    <string name="status_transcribing">Transcribing offline&#8230;</string>
+    <string name="status_no_speech">No speech recognized.</string>
+    <string name="error_transcription_failed">Transcription failed. Check if model is available.</string>
+    <string name="waiting_for_audio">Waiting for shared audio&#8230;</string>
+    <string name="button_done">Done / Close</string>
 </resources>

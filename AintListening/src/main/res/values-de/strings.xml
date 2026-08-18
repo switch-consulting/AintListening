@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">Ain\'t Listening</string>
+    <string name="intro_instruction">Teile eine WhatsApp Sprachnachricht (.opus) mit dieser App, um sie offline zu transkribieren.</string>
+    <string name="error_no_stream">Kein Audio-Stream im geteilten Intent gefunden.</string>
+    <string name="status_preparing">Audio wird vorbereitet&#8230;</string>
+    <string name="status_converting">Audio wird konvertiert&#8230;</string>
+    <string name="error_conversion_failed">Audio-Konvertierung fehlgeschlagen. Bitte versuche es mit einer anderen Datei.</string>
+    <string name="error_read_failed">Die geteilte Audiodatei konnte nicht gelesen werden.</string>
+    <string name="status_loading_model">Sprachmodell wird geladen&#8230;</string>
+    <string name="status_transcribing">Transkribiere offline&#8230;</string>
+    <string name="status_no_speech">Keine Sprache erkannt.</string>
+    <string name="error_transcription_failed">Transkription fehlgeschlagen. Prüfe, ob das Modell verfügbar ist.</string>
+    <string name="waiting_for_audio">Warten auf geteiltes Audio&#8230;</string>
+    <string name="button_done">Fertig / Schließen</string>
+</resources>
