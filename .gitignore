@@ -13,3 +13,6 @@
 .externalNativeBuild
 .cxx
 local.properties
+/AintListening/build/
+/AintListening/proguard-rules.pro
+/gradle/gradle-daemon-jvm.properties
