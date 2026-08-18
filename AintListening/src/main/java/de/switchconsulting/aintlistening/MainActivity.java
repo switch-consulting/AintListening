@@ -10,6 +10,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.IntentCompat;
 
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.progressindicator.LinearProgressIndicator;
@@ -73,7 +74,7 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
-        Uri audioUri = intent.getParcelableExtra(Intent.EXTRA_STREAM);
+        Uri audioUri = IntentCompat.getParcelableExtra(intent, Intent.EXTRA_STREAM, Uri.class);
         if (audioUri == null) {
             progressIndicator.setVisibility(View.GONE);
             transcriptTextView.setText(R.string.error_no_stream);
