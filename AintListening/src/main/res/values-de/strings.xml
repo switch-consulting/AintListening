@@ -21,4 +21,8 @@
     <string name="status_extracting">Modell wird entpackt&#8230;</string>
     <string name="error_download_failed">Download fehlgeschlagen. Bitte überprüfe deine Internetverbindung.</string>
     <string name="error_model_setup_cancelled">Einrichtung abgebrochen. Die App kann ohne das Sprachmodell nicht funktionieren.</string>
+
+    <string name="label_german_model">Deutsches Sprachmodell</string>
+    <string name="status_available">Verfügbar</string>
+    <string name="status_unavailable">Nicht gefunden (~45MB)</string>
 </resources>

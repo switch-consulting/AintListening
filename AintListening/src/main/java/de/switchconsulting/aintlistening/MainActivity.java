@@ -5,12 +5,13 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.core.content.IntentCompat;
 
 import com.google.android.material.button.MaterialButton;
@@ -33,6 +34,9 @@ public class MainActivity extends AppCompatActivity {
 
     private LinearProgressIndicator progressIndicator;
     private TextView transcriptTextView;
+    private ImageView modelStatusIcon;
+    private TextView modelStatusText;
+    private MaterialButton inlineDownloadButton;
 
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
     private Model voskModel;
@@ -45,15 +49,16 @@ public class MainActivity extends AppCompatActivity {
 
         progressIndicator = findViewById(R.id.progressIndicator);
         transcriptTextView = findViewById(R.id.transcriptTextView);
+        modelStatusIcon = findViewById(R.id.modelStatusIcon);
+        modelStatusText = findViewById(R.id.modelStatusText);
+        inlineDownloadButton = findViewById(R.id.inlineDownloadButton);
         MaterialButton closeButton = findViewById(R.id.closeButton);
 
         closeButton.setOnClickListener(v -> finish());
+        inlineDownloadButton.setOnClickListener(v -> startDownload());
 
-        if (isModelMissing()) {
-            showDownloadDialog();
-        } else {
-            handleIncomingIntent(getIntent());
-        }
+        updateModelStatusUI();
+        handleIncomingIntent(getIntent());
     }
 
     @Override
@@ -70,11 +75,7 @@ public class MainActivity extends AppCompatActivity {
         super.onNewIntent(intent);
         setIntent(intent);
         if (!isDownloading) {
-            if (isModelMissing()) {
-                showDownloadDialog();
-            } else {
-                handleIncomingIntent(intent);
-            }
+            handleIncomingIntent(intent);
         }
     }
 
@@ -83,21 +84,9 @@ public class MainActivity extends AppCompatActivity {
         return !modelDir.exists() || !modelDir.isDirectory();
     }
 
-    private void showDownloadDialog() {
-        new AlertDialog.Builder(this)
-                .setTitle(R.string.dialog_download_title)
-                .setMessage(R.string.dialog_download_message)
-                .setPositiveButton(R.string.button_download, (dialog, which) -> startDownload())
-                .setNegativeButton(R.string.button_cancel, (dialog, which) -> {
-                    Toast.makeText(this, R.string.error_model_setup_cancelled, Toast.LENGTH_LONG).show();
-                    finish();
-                })
-                .setCancelable(false)
-                .show();
-    }
-
     private void startDownload() {
         isDownloading = true;
+        inlineDownloadButton.setEnabled(false);
         progressIndicator.setVisibility(View.VISIBLE);
         progressIndicator.setIndeterminate(false);
         progressIndicator.setProgress(0);
@@ -124,8 +113,10 @@ public class MainActivity extends AppCompatActivity {
             public void onSuccess() {
                 runOnUiThread(() -> {
                     isDownloading = false;
+                    inlineDownloadButton.setEnabled(true);
                     progressIndicator.setVisibility(View.GONE);
                     Toast.makeText(MainActivity.this, "Model ready", Toast.LENGTH_SHORT).show();
+                    updateModelStatusUI();
                     handleIncomingIntent(getIntent());
                 });
             }
@@ -134,12 +125,27 @@ public class MainActivity extends AppCompatActivity {
             public void onError(Exception e) {
                 runOnUiThread(() -> {
                     isDownloading = false;
+                    inlineDownloadButton.setEnabled(true);
                     progressIndicator.setVisibility(View.GONE);
                     showError(getString(R.string.error_download_failed));
-                    showDownloadDialog();
+                    updateModelStatusUI();
                 });
             }
         });
+    }
+
+    private void updateModelStatusUI() {
+        if (isModelMissing()) {
+            modelStatusIcon.setImageResource(R.drawable.ic_error);
+            modelStatusIcon.setColorFilter(ContextCompat.getColor(this, android.R.color.holo_red_dark));
+            modelStatusText.setText(R.string.status_unavailable);
+            inlineDownloadButton.setVisibility(View.VISIBLE);
+        } else {
+            modelStatusIcon.setImageResource(R.drawable.ic_check_circle);
+            modelStatusIcon.setColorFilter(ContextCompat.getColor(this, android.R.color.holo_green_dark));
+            modelStatusText.setText(R.string.status_available);
+            inlineDownloadButton.setVisibility(View.GONE);
+        }
     }
 
     private void handleIncomingIntent(Intent intent) {

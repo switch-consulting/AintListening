@@ -21,4 +21,8 @@
     <string name="status_extracting">Extracting model&#8230;</string>
     <string name="error_download_failed">Download failed. Please check your internet connection.</string>
     <string name="error_model_setup_cancelled">Setup cancelled. The app cannot function without the speech model.</string>
+
+    <string name="label_german_model">German Model</string>
+    <string name="status_available">Available</string>
+    <string name="status_unavailable">Not Found (~45MB)</string>
 </resources>
