@@ -6,21 +6,19 @@ Offline-first Android app to transcribe shared WhatsApp voice messages (`.opus`)
 - Java
 - Android SDK 34 / minSdk 26
 - Native MediaCodec for Opus decoding
-- Vosk Android (`com.alphacephei:vosk-android:0.3.47`)
+- Vosk Android (`com.alphacephei:vosk-android:0.3.75`)
 
 ## Build & Run
-1. Open project in a recent version of Android Studio (supporting AGP 9.3+).
+1. Open project in a recent version of Android Studio.
 2. Let Gradle sync.
 3. Build and run on device/emulator.
 
-## Vosk Model Setup (required)
-1. Download `vosk-model-small-de-0.15` from Vosk models.
-2. Unzip it.
-3. Copy the full folder to app-internal files dir path:
-   - `/data/data/de.switch.aintlistening/files/vosk-model-small-de-0.15`
+## Vosk Model Setup
+The app requires the German speech model for offline transcription.
 
-> Current draft expects model folder to already exist in internal storage.
-> Next iteration can auto-copy from `assets` on first launch.
+- **Automatic**: Upon first launch (or if the model is missing), the app shows a status indicator on the main screen. Simply click the **Download** button to automatically fetch and extract the model (~45MB) from alphacephei.com.
+- **Manual**: Alternatively, you can download `vosk-model-small-de-0.15.zip` from [alphacephei.com](https://alphacephei.com/vosk/models), unzip it, and place the folder at:
+  `/data/data/de.switchconsulting.aintlistening/files/vosk-model-small-de-0.15`
 
 ## Usage
 1. In WhatsApp, share a voice message via **Share**.
