@@ -29,7 +29,6 @@ public class MainActivity extends AppCompatActivity {
 
     private LinearProgressIndicator progressIndicator;
     private TextView transcriptTextView;
-    private MaterialButton closeButton;
 
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
     private Model voskModel;
@@ -41,7 +40,7 @@ public class MainActivity extends AppCompatActivity {
 
         progressIndicator = findViewById(R.id.progressIndicator);
         transcriptTextView = findViewById(R.id.transcriptTextView);
-        closeButton = findViewById(R.id.closeButton);
+        MaterialButton closeButton = findViewById(R.id.closeButton);
 
         closeButton.setOnClickListener(v -> finish());
 
@@ -120,7 +119,7 @@ public class MainActivity extends AppCompatActivity {
             String transcript = recognizeWav(voskModel, wavFile);
             runOnUiThread(() -> {
                 progressIndicator.setVisibility(View.GONE);
-                transcriptTextView.setText(transcript == null || transcript.trim().isEmpty()
+                transcriptTextView.setText(transcript.trim().isEmpty()
                         ? getString(R.string.status_no_speech)
                         : transcript.trim());
             });
