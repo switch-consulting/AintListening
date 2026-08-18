@@ -5,7 +5,7 @@ Offline-first Android app to transcribe shared WhatsApp voice messages (`.opus`)
 ## Stack
 - Java
 - Android SDK 34 / minSdk 26
-- FFmpegKit Audio LGPL (`dev.ffmpegkit-maintained:ffmpeg-kit-audio:8.1.7`)
+- Native MediaCodec for Opus decoding
 - Vosk Android (`com.alphacephei:vosk-android:0.3.47`)
 
 ## Build & Run
@@ -30,5 +30,4 @@ Offline-first Android app to transcribe shared WhatsApp voice messages (`.opus`)
 
 ## License Notes
 - App source: Apache License 2.0
-- FFmpegKit audio package: LGPL (verify dynamic-linking/distribution obligations)
 - Vosk model/data may have separate model licenses—verify before distribution

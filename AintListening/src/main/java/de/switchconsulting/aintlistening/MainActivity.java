@@ -11,8 +11,6 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.arthenica.ffmpegkit.FFmpegKit;
-import com.arthenica.ffmpegkit.ReturnCode;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.progressindicator.LinearProgressIndicator;
 
@@ -22,9 +20,6 @@ import org.vosk.Recognizer;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -93,25 +88,19 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void transcribeFromUri(@NonNull Uri audioUri) {
-        File inputFile = new File(getCacheDir(), "incoming_audio.opus");
         File wavFile = new File(getCacheDir(), "incoming_audio_16k_mono.wav");
 
         try {
-            copyUriToFile(audioUri, inputFile);
-
-            String cmd = "-y -i \"" + inputFile.getAbsolutePath() + "\" -ar 16000 -ac 1 -c:a pcm_s16le \"" + wavFile.getAbsolutePath() + "\"";
-
             runOnUiThread(() -> transcriptTextView.setText("Converting audio..."));
 
-            FFmpegKit.executeAsync(cmd, session -> {
-                if (ReturnCode.isSuccess(session.getReturnCode())) {
-                    executorService.execute(() -> runVoskRecognition(wavFile));
-                } else {
-                    String failStack = session.getFailStackTrace();
-                    Log.e(TAG, "FFmpeg failed: " + failStack);
-                    showError("Audio conversion failed. Please try another file.");
-                }
-            });
+            boolean success = OpusToWavDecoder.decodeOpusToWav(this, audioUri, wavFile);
+
+            if (success) {
+                executorService.execute(() -> runVoskRecognition(wavFile));
+            } else {
+                Log.e(TAG, "Native conversion failed");
+                showError("Audio conversion failed. Please try another file.");
+            }
 
         } catch (Exception e) {
             Log.e(TAG, "Failed preparing audio", e);
@@ -138,21 +127,6 @@ public class MainActivity extends AppCompatActivity {
         } catch (Exception e) {
             Log.e(TAG, "Vosk transcription failed", e);
             showError("Transcription failed. Check if model is available.");
-        }
-    }
-
-    private void copyUriToFile(@NonNull Uri uri, @NonNull File targetFile) throws Exception {
-        try (InputStream in = getContentResolver().openInputStream(uri);
-             OutputStream out = new FileOutputStream(targetFile)) {
-            if (in == null) {
-                throw new IllegalStateException("Input stream is null");
-            }
-            byte[] buffer = new byte[8192];
-            int len;
-            while ((len = in.read(buffer)) != -1) {
-                out.write(buffer, 0, len);
-            }
-            out.flush();
         }
     }
 
