@@ -25,4 +25,5 @@
     <string name="label_german_model">German Model</string>
     <string name="status_available">Available</string>
     <string name="status_unavailable">Not Found (~45MB)</string>
+    <string name="last_message_header">Last converted message:</string>
 </resources>

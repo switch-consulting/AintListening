@@ -25,4 +25,5 @@
     <string name="label_german_model">Deutsches Sprachmodell</string>
     <string name="status_available">Verfügbar</string>
     <string name="status_unavailable">Nicht gefunden (~45MB)</string>
+    <string name="last_message_header">Zuletzt konvertierte Nachricht:</string>
 </resources>

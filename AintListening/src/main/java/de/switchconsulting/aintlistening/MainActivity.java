@@ -31,6 +31,8 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = "AintListening";
     private static final String MODEL_NAME = "vosk-model-small-de-0.15";
     private static final String MODEL_URL = "https://alphacephei.com/vosk/models/vosk-model-small-de-0.15.zip";
+    private static final String PREFS_NAME = "AintListeningPrefs";
+    private static final String KEY_LAST_MESSAGE = "last_message";
 
     private LinearProgressIndicator progressIndicator;
     private TextView transcriptTextView;
@@ -154,7 +156,7 @@ public class MainActivity extends AppCompatActivity {
 
         if (!Intent.ACTION_SEND.equals(action) || type == null || !type.startsWith("audio/")) {
             progressIndicator.setVisibility(View.GONE);
-            transcriptTextView.setText(R.string.intro_instruction);
+            loadLastMessage();
             return;
         }
 
@@ -205,9 +207,13 @@ public class MainActivity extends AppCompatActivity {
             String transcript = recognizeWav(voskModel, wavFile);
             runOnUiThread(() -> {
                 progressIndicator.setVisibility(View.GONE);
-                transcriptTextView.setText(transcript.trim().isEmpty()
+                String result = transcript.trim().isEmpty()
                         ? getString(R.string.status_no_speech)
-                        : transcript.trim());
+                        : transcript.trim();
+                transcriptTextView.setText(result);
+                if (!transcript.trim().isEmpty()) {
+                    saveLastMessage(result);
+                }
             });
         } catch (Exception e) {
             Log.e(TAG, "Vosk transcription failed", e);
@@ -293,5 +299,24 @@ public class MainActivity extends AppCompatActivity {
             transcriptTextView.setText(message);
             Toast.makeText(MainActivity.this, message, Toast.LENGTH_LONG).show();
         });
+    }
+
+    private void saveLastMessage(String transcript) {
+        getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
+                .edit()
+                .putString(KEY_LAST_MESSAGE, transcript)
+                .apply();
+    }
+
+    private void loadLastMessage() {
+        String lastMessage = getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
+                .getString(KEY_LAST_MESSAGE, null);
+
+        if (lastMessage != null) {
+            String displayedText = getString(R.string.last_message_header) + "\n\n" + lastMessage;
+            transcriptTextView.setText(displayedText);
+        } else {
+            transcriptTextView.setText(R.string.intro_instruction);
+        }
     }
 }
