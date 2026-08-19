@@ -4,40 +4,31 @@
     android:viewportWidth="108"
     android:viewportHeight="108">
 
-    <!-- Warning Triangle -->
-    <path
-        android:fillColor="#FFD600"
-        android:strokeColor="#000000"
-        android:strokeWidth="6"
-        android:strokeLineJoin="round"
-        android:pathData="M 54,16 L 96,90 L 12,90 Z" />
-
-    <!-- Robot Arms and Hands (Curving up from below head level) -->
-    <!-- Fingers are horizontal lines entering the head at ear level (Y=64) -->
+    <!-- Robot Arms and Hands (Centered: Y shifted -10) -->
     <path
         android:strokeColor="#000000"
         android:strokeWidth="4"
         android:strokeLineCap="round"
         android:strokeLineJoin="round"
-        android:pathData="M 38,90 C 28,90 22,82 22,64 L 36,64 M 70,90 C 80,90 86,82 86,64 L 72,64" />
+        android:pathData="M 38,80 C 28,80 22,72 22,54 L 36,54 M 70,80 C 80,80 86,72 86,54 L 72,54" />
 
-    <!-- Robot Head (Oval, slightly flat on top) -->
+    <!-- Robot Head (Centered: Y shifted -10) -->
     <path
         android:fillColor="#FFFFFF"
         android:strokeColor="#000000"
         android:strokeWidth="3"
-        android:pathData="M 36,64 C 36,52 44,48 54,48 C 64,48 72,52 72,64 C 72,76 64,80 54,80 C 44,80 36,76 36,64 Z" />
+        android:pathData="M 36,54 C 36,42 44,38 54,38 C 64,38 72,42 72,54 C 72,66 64,70 54,70 C 44,70 36,66 36,54 Z" />
 
-    <!-- Eyes (U-shaped / curved down) -->
+    <!-- Eyes (Centered: Y shifted -10) -->
     <path
         android:strokeColor="#000000"
         android:strokeWidth="2.5"
         android:strokeLineCap="round"
-        android:pathData="M 45,58 A 3,3 0 0,0 51,58 M 57,58 A 3,3 0 0,0 63,58" />
+        android:pathData="M 45,48 A 3,3 0 0,0 51,48 M 57,48 A 3,3 0 0,0 63,48" />
 
-    <!-- Mouth (Small solid black circle) -->
+    <!-- Mouth (Centered: Y shifted -10) -->
     <path
         android:fillColor="#000000"
-        android:pathData="M 54,72.5 A 2.5,2.5 0 1,1 54,67.5 A 2.5,2.5 0 0,1 54,72.5 Z" />
+        android:pathData="M 54,62.5 A 2.5,2.5 0 1,1 54,57.5 A 2.5,2.5 0 0,1 54,62.5 Z" />
 
 </vector>
