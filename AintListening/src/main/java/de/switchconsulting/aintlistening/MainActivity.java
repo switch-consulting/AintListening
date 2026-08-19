@@ -241,13 +241,36 @@ public class MainActivity extends AppCompatActivity {
                 if (recognizer.acceptWaveForm(buffer, nread)) {
                     String resultJson = recognizer.getResult();
                     appendTextFromResultJson(fullText, resultJson);
+                    updateTranscriptUI(fullText.toString());
+                } else {
+                    String partialJson = recognizer.getPartialResult();
+                    String partialText = getPartialTextFromJson(partialJson);
+                    if (!partialText.isEmpty()) {
+                        String currentDisplay = fullText.toString();
+                        if (fullText.length() > 0) currentDisplay += "\n\n";
+                        updateTranscriptUI(currentDisplay + partialText);
+                    }
                 }
             }
 
             appendTextFromResultJson(fullText, recognizer.getFinalResult());
         }
 
-        return fullText.toString().replaceAll("\\s+", " ").trim();
+        return fullText.toString();
+    }
+
+    private void updateTranscriptUI(String text) {
+        runOnUiThread(() -> transcriptTextView.setText(text.trim()));
+    }
+
+    private String getPartialTextFromJson(String json) {
+        if (json == null || json.trim().isEmpty()) return "";
+        try {
+            JSONObject obj = new JSONObject(json);
+            return obj.optString("partial", "").trim();
+        } catch (Exception ignored) {
+            return "";
+        }
     }
 
     private void appendTextFromResultJson(@NonNull StringBuilder out, String json) {
@@ -256,7 +279,7 @@ public class MainActivity extends AppCompatActivity {
             JSONObject obj = new JSONObject(json);
             String text = obj.optString("text", "").trim();
             if (!text.isEmpty()) {
-                if (out.length() > 0) out.append(' ');
+                if (out.length() > 0) out.append("\n\n");
                 out.append(text);
             }
         } catch (Exception ignored) {
