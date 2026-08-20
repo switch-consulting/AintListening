@@ -79,7 +79,7 @@ public class ModelManagementActivity extends AppCompatActivity {
                 runOnUiThread(() -> {
                     isDownloading = false;
                     progressIndicator.setVisibility(View.GONE);
-                    Toast.makeText(ModelManagementActivity.this, "Model ready", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(ModelManagementActivity.this, R.string.message_model_ready, Toast.LENGTH_SHORT).show();
                     updateModelStatusUI();
                 });
             }
@@ -112,6 +112,7 @@ public class ModelManagementActivity extends AppCompatActivity {
             TextView nameText = itemView.findViewById(R.id.modelNameText);
             TextView statusText = itemView.findViewById(R.id.modelStatusText);
             MaterialButton downloadButton = itemView.findViewById(R.id.inlineDownloadButton);
+            MaterialButton deleteButton = itemView.findViewById(R.id.inlineDeleteButton);
 
             final int index = i;
             ModelInfo info = ModelManager.SUPPORTED_MODELS[i];
@@ -124,15 +125,33 @@ public class ModelManagementActivity extends AppCompatActivity {
                 downloadButton.setVisibility(View.VISIBLE);
                 downloadButton.setEnabled(!isDownloading);
                 downloadButton.setOnClickListener(v -> {
-                    Toast.makeText(this, "Starting download for " + info.displayName, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, getString(R.string.message_starting_download, info.displayName), Toast.LENGTH_SHORT).show();
                     startDownload(index);
                 });
+                deleteButton.setVisibility(View.GONE);
             } else {
                 icon.setImageResource(R.drawable.ic_check_circle);
                 icon.setColorFilter(ContextCompat.getColor(this, android.R.color.holo_green_dark));
                 statusText.setText(R.string.status_available);
                 downloadButton.setVisibility(View.GONE);
+                deleteButton.setVisibility(View.VISIBLE);
+                deleteButton.setEnabled(!isDownloading);
+                deleteButton.setOnClickListener(v -> confirmDelete(index, info.displayName));
             }
         }
+    }
+
+    private void confirmDelete(int index, String displayName) {
+        new com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
+                .setTitle(R.string.dialog_confirm_delete_title)
+                .setMessage(getString(R.string.dialog_confirm_delete_message, displayName))
+                .setPositiveButton(R.string.button_remove, (dialog, which) -> {
+                    if (ModelManager.deleteModel(this, index)) {
+                        updateModelStatusUI();
+                        Toast.makeText(this, R.string.message_model_removed, Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .setNegativeButton(R.string.button_cancel, null)
+                .show();
     }
 }

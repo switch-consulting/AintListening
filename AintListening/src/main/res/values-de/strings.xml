@@ -16,7 +16,13 @@
     <string name="dialog_download_title">Download erforderlich</string>
     <string name="dialog_download_message">Ein Sprachmodell (~45MB) muss für die Offline-Transkription heruntergeladen werden. Möchtest du es jetzt von alphacephei.com herunterladen?</string>
     <string name="button_download">Herunterladen</string>
+    <string name="button_remove">Entfernen</string>
     <string name="button_cancel">Abbrechen</string>
+    <string name="dialog_confirm_delete_title">Modell entfernen?</string>
+    <string name="dialog_confirm_delete_message">Möchtest du das %1$s Sprachmodell wirklich löschen? Du musst es erneut herunterladen, um es offline nutzen zu können.</string>
+    <string name="message_model_removed">Modell entfernt</string>
+    <string name="message_model_ready">Modell bereit</string>
+    <string name="message_starting_download">Download für %1$s wird gestartet</string>
     <string name="status_downloading">Modell wird heruntergeladen: %1$d%%</string>
     <string name="status_extracting">Modell wird entpackt&#8230;</string>
     <string name="error_download_failed">Download failed. Bitte überprüfe deine Internetverbindung.</string>

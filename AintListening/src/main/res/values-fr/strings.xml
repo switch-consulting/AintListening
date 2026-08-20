@@ -16,7 +16,13 @@
     <string name="dialog_download_title">Téléchargement requis</string>
     <string name="dialog_download_message">Un modèle vocal (~45 Mo) doit être téléchargé pour la transcription hors ligne. Voulez-vous le télécharger maintenant depuis alphacephei.com ?</string>
     <string name="button_download">Télécharger</string>
+    <string name="button_remove">Supprimer</string>
     <string name="button_cancel">Annuler</string>
+    <string name="dialog_confirm_delete_title">Supprimer le modèle ?</string>
+    <string name="dialog_confirm_delete_message">Voulez-vous vraiment supprimer le modèle %1$s ? Vous devrez le télécharger à nouveau pour l\'utiliser hors ligne.</string>
+    <string name="message_model_removed">Modèle supprimé</string>
+    <string name="message_model_ready">Modèle prêt</string>
+    <string name="message_starting_download">Démarrage du téléchargement pour %1$s</string>
     <string name="status_downloading">Téléchargement du modèle : %1$d%%</string>
     <string name="status_extracting">Extraction du modèle&#8230;</string>
     <string name="error_download_failed">Le téléchargement a échoué. Veuillez vérifier votre connexion Internet.</string>

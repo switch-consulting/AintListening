@@ -16,7 +16,13 @@
     <string name="dialog_download_title">Download Required</string>
     <string name="dialog_download_message">A speech model (~45MB) needs to be downloaded for offline transcription. Do you want to download it now from alphacephei.com?</string>
     <string name="button_download">Download</string>
+    <string name="button_remove">Remove</string>
     <string name="button_cancel">Cancel</string>
+    <string name="dialog_confirm_delete_title">Remove Model?</string>
+    <string name="dialog_confirm_delete_message">Are you sure you want to delete the %1$s model? You will need to download it again to use it offline.</string>
+    <string name="message_model_removed">Model removed</string>
+    <string name="message_model_ready">Model ready</string>
+    <string name="message_starting_download">Starting download for %1$s</string>
     <string name="status_downloading">Downloading model: %1$d%%</string>
     <string name="status_extracting">Extracting model&#8230;</string>
     <string name="error_download_failed">Download failed. Please check your internet connection.</string>
