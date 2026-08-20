@@ -30,19 +30,41 @@ public class ModelDownloader {
         Handler handler = new Handler(Looper.getMainLooper());
 
         new Thread(() -> {
+            Log.d("ModelDownloader", "Starting download thread for: " + downloadUrl);
+            HttpURLConnection connection = null;
             try {
-                URL url = new URL(downloadUrl);
-                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-                connection.setConnectTimeout(15000);
-                connection.setReadTimeout(15000);
-                connection.connect();
+                String currentUrl = downloadUrl;
+                int redirectCount = 0;
+                while (redirectCount < 5) {
+                    URL url = new URL(currentUrl);
+                    connection = (HttpURLConnection) url.openConnection();
+                    connection.setConnectTimeout(15000);
+                    connection.setReadTimeout(15000);
+                    connection.setInstanceFollowRedirects(true);
+                    
+                    int responseCode = connection.getResponseCode();
+                    Log.d("ModelDownloader", "URL: " + currentUrl + " -> Response: " + responseCode);
+
+                    if (responseCode == HttpURLConnection.HTTP_MOVED_PERM || 
+                        responseCode == HttpURLConnection.HTTP_MOVED_TEMP || 
+                        responseCode == HttpURLConnection.HTTP_SEE_OTHER ||
+                        responseCode == 307 || responseCode == 308) {
+                        
+                        currentUrl = connection.getHeaderField("Location");
+                        redirectCount++;
+                        connection.disconnect();
+                        continue;
+                    }
+                    break;
+                }
 
                 if (connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
-                    throw new Exception("Server returned HTTP " + connection.getResponseCode()
-                            + " " + connection.getResponseMessage());
+                    throw new Exception("Failed to connect or server returned error: " + 
+                            connection.getResponseCode());
                 }
 
                 int fileLength = connection.getContentLength();
+                Log.d("ModelDownloader", "File size: " + fileLength);
                 File tempZip = new File(targetBaseDir, "model_temp.zip");
 
                 try (InputStream input = new BufferedInputStream(connection.getInputStream());
@@ -70,7 +92,12 @@ public class ModelDownloader {
                 handler.post(callback::onSuccess);
 
             } catch (Exception e) {
+                Log.e("ModelDownloader", "Download error", e);
                 handler.post(() -> callback.onError(e));
+            } finally {
+                if (connection != null) {
+                    connection.disconnect();
+                }
             }
         }).start();
     }

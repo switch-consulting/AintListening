@@ -1,0 +1,34 @@
+<resources>
+    <string name="app_name">Ain\'t Listening</string>
+    <string name="intro_instruction">Partagez un message vocal WhatsApp (.opus) avec cette application pour le transcrire hors ligne.</string>
+    <string name="error_no_stream">Aucun flux audio trouvé dans l\'intention partagée.</string>
+    <string name="status_preparing">Préparation de l\'audio&#8230;</string>
+    <string name="status_converting">Conversion de l\'audio&#8230;</string>
+    <string name="error_conversion_failed">La conversion audio a échoué. Veuillez essayer un autre fichier.</string>
+    <string name="error_read_failed">Impossible de lire le fichier audio partagé.</string>
+    <string name="status_loading_model">Chargement du modèle vocal&#8230;</string>
+    <string name="status_transcribing">Transcription hors ligne&#8230;</string>
+    <string name="status_no_speech">Aucune parole reconnue.</string>
+    <string name="error_transcription_failed">La transcription a échoué. Vérifiez si le modèle est disponible.</string>
+    <string name="waiting_for_audio">En attente de l\'audio partagé&#8230;</string>
+    <string name="button_done">Terminé / Fermer</string>
+
+    <string name="dialog_download_title">Téléchargement requis</string>
+    <string name="dialog_download_message">Un modèle vocal (~45 Mo) doit être téléchargé pour la transcription hors ligne. Voulez-vous le télécharger maintenant depuis alphacephei.com ?</string>
+    <string name="button_download">Télécharger</string>
+    <string name="button_cancel">Annuler</string>
+    <string name="status_downloading">Téléchargement du modèle : %1$d%%</string>
+    <string name="status_extracting">Extraction du modèle&#8230;</string>
+    <string name="error_download_failed">Le téléchargement a échoué. Veuillez vérifier votre connexion Internet.</string>
+    <string name="error_model_setup_cancelled">Configuration annulée. L\'application ne peut pas fonctionner sans le modèle vocal.</string>
+
+    <string name="label_speech_model">Modèle vocal</string>
+    <string name="label_supported_languages">Langues actuellement disponibles</string>
+    <string name="status_no_models_installed">Aucun modèle vocal téléchargé. Appuyez sur Configurer pour en ajouter un.</string>
+    <string name="button_configure">Configurer</string>
+    <string name="dialog_select_transcription_language">Sélectionner la langue de transcription</string>
+    <string name="status_available">Disponible</string>
+    <string name="status_unavailable">Non trouvé</string>
+    <string name="status_unavailable_with_size">Non trouvé (%1$s)</string>
+    <string name="last_message_header">Dernier message converti :</string>
+</resources>

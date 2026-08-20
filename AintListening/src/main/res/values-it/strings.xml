@@ -1,0 +1,34 @@
+<resources>
+    <string name="app_name">Ain\'t Listening</string>
+    <string name="intro_instruction">Condividi un messaggio vocale di WhatsApp (.opus) con questa app per trascriverlo offline.</string>
+    <string name="error_no_stream">Nessun flusso audio trovato nell\'intent condiviso.</string>
+    <string name="status_preparing">Preparazione audio&#8230;</string>
+    <string name="status_converting">Conversione audio&#8230;</string>
+    <string name="error_conversion_failed">Conversione audio fallita. Prova con un altro file.</string>
+    <string name="error_read_failed">Impossibile leggere il file audio condiviso.</string>
+    <string name="status_loading_model">Caricamento del modello vocale&#8230;</string>
+    <string name="status_transcribing">Trascrizione offline&#8230;</string>
+    <string name="status_no_speech">Nessun discorso riconosciuto.</string>
+    <string name="error_transcription_failed">Trascrizione fallita. Verifica se il modello è disponibile.</string>
+    <string name="waiting_for_audio">In attesa dell\'audio condiviso&#8230;</string>
+    <string name="button_done">Fatto / Chiudi</string>
+
+    <string name="dialog_download_title">Download richiesto</string>
+    <string name="dialog_download_message">Un modello vocale (~45MB) deve essere scaricato per la trascrizione offline. Vuoi scaricarlo ora da alphacephei.com?</string>
+    <string name="button_download">Scarica</string>
+    <string name="button_cancel">Annulla</string>
+    <string name="status_downloading">Download del modello: %1$d%%</string>
+    <string name="status_extracting">Estrazione del modello&#8230;</string>
+    <string name="error_download_failed">Download fallito. Controlla la tua connessione internet.</string>
+    <string name="error_model_setup_cancelled">Configurazione annullata. L\'app non può funzionare senza il modello vocale.</string>
+
+    <string name="label_speech_model">Modello vocale</string>
+    <string name="label_supported_languages">Lingue attualmente disponibili</string>
+    <string name="status_no_models_installed">Nessun modello vocale scaricato. Tocca Configura per aggiungerne uno.</string>
+    <string name="button_configure">Configura</string>
+    <string name="dialog_select_transcription_language">Seleziona la lingua per la trascrizione</string>
+    <string name="status_available">Disponibile</string>
+    <string name="status_unavailable">Non trovato</string>
+    <string name="status_unavailable_with_size">Non trovato (%1$s)</string>
+    <string name="last_message_header">Ultimo messaggio convertito:</string>
+</resources>

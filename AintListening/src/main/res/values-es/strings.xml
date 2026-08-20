@@ -1,0 +1,34 @@
+<resources>
+    <string name="app_name">Ain\'t Listening</string>
+    <string name="intro_instruction">Comparte un mensaje de voz de WhatsApp (.opus) con esta aplicación para transcribirlo sin conexión.</string>
+    <string name="error_no_stream">No se encontró ningún flujo de audio en el intent compartido.</string>
+    <string name="status_preparing">Preparando audio&#8230;</string>
+    <string name="status_converting">Convirtiendo audio&#8230;</string>
+    <string name="error_conversion_failed">Fallo en la conversión de audio. Por favor, intenta con otro archivo.</string>
+    <string name="error_read_failed">No si pudo leer el archivo de audio compartido.</string>
+    <string name="status_loading_model">Cargando modelo de voz&#8230;</string>
+    <string name="status_transcribing">Transcribiendo sin conexión&#8230;</string>
+    <string name="status_no_speech">No se reconoció voz.</string>
+    <string name="error_transcription_failed">Fallo en la transcripción. Comprueba si el modelo está disponible.</string>
+    <string name="waiting_for_audio">Esperando audio compartido&#8230;</string>
+    <string name="button_done">Hecho / Cerrar</string>
+
+    <string name="dialog_download_title">Descarga requerida</string>
+    <string name="dialog_download_message">Se debe descargar un modelo de voz (~45MB) para la transcripción sin conexión. ¿Quieres descargarlo ahora desde alphacephei.com?</string>
+    <string name="button_download">Descargar</string>
+    <string name="button_cancel">Cancelar</string>
+    <string name="status_downloading">Descargando modelo: %1$d%%</string>
+    <string name="status_extracting">Extrayendo modelo&#8230;</string>
+    <string name="error_download_failed">Fallo en la descarga. Por favor, comprueba tu conexión a internet.</string>
+    <string name="error_model_setup_cancelled">Configuración cancelada. La aplicación no puede funcionar sin el modelo de voz.</string>
+
+    <string name="label_speech_model">Modelo de voz</string>
+    <string name="label_supported_languages">Idiomas disponibles actualmente</string>
+    <string name="status_no_models_installed">Aún no se han descargado modelos de voz. Toca Configurar para añadir uno.</string>
+    <string name="button_configure">Configurar</string>
+    <string name="dialog_select_transcription_language">Seleccionar idioma para la transcripción</string>
+    <string name="status_available">Disponible</string>
+    <string name="status_unavailable">No encontrado</string>
+    <string name="status_unavailable_with_size">No encontrado (%1$s)</string>
+    <string name="last_message_header">Último mensaje convertido:</string>
+</resources>

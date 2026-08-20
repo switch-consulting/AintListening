@@ -33,11 +33,10 @@
             android:padding="12dp">
 
             <ImageView
-                android:id="@+id/modelStatusIcon"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
-                android:src="@drawable/ic_error"
-                app:tint="@android:color/holo_red_dark"
+                android:src="@drawable/ic_language"
+                app:tint="?attr/colorPrimary"
                 android:contentDescription="@null" />
 
             <LinearLayout
@@ -50,27 +49,30 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/label_german_model"
+                    android:text="@string/label_supported_languages"
                     android:textStyle="bold"
                     android:textSize="14sp" />
 
                 <TextView
-                    android:id="@+id/modelStatusText"
+                    android:id="@+id/supportedLanguagesText"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/status_unavailable"
-                    android:textSize="12sp" />
+                    android:textSize="12sp"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    xmlns:tools="http://schemas.android.com/tools"
+                    tools:text="Deutsch, English, Français, Italiano, Español" />
             </LinearLayout>
 
             <com.google.android.material.button.MaterialButton
-                android:id="@+id/inlineDownloadButton"
+                android:id="@+id/configureButton"
                 style="@style/Widget.Material3.Button.TextButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/button_download"
-                android:visibility="gone" />
+                android:text="@string/button_configure" />
 
         </LinearLayout>
+
     </com.google.android.material.card.MaterialCardView>
 
     <ScrollView

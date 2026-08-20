@@ -5,13 +5,11 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
 import androidx.core.content.IntentCompat;
 
 import com.google.android.material.button.MaterialButton;
@@ -23,44 +21,67 @@ import org.vosk.Recognizer;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "AintListening";
-    private static final String MODEL_NAME = "vosk-model-small-de-0.15";
-    private static final String MODEL_URL = "https://alphacephei.com/vosk/models/vosk-model-small-de-0.15.zip";
     private static final String PREFS_NAME = "AintListeningPrefs";
     private static final String KEY_LAST_MESSAGE = "last_message";
 
     private LinearProgressIndicator progressIndicator;
     private TextView transcriptTextView;
-    private ImageView modelStatusIcon;
-    private TextView modelStatusText;
-    private MaterialButton inlineDownloadButton;
 
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
     private Model voskModel;
-    private boolean isDownloading = false;
+    private int selectedModelIndex = 0;
+    private int loadedModelIndex = -1; // Track which model is actually in memory
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        // Keep it for German now as requested
+        selectedModelIndex = 0;
+
         progressIndicator = findViewById(R.id.progressIndicator);
         transcriptTextView = findViewById(R.id.transcriptTextView);
-        modelStatusIcon = findViewById(R.id.modelStatusIcon);
-        modelStatusText = findViewById(R.id.modelStatusText);
-        inlineDownloadButton = findViewById(R.id.inlineDownloadButton);
+        MaterialButton configureButton = findViewById(R.id.configureButton);
         MaterialButton closeButton = findViewById(R.id.closeButton);
 
         closeButton.setOnClickListener(v -> finish());
-        inlineDownloadButton.setOnClickListener(v -> startDownload());
+        configureButton.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, ModelManagementActivity.class);
+            startActivity(intent);
+        });
 
-        updateModelStatusUI();
+        updateAvailableLanguagesUI();
         handleIncomingIntent(getIntent());
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        updateAvailableLanguagesUI();
+    }
+
+    private void updateAvailableLanguagesUI() {
+        TextView supportedLanguagesText = findViewById(R.id.supportedLanguagesText);
+        List<String> available = ModelManager.getAvailableLanguageNames(this);
+        
+        if (available.isEmpty()) {
+            supportedLanguagesText.setText(R.string.status_no_models_installed);
+        } else {
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < available.size(); i++) {
+                if (i > 0) sb.append(", ");
+                sb.append(available.get(i));
+            }
+            supportedLanguagesText.setText(sb.toString());
+        }
     }
 
     @Override
@@ -76,78 +97,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
         setIntent(intent);
-        if (!isDownloading) {
-            handleIncomingIntent(intent);
-        }
-    }
-
-    private boolean isModelMissing() {
-        File modelDir = new File(getFilesDir(), MODEL_NAME);
-        return !modelDir.exists() || !modelDir.isDirectory();
-    }
-
-    private void startDownload() {
-        isDownloading = true;
-        inlineDownloadButton.setEnabled(false);
-        progressIndicator.setVisibility(View.VISIBLE);
-        progressIndicator.setIndeterminate(false);
-        progressIndicator.setProgress(0);
-        transcriptTextView.setText(getString(R.string.status_downloading, 0));
-
-        ModelDownloader.downloadAndExtract(MODEL_URL, getFilesDir(), new ModelDownloader.Callback() {
-            @Override
-            public void onProgress(int percentage) {
-                runOnUiThread(() -> {
-                    progressIndicator.setProgress(percentage);
-                    transcriptTextView.setText(getString(R.string.status_downloading, percentage));
-                });
-            }
-
-            @Override
-            public void onExtracting() {
-                runOnUiThread(() -> {
-                    progressIndicator.setIndeterminate(true);
-                    transcriptTextView.setText(R.string.status_extracting);
-                });
-            }
-
-            @Override
-            public void onSuccess() {
-                runOnUiThread(() -> {
-                    isDownloading = false;
-                    inlineDownloadButton.setEnabled(true);
-                    progressIndicator.setVisibility(View.GONE);
-                    Toast.makeText(MainActivity.this, "Model ready", Toast.LENGTH_SHORT).show();
-                    updateModelStatusUI();
-                    handleIncomingIntent(getIntent());
-                });
-            }
-
-            @Override
-            public void onError(Exception e) {
-                runOnUiThread(() -> {
-                    isDownloading = false;
-                    inlineDownloadButton.setEnabled(true);
-                    progressIndicator.setVisibility(View.GONE);
-                    showError(getString(R.string.error_download_failed));
-                    updateModelStatusUI();
-                });
-            }
-        });
-    }
-
-    private void updateModelStatusUI() {
-        if (isModelMissing()) {
-            modelStatusIcon.setImageResource(R.drawable.ic_error);
-            modelStatusIcon.setColorFilter(ContextCompat.getColor(this, android.R.color.holo_red_dark));
-            modelStatusText.setText(R.string.status_unavailable);
-            inlineDownloadButton.setVisibility(View.VISIBLE);
-        } else {
-            modelStatusIcon.setImageResource(R.drawable.ic_check_circle);
-            modelStatusIcon.setColorFilter(ContextCompat.getColor(this, android.R.color.holo_green_dark));
-            modelStatusText.setText(R.string.status_available);
-            inlineDownloadButton.setVisibility(View.GONE);
-        }
+        handleIncomingIntent(intent);
     }
 
     private void handleIncomingIntent(Intent intent) {
@@ -167,6 +117,52 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
+        checkModelsAndProceed(audioUri);
+    }
+
+    private void checkModelsAndProceed(Uri audioUri) {
+        List<Integer> availableIndices = new java.util.ArrayList<>();
+        for (int i = 0; i < ModelManager.SUPPORTED_MODELS.length; i++) {
+            if (ModelManager.isModelDownloaded(this, i)) {
+                availableIndices.add(i);
+            }
+        }
+
+        if (availableIndices.isEmpty()) {
+            showError(getString(R.string.status_no_models_installed));
+            return;
+        }
+
+        if (availableIndices.size() == 1) {
+            // Only one model, use it automatically
+            selectedModelIndex = availableIndices.get(0);
+            startTranscription(audioUri);
+        } else {
+            // Multiple models, ask the user
+            showLanguageSelectionDialog(availableIndices, audioUri);
+        }
+    }
+
+    private void showLanguageSelectionDialog(List<Integer> availableIndices, Uri audioUri) {
+        String[] languages = new String[availableIndices.size()];
+        for (int i = 0; i < availableIndices.size(); i++) {
+            languages[i] = ModelManager.SUPPORTED_MODELS[availableIndices.get(i)].displayName;
+        }
+
+        new com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
+                .setTitle(R.string.dialog_select_transcription_language)
+                .setItems(languages, (dialog, which) -> {
+                    selectedModelIndex = availableIndices.get(which);
+                    startTranscription(audioUri);
+                })
+                .setNegativeButton(R.string.button_cancel, (dialog, which) -> {
+                    progressIndicator.setVisibility(View.GONE);
+                    transcriptTextView.setText(R.string.intro_instruction);
+                })
+                .show();
+    }
+
+    private void startTranscription(Uri audioUri) {
         progressIndicator.setVisibility(View.VISIBLE);
         progressIndicator.setIndeterminate(true);
         transcriptTextView.setText(R.string.status_preparing);
@@ -198,8 +194,21 @@ public class MainActivity extends AppCompatActivity {
     private void runVoskRecognition(@NonNull File wavFile) {
         try {
             runOnUiThread(() -> transcriptTextView.setText(R.string.status_loading_model));
+            
+            // Check if we need to load a different model or if none is loaded
+            if (voskModel != null) {
+                // Simplified check: since Vosk Model doesn't expose its path easily,
+                // we'll reload if the index might have changed.
+                // A better way is to track which index is currently loaded.
+                if (loadedModelIndex != selectedModelIndex) {
+                    voskModel.close();
+                    voskModel = null;
+                }
+            }
+
             if (voskModel == null) {
-                voskModel = loadGermanModel();
+                voskModel = loadSpeechModel();
+                loadedModelIndex = selectedModelIndex;
             }
 
             runOnUiThread(() -> transcriptTextView.setText(R.string.status_transcribing));
@@ -221,8 +230,8 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private Model loadGermanModel() throws Exception {
-        File modelDir = new File(getFilesDir(), MODEL_NAME);
+    private Model loadSpeechModel() throws Exception {
+        File modelDir = new File(getFilesDir(), ModelManager.SUPPORTED_MODELS[selectedModelIndex].name);
         if (!modelDir.exists() || !modelDir.isDirectory()) {
             throw new IllegalStateException("Vosk model not found at: " + modelDir.getAbsolutePath());
         }

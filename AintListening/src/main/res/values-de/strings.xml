@@ -14,16 +14,21 @@
     <string name="button_done">Fertig / Schließen</string>
 
     <string name="dialog_download_title">Download erforderlich</string>
-    <string name="dialog_download_message">Das deutsche Sprachmodell (~45MB) muss für die Offline-Transkription heruntergeladen werden. Möchtest du es jetzt von alphacephei.com herunterladen?</string>
+    <string name="dialog_download_message">Ein Sprachmodell (~45MB) muss für die Offline-Transkription heruntergeladen werden. Möchtest du es jetzt von alphacephei.com herunterladen?</string>
     <string name="button_download">Herunterladen</string>
     <string name="button_cancel">Abbrechen</string>
     <string name="status_downloading">Modell wird heruntergeladen: %1$d%%</string>
     <string name="status_extracting">Modell wird entpackt&#8230;</string>
-    <string name="error_download_failed">Download fehlgeschlagen. Bitte überprüfe deine Internetverbindung.</string>
+    <string name="error_download_failed">Download failed. Bitte überprüfe deine Internetverbindung.</string>
     <string name="error_model_setup_cancelled">Einrichtung abgebrochen. Die App kann ohne das Sprachmodell nicht funktionieren.</string>
 
-    <string name="label_german_model">Deutsches Sprachmodell</string>
+    <string name="label_speech_model">Sprachmodell</string>
+    <string name="label_supported_languages">Aktuell verfügbare Sprachen</string>
+    <string name="status_no_models_installed">Noch keine Sprachmodelle heruntergeladen. Tippe auf Konfigurieren.</string>
+    <string name="button_configure">Konfigurieren</string>
+    <string name="dialog_select_transcription_language">Sprache für Transkription wählen</string>
     <string name="status_available">Verfügbar</string>
-    <string name="status_unavailable">Nicht gefunden (~45MB)</string>
+    <string name="status_unavailable">Nicht gefunden</string>
+    <string name="status_unavailable_with_size">Nicht gefunden (%1$s)</string>
     <string name="last_message_header">Zuletzt konvertierte Nachricht:</string>
 </resources>

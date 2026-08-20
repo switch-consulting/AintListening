@@ -26,6 +26,11 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:name=".ModelManagementActivity"
+            android:label="@string/label_speech_model"
+            android:parentActivityName=".MainActivity" />
+
     </application>
 
 </manifest>
