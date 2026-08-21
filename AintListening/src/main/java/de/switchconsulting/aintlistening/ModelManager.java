@@ -37,7 +37,7 @@ class ModelManager {
 
     /** The list of smart formatting (punctuation) models supported by the application. */
     static final ModelInfo[] SUPPORTED_SMART_FORMATTING_MODELS = {
-            new ModelInfo("punctuation-model-silero", "https://models.silero.ai/models/punctuation/v2_recasepunc.zip", "Smart Formatting (EN, DE, ES, RU)", "40MB")
+            new ModelInfo("punctuation-model-de", "https://github.com/switch-consulting/AintListening/raw/refs/heads/main/models/ONNXModel_de.zip?download=", "Smart Formatting (DE)", "200MB")
     };
 
     /**

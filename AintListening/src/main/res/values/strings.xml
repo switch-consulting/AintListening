@@ -53,5 +53,5 @@
     <string name="status_unavailable">Not Found</string>
     <string name="status_unavailable_with_size">Not Found (%1$s)</string>
     <string name="last_message_header">Last converted message:</string>
-    <string name="label_smart_formatting">Smart Formatting (EN, DE, ES, RU)</string>
+    <string name="label_smart_formatting">Smart Formatting (DE)</string>
 </resources>
