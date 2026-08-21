@@ -12,10 +12,22 @@ import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
+/**
+ * Utility class for decoding audio files (primarily Opus) to a WAV format
+ * compatible with the Vosk speech recognition engine (16kHz, Mono, PCM 16-bit).
+ */
 public class OpusToWavDecoder {
 
     private static final long TIMEOUT_US = 5000;
 
+    /**
+     * Decodes an audio file from a URI and saves it as a 16kHz mono WAV file.
+     *
+     * @param context    The context.
+     * @param inputUri   The URI of the input audio file.
+     * @param outputFile The file where the decoded WAV should be saved.
+     * @return True if the decoding and conversion were successful, false otherwise.
+     */
     public static boolean decodeOpusToWav(Context context, Uri inputUri, File outputFile) {
         MediaExtractor extractor = new MediaExtractor();
         MediaCodec decoder = null;
@@ -115,6 +127,14 @@ public class OpusToWavDecoder {
         }
     }
 
+    /**
+     * Processes PCM data to convert it to 16kHz mono.
+     *
+     * @param inputPcm   The input PCM bytes.
+     * @param sampleRate The native sample rate of the input.
+     * @param channels   The number of channels in the input.
+     * @return The processed PCM bytes (16kHz, mono).
+     */
     private static byte[] processPcmTo16kMono(byte[] inputPcm, int sampleRate, int channels) {
         short[] shorts = new short[inputPcm.length / 2];
         ByteBuffer.wrap(inputPcm).order(ByteOrder.LITTLE_ENDIAN).asShortBuffer().get(shorts);
@@ -139,10 +159,28 @@ public class OpusToWavDecoder {
         return outputBytes;
     }
 
+    /**
+     * Writes a placeholder WAV header to the output stream.
+     *
+     * @param out        The output stream.
+     * @param pcmLen     The length of the PCM data (can be 0 initially).
+     * @param sampleRate The sample rate.
+     * @param channels   The number of channels.
+     * @throws Exception If an error occurs during writing.
+     */
     private static void writeWavHeader(FileOutputStream out, int pcmLen, int sampleRate, int channels) throws Exception {
         out.write(createWavHeader(pcmLen, sampleRate, channels), 0, 44);
     }
 
+    /**
+     * Updates the WAV header in the file with the correct PCM data length.
+     *
+     * @param wavFile    The WAV file to update.
+     * @param pcmLen     The actual length of the PCM data written.
+     * @param sampleRate The sample rate.
+     * @param channels   The number of channels.
+     * @throws Exception If an error occurs during updating.
+     */
     private static void updateWavHeader(File wavFile, int pcmLen, int sampleRate, int channels) throws Exception {
         byte[] header = createWavHeader(pcmLen, sampleRate, channels);
         try (RandomAccessFile raf = new RandomAccessFile(wavFile, "rw")) {
@@ -151,6 +189,14 @@ public class OpusToWavDecoder {
         }
     }
 
+    /**
+     * Creates a 44-byte WAV (RIFF) header.
+     *
+     * @param pcmLen     The length of the PCM data.
+     * @param sampleRate The sample rate.
+     * @param channels   The number of channels.
+     * @return The header byte array.
+     */
     private static byte[] createWavHeader(int pcmLen, int sampleRate, int channels) {
         long totalDataLen = pcmLen + 36;
         long byteRate = (long) sampleRate * channels * 2;

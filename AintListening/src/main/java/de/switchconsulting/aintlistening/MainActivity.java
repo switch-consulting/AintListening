@@ -25,6 +25,10 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+/**
+ * The main activity of the application that handles audio transcription using Vosk.
+ * It processes incoming audio shares (Intents) and displays the resulting transcript.
+ */
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "AintListening";
@@ -39,6 +43,12 @@ public class MainActivity extends AppCompatActivity {
     private int selectedModelIndex = 0;
     private int loadedModelIndex = -1; // Track which model is actually in memory
 
+    /**
+     * Initializes the activity, sets up UI components, and handles any incoming intent.
+     *
+     * @param savedInstanceState If the activity is being re-initialized after previously being shut down,
+     *                           this Bundle contains the data it most recently supplied.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -62,12 +72,18 @@ public class MainActivity extends AppCompatActivity {
         handleIncomingIntent(getIntent());
     }
 
+    /**
+     * Refreshes the UI when the activity resumes, specifically the list of available languages.
+     */
     @Override
     protected void onResume() {
         super.onResume();
         updateAvailableLanguagesUI();
     }
 
+    /**
+     * Updates the UI to show which transcription languages (models) are currently installed.
+     */
     private void updateAvailableLanguagesUI() {
         TextView supportedLanguagesText = findViewById(R.id.supportedLanguagesText);
         List<String> available = ModelManager.getAvailableLanguageNames(this);
@@ -84,6 +100,9 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Shuts down the executor service and closes the Vosk model when the activity is destroyed.
+     */
     @Override
     protected void onDestroy() {
         super.onDestroy();
@@ -93,6 +112,11 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Handles new intents received while the activity is running.
+     *
+     * @param intent The new intent that was started for the activity.
+     */
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
@@ -100,6 +124,11 @@ public class MainActivity extends AppCompatActivity {
         handleIncomingIntent(intent);
     }
 
+    /**
+     * Processes an incoming intent, checking if it contains an audio stream to transcribe.
+     *
+     * @param intent The intent to handle.
+     */
     private void handleIncomingIntent(Intent intent) {
         String action = intent.getAction();
         String type = intent.getType();
@@ -120,6 +149,12 @@ public class MainActivity extends AppCompatActivity {
         checkModelsAndProceed(audioUri);
     }
 
+    /**
+     * Checks which models are downloaded and decides whether to start transcription
+     * or show a language selection dialog.
+     *
+     * @param audioUri The URI of the audio to transcribe.
+     */
     private void checkModelsAndProceed(Uri audioUri) {
         List<Integer> availableIndices = new java.util.ArrayList<>();
         for (int i = 0; i < ModelManager.SUPPORTED_MODELS.length; i++) {
@@ -143,6 +178,12 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Shows a dialog allowing the user to select the language for transcription.
+     *
+     * @param availableIndices The indices of available models in ModelManager.SUPPORTED_MODELS.
+     * @param audioUri         The URI of the audio to transcribe.
+     */
     private void showLanguageSelectionDialog(List<Integer> availableIndices, Uri audioUri) {
         String[] languages = new String[availableIndices.size()];
         for (int i = 0; i < availableIndices.size(); i++) {
@@ -162,6 +203,11 @@ public class MainActivity extends AppCompatActivity {
                 .show();
     }
 
+    /**
+     * Starts the transcription process by updating the UI and executing the transcription task.
+     *
+     * @param audioUri The URI of the audio to transcribe.
+     */
     private void startTranscription(Uri audioUri) {
         progressIndicator.setVisibility(View.VISIBLE);
         progressIndicator.setIndeterminate(true);
@@ -170,6 +216,11 @@ public class MainActivity extends AppCompatActivity {
         executorService.execute(() -> transcribeFromUri(audioUri));
     }
 
+    /**
+     * Decodes the audio from a URI to a WAV file suitable for Vosk and then runs recognition.
+     *
+     * @param audioUri The URI of the audio to transcribe.
+     */
     private void transcribeFromUri(@NonNull Uri audioUri) {
         File wavFile = new File(getCacheDir(), "incoming_audio_16k_mono.wav");
 
@@ -191,6 +242,11 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Loads the speech model (if needed) and runs the Vosk recognition on the given WAV file.
+     *
+     * @param wavFile The WAV file to recognize.
+     */
     private void runVoskRecognition(@NonNull File wavFile) {
         try {
             runOnUiThread(() -> transcriptTextView.setText(R.string.status_loading_model));
@@ -230,6 +286,12 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Loads the Vosk Model object from the filesystem for the currently selected language.
+     *
+     * @return The initialized Vosk Model.
+     * @throws Exception If the model directory is not found or loading fails.
+     */
     private Model loadSpeechModel() throws Exception {
         File modelDir = new File(getFilesDir(), ModelManager.SUPPORTED_MODELS[selectedModelIndex].name);
         if (!modelDir.exists() || !modelDir.isDirectory()) {
@@ -238,6 +300,14 @@ public class MainActivity extends AppCompatActivity {
         return new Model(modelDir.getAbsolutePath());
     }
 
+    /**
+     * Performs speech recognition on a WAV file using the provided Vosk model.
+     *
+     * @param model   The Vosk Model to use.
+     * @param wavFile The WAV file to recognize.
+     * @return The full transcribed text.
+     * @throws Exception If an error occurs during recognition.
+     */
     private String recognizeWav(@NonNull Model model, @NonNull File wavFile) throws Exception {
         StringBuilder fullText = new StringBuilder();
 
@@ -274,10 +344,21 @@ public class MainActivity extends AppCompatActivity {
         return fullText.toString();
     }
 
+    /**
+     * Updates the transcript TextView with the provided text on the UI thread.
+     *
+     * @param text The text to display.
+     */
     private void updateTranscriptUI(String text) {
         runOnUiThread(() -> transcriptTextView.setText(text.trim()));
     }
 
+    /**
+     * Extracts the partial transcription text from a Vosk result JSON string.
+     *
+     * @param json The JSON string returned by the recognizer.
+     * @return The partial text, or an empty string if not found.
+     */
     private String getPartialTextFromJson(String json) {
         if (json == null || json.trim().isEmpty()) return "";
         try {
@@ -288,6 +369,12 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Appends the final transcription text from a Vosk result JSON string to a StringBuilder.
+     *
+     * @param out  The StringBuilder to append to.
+     * @param json The JSON string returned by the recognizer.
+     */
     private void appendTextFromResultJson(@NonNull StringBuilder out, String json) {
         if (json == null || json.trim().isEmpty()) return;
         try {
@@ -302,6 +389,11 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Shows an error message in the UI and as a Toast.
+     *
+     * @param message The error message to display.
+     */
     private void showError(@NonNull String message) {
         runOnUiThread(() -> {
             progressIndicator.setVisibility(View.GONE);
@@ -310,6 +402,11 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Saves the last transcribed message to SharedPreferences.
+     *
+     * @param transcript The transcription text to save.
+     */
     private void saveLastMessage(String transcript) {
         getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
                 .edit()
@@ -317,6 +414,9 @@ public class MainActivity extends AppCompatActivity {
                 .apply();
     }
 
+    /**
+     * Loads and displays the last transcribed message from SharedPreferences.
+     */
     private void loadLastMessage() {
         String lastMessage = getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
                 .getString(KEY_LAST_MESSAGE, null);

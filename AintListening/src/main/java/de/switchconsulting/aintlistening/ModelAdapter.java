@@ -15,10 +15,29 @@ import com.google.android.material.button.MaterialButton;
 
 import java.util.List;
 
+/**
+ * A RecyclerView adapter for displaying a list of speech models and their current status (installed or not).
+ * It provides buttons for downloading or deleting models.
+ */
 public class ModelAdapter extends RecyclerView.Adapter<ModelAdapter.ViewHolder> {
 
+    /**
+     * Interface for handling interactions with model items in the list.
+     */
     public interface InteractionListener {
+        /**
+         * Called when the download button is clicked for a model.
+         *
+         * @param index The index of the model in the list.
+         */
         void onDownloadClicked(int index);
+
+        /**
+         * Called when the delete button is clicked for a model.
+         *
+         * @param index       The index of the model in the list.
+         * @param displayName The display name of the model.
+         */
         void onDeleteClicked(int index, String displayName);
     }
 
@@ -26,11 +45,23 @@ public class ModelAdapter extends RecyclerView.Adapter<ModelAdapter.ViewHolder> 
     private final InteractionListener listener;
     private boolean isBusy = false;
 
+    /**
+     * Constructs a new ModelAdapter.
+     *
+     * @param models   The list of models to display.
+     * @param listener The listener for interaction events.
+     */
     public ModelAdapter(List<ModelInfo> models, InteractionListener listener) {
         this.models = models;
         this.listener = listener;
     }
 
+    /**
+     * Sets whether the adapter is in a busy state (e.g., during a download).
+     * Disables or enables interaction buttons accordingly.
+     *
+     * @param busy True if the adapter should be busy, false otherwise.
+     */
     public void setBusy(boolean busy) {
         if (this.isBusy != busy) {
             this.isBusy = busy;
@@ -38,6 +69,9 @@ public class ModelAdapter extends RecyclerView.Adapter<ModelAdapter.ViewHolder> 
         }
     }
 
+    /**
+     * Refreshes the entire list of models.
+     */
     public void refresh() {
         notifyItemRangeChanged(0, getItemCount());
     }
@@ -61,6 +95,9 @@ public class ModelAdapter extends RecyclerView.Adapter<ModelAdapter.ViewHolder> 
         return models.size();
     }
 
+    /**
+     * ViewHolder class for model list items.
+     */
     public static class ViewHolder extends RecyclerView.ViewHolder {
         private final ImageView icon;
         private final TextView nameText;
@@ -68,6 +105,11 @@ public class ModelAdapter extends RecyclerView.Adapter<ModelAdapter.ViewHolder> 
         private final MaterialButton downloadButton;
         private final MaterialButton deleteButton;
 
+        /**
+         * Constructs a new ViewHolder.
+         *
+         * @param itemView The view for the list item.
+         */
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             icon = itemView.findViewById(R.id.modelStatusIcon);
@@ -77,6 +119,14 @@ public class ModelAdapter extends RecyclerView.Adapter<ModelAdapter.ViewHolder> 
             deleteButton = itemView.findViewById(R.id.inlineDeleteButton);
         }
 
+        /**
+         * Binds a model's data to the view.
+         *
+         * @param info     The model information.
+         * @param index    The index of the model in the list.
+         * @param isBusy   Whether the adapter is currently busy.
+         * @param listener The listener for interaction events.
+         */
         public void bind(ModelInfo info, int index, boolean isBusy, InteractionListener listener) {
             Context context = itemView.getContext();
             nameText.setText(info.displayName);

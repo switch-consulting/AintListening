@@ -13,6 +13,10 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.progressindicator.LinearProgressIndicator;
 
+/**
+ * Activity for managing speech models. Allows users to view available models,
+ * download new ones, and delete installed ones.
+ */
 public class ModelManagementActivity extends AppCompatActivity {
 
     private static final String TAG = "ModelManagement";
@@ -21,6 +25,11 @@ public class ModelManagementActivity extends AppCompatActivity {
     private ModelAdapter adapter;
     private ModelManagementViewModel viewModel;
 
+    /**
+     * Initializes the activity, sets up the ViewModel, and UI components.
+     *
+     * @param savedInstanceState The saved instance state.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -41,6 +50,9 @@ public class ModelManagementActivity extends AppCompatActivity {
         updateModelStatusUI();
     }
 
+    /**
+     * Configures the RecyclerView and its adapter.
+     */
     private void setupRecyclerView() {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         adapter = new ModelAdapter(java.util.Arrays.asList(ModelManager.SUPPORTED_MODELS), new ModelAdapter.InteractionListener() {
@@ -59,6 +71,11 @@ public class ModelManagementActivity extends AppCompatActivity {
         recyclerView.setAdapter(adapter);
     }
 
+    /**
+     * Handles changes in the download state reported by the ViewModel.
+     *
+     * @param state The new DownloadState.
+     */
     private void handleDownloadState(DownloadState state) {
         if (state == null) return;
         switch (state.status) {
@@ -88,6 +105,11 @@ public class ModelManagementActivity extends AppCompatActivity {
         updateModelStatusUI();
     }
 
+    /**
+     * Initiates the download of a model at the specified index.
+     *
+     * @param index The index of the model in ModelManager.SUPPORTED_MODELS.
+     */
     private void startDownload(int index) {
         if (!NetworkUtils.isOnline(this)) {
             Toast.makeText(this, R.string.error_no_internet, Toast.LENGTH_LONG).show();
@@ -97,6 +119,9 @@ public class ModelManagementActivity extends AppCompatActivity {
         viewModel.startDownload(index);
     }
 
+    /**
+     * Updates the UI to reflect the current installation status of all models.
+     */
     private void updateModelStatusUI() {
         DownloadState currentState = viewModel.downloadState.getValue();
         boolean isBusy = currentState != null && currentState.status != DownloadState.Status.IDLE;
@@ -107,6 +132,12 @@ public class ModelManagementActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Shows a confirmation dialog before deleting a model.
+     *
+     * @param index       The index of the model to delete.
+     * @param displayName The display name of the model.
+     */
     private void confirmDelete(int index, String displayName) {
         new com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
                 .setTitle(R.string.dialog_confirm_delete_title)
