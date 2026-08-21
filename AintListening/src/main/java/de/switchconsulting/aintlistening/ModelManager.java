@@ -35,16 +35,21 @@ class ModelManager {
             new ModelInfo("vosk-model-small-it-0.22", "https://alphacephei.com/vosk/models/vosk-model-small-it-0.22.zip", "Italiano", "48MB")
     };
 
+    /** The list of smart formatting (punctuation) models supported by the application. */
+    static final ModelInfo[] SUPPORTED_SMART_FORMATTING_MODELS = {
+            new ModelInfo("punctuation-model-silero", "https://models.silero.ai/models/punctuation/v2_recasepunc.zip", "Smart Formatting (EN, DE, ES, RU)", "40MB")
+    };
+
     /**
-     * Checks if a model at the given index is already downloaded and present on the device.
+     * Checks if a model is already downloaded and present on the device.
      *
      * @param context The context.
-     * @param index   The index of the model in SUPPORTED_MODELS.
+     * @param info    The model information.
      * @return True if the model directory exists and is a directory, false otherwise.
      */
-    static boolean isModelDownloaded(Context context, int index) {
-        if (index < 0 || index >= SUPPORTED_MODELS.length) return false;
-        File modelDir = new File(context.getFilesDir(), SUPPORTED_MODELS[index].name);
+    static boolean isModelDownloaded(Context context, ModelInfo info) {
+        if (info == null) return false;
+        File modelDir = new File(context.getFilesDir(), info.name);
         return modelDir.exists() && modelDir.isDirectory();
     }
 
@@ -56,24 +61,24 @@ class ModelManager {
      */
     static List<String> getAvailableLanguageNames(Context context) {
         List<String> available = new ArrayList<>();
-        for (int i = 0; i < SUPPORTED_MODELS.length; i++) {
-            if (isModelDownloaded(context, i)) {
-                available.add(SUPPORTED_MODELS[i].displayName);
+        for (ModelInfo info : SUPPORTED_MODELS) {
+            if (isModelDownloaded(context, info)) {
+                available.add(info.displayName);
             }
         }
         return available;
     }
 
     /**
-     * Deletes the model files for the model at the specified index.
+     * Deletes the model files for the specified model.
      *
      * @param context The context.
-     * @param index   The index of the model to delete.
+     * @param info    The model information to delete.
      * @return True if the model was successfully deleted, false otherwise.
      */
-    static boolean deleteModel(Context context, int index) {
-        if (index < 0 || index >= SUPPORTED_MODELS.length) return false;
-        File modelDir = new File(context.getFilesDir(), SUPPORTED_MODELS[index].name);
+    static boolean deleteModel(Context context, ModelInfo info) {
+        if (info == null) return false;
+        File modelDir = new File(context.getFilesDir(), info.name);
         return deleteRecursive(modelDir);
     }
 

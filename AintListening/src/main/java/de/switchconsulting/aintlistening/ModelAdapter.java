@@ -44,17 +44,16 @@ public class ModelAdapter extends RecyclerView.Adapter<ModelAdapter.ViewHolder> 
         /**
          * Called when the download button is clicked for a model.
          *
-         * @param index The index of the model in the list.
+         * @param info The model information.
          */
-        void onDownloadClicked(int index);
+        void onDownloadClicked(ModelInfo info);
 
         /**
          * Called when the delete button is clicked for a model.
          *
-         * @param index       The index of the model in the list.
-         * @param displayName The display name of the model.
+         * @param info The model information.
          */
-        void onDeleteClicked(int index, String displayName);
+        void onDeleteClicked(ModelInfo info);
     }
 
     private final List<ModelInfo> models;
@@ -103,7 +102,7 @@ public class ModelAdapter extends RecyclerView.Adapter<ModelAdapter.ViewHolder> 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         ModelInfo model = models.get(position);
-        holder.bind(model, position, isBusy, listener);
+        holder.bind(model, isBusy, listener);
     }
 
     @Override
@@ -139,15 +138,14 @@ public class ModelAdapter extends RecyclerView.Adapter<ModelAdapter.ViewHolder> 
          * Binds a model's data to the view.
          *
          * @param info     The model information.
-         * @param index    The index of the model in the list.
          * @param isBusy   Whether the adapter is currently busy.
          * @param listener The listener for interaction events.
          */
-        public void bind(ModelInfo info, int index, boolean isBusy, InteractionListener listener) {
+        public void bind(ModelInfo info, boolean isBusy, InteractionListener listener) {
             Context context = itemView.getContext();
             nameText.setText(info.displayName);
 
-            boolean isDownloaded = ModelManager.isModelDownloaded(context, index);
+            boolean isDownloaded = ModelManager.isModelDownloaded(context, info);
 
             if (!isDownloaded) {
                 icon.setImageResource(R.drawable.ic_error);
@@ -155,7 +153,7 @@ public class ModelAdapter extends RecyclerView.Adapter<ModelAdapter.ViewHolder> 
                 statusText.setText(context.getString(R.string.status_unavailable_with_size, info.size));
                 downloadButton.setVisibility(View.VISIBLE);
                 downloadButton.setEnabled(!isBusy);
-                downloadButton.setOnClickListener(v -> listener.onDownloadClicked(index));
+                downloadButton.setOnClickListener(v -> listener.onDownloadClicked(info));
                 deleteButton.setVisibility(View.GONE);
             } else {
                 icon.setImageResource(R.drawable.ic_check_circle);
@@ -164,7 +162,7 @@ public class ModelAdapter extends RecyclerView.Adapter<ModelAdapter.ViewHolder> 
                 downloadButton.setVisibility(View.GONE);
                 deleteButton.setVisibility(View.VISIBLE);
                 deleteButton.setEnabled(!isBusy);
-                deleteButton.setOnClickListener(v -> listener.onDeleteClicked(index, info.displayName));
+                deleteButton.setOnClickListener(v -> listener.onDeleteClicked(info));
             }
         }
     }

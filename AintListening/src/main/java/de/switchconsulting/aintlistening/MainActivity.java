@@ -174,7 +174,7 @@ public class MainActivity extends AppCompatActivity {
     private void checkModelsAndProceed(Uri audioUri) {
         List<Integer> availableIndices = new java.util.ArrayList<>();
         for (int i = 0; i < ModelManager.SUPPORTED_MODELS.length; i++) {
-            if (ModelManager.isModelDownloaded(this, i)) {
+            if (ModelManager.isModelDownloaded(this, ModelManager.SUPPORTED_MODELS[i])) {
                 availableIndices.add(i);
             }
         }

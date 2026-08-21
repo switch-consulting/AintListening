@@ -70,18 +70,21 @@ public class ModelManagementActivity extends AppCompatActivity {
      * Configures the RecyclerView and its adapter.
      */
     private void setupRecyclerView() {
+        java.util.List<ModelInfo> allModels = new java.util.ArrayList<>();
+        allModels.addAll(java.util.Arrays.asList(ModelManager.SUPPORTED_MODELS));
+        allModels.addAll(java.util.Arrays.asList(ModelManager.SUPPORTED_SMART_FORMATTING_MODELS));
+
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        adapter = new ModelAdapter(java.util.Arrays.asList(ModelManager.SUPPORTED_MODELS), new ModelAdapter.InteractionListener() {
+        adapter = new ModelAdapter(allModels, new ModelAdapter.InteractionListener() {
             @Override
-            public void onDownloadClicked(int index) {
-                ModelInfo info = ModelManager.SUPPORTED_MODELS[index];
+            public void onDownloadClicked(ModelInfo info) {
                 Toast.makeText(ModelManagementActivity.this, getString(R.string.message_starting_download, info.displayName), Toast.LENGTH_SHORT).show();
-                startDownload(index);
+                startDownload(info);
             }
 
             @Override
-            public void onDeleteClicked(int index, String displayName) {
-                confirmDelete(index, displayName);
+            public void onDeleteClicked(ModelInfo info) {
+                confirmDelete(info);
             }
         });
         recyclerView.setAdapter(adapter);
@@ -122,17 +125,17 @@ public class ModelManagementActivity extends AppCompatActivity {
     }
 
     /**
-     * Initiates the download of a model at the specified index.
+     * Initiates the download of the specified model.
      *
-     * @param index The index of the model in ModelManager.SUPPORTED_MODELS.
+     * @param info The model information to download.
      */
-    private void startDownload(int index) {
+    private void startDownload(ModelInfo info) {
         if (!NetworkUtils.isOnline(this)) {
             Toast.makeText(this, R.string.error_no_internet, Toast.LENGTH_LONG).show();
             return;
         }
-        Log.d(TAG, "startDownload called for index: " + index);
-        viewModel.startDownload(index);
+        Log.d(TAG, "startDownload called for model: " + info.name);
+        viewModel.startDownload(info);
     }
 
     /**
@@ -151,15 +154,14 @@ public class ModelManagementActivity extends AppCompatActivity {
     /**
      * Shows a confirmation dialog before deleting a model.
      *
-     * @param index       The index of the model to delete.
-     * @param displayName The display name of the model.
+     * @param info The model information to delete.
      */
-    private void confirmDelete(int index, String displayName) {
+    private void confirmDelete(ModelInfo info) {
         new com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
                 .setTitle(R.string.dialog_confirm_delete_title)
-                .setMessage(getString(R.string.dialog_confirm_delete_message, displayName))
+                .setMessage(getString(R.string.dialog_confirm_delete_message, info.displayName))
                 .setPositiveButton(R.string.button_remove, (dialog, which) -> {
-                    if (ModelManager.deleteModel(this, index)) {
+                    if (ModelManager.deleteModel(this, info)) {
                         updateModelStatusUI();
                         Toast.makeText(this, R.string.message_model_removed, Toast.LENGTH_SHORT).show();
                     }

@@ -44,19 +44,20 @@ public class ModelManagementViewModel extends AndroidViewModel {
     }
 
     /**
-     * Starts the download and extraction of the model at the specified index.
+     * Starts the download and extraction of the specified model.
      * If a download is already in progress, this method does nothing.
      *
-     * @param index The index of the model in ModelManager.SUPPORTED_MODELS.
+     * @param info The ModelInfo to download.
      */
-    public void startDownload(int index) {
+    public void startDownload(ModelInfo info) {
         if (_downloadState.getValue() != null && 
             (_downloadState.getValue().status == DownloadState.Status.DOWNLOADING || 
              _downloadState.getValue().status == DownloadState.Status.EXTRACTING)) {
             return;
         }
 
-        ModelInfo info = ModelManager.SUPPORTED_MODELS[index];
+        if (info == null) return;
+        
         _downloadState.setValue(DownloadState.downloading(0));
 
         File filesDir = getApplication().getFilesDir();
