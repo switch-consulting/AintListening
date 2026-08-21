@@ -7,13 +7,30 @@ from transformers import AutoTokenizer
 from optimum.onnxruntime.configuration import AutoQuantizationConfig
 from optimum.onnxruntime import ORTQuantizer
 
-# Configuration
+# Configuration - Choose your model variant
+# 1. BASE (Current): ~200MB ZIP, Best Quality, Multilingual
+# 2. DISTIL: ~130MB ZIP, Fast, Multilingual
+# 3. GERMAN_ONLY: ~110MB ZIP, Best for DE only
+# 4. SILERO: ~40MB ZIP, Extremely Fast, EN/DE/ES/RU
+
+# Defaulting to a high-quality multilingual model.
+# NOTE: This model is ~200MB in ZIP format.
 MODEL_ID = "oliverguhr/fullstop-punctuation-multilingual-sonar-base"
+# For German only, use: "oliverguhr/fullstop-german-punctuation-prediction"
+# For Silero (Requires different loading logic), use a different script.
+
 EXPORT_DIR = "./onnx_export"
 QUANT_DIR = "./onnx_quantized"
-ZIP_NAME = "punct_de.zip"
+MODELS_DIR = "../models"
 
-def prepare_model():
+def prepare_model(locale="de"):
+    zip_filename = f"ONNXModel_{locale}.zip"
+    zip_path = os.path.join(MODELS_DIR, zip_filename)
+
+    # Ensure output directory exists
+    if not os.path.exists(MODELS_DIR):
+        os.makedirs(MODELS_DIR)
+
     # 1. Export to ONNX
     print(f"--- Step 1: Exporting {MODEL_ID} to ONNX ---")
     if os.path.exists(EXPORT_DIR):
@@ -60,8 +77,8 @@ def prepare_model():
     print(f"Quantized model saved to {QUANT_DIR}")
 
     # 3. Packaging into ZIP
-    print(f"\n--- Step 3: Packaging files into {ZIP_NAME} ---")
-    with zipfile.ZipFile(ZIP_NAME, "w", zipfile.ZIP_DEFLATED) as zipf:
+    print(f"\n--- Step 3: Packaging files into {zip_path} ---")
+    with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as zipf:
         for root, _, files in os.walk(QUANT_DIR):
             for file in files:
                 # Include model, config, and tokenizer files
@@ -78,7 +95,11 @@ def prepare_model():
                     zipf.write(file_path, arcname)
                     print(f"Added {arcname} to zip")
 
-    print(f"\nSuccess! '{ZIP_NAME}' is ready for the Android app.")
+    print(f"\nSuccess! '{zip_path}' is ready for the Android app.")
 
 if __name__ == "__main__":
-    prepare_model()
+    parser = argparse.ArgumentParser(description="Prepare ONNX model for Android")
+    parser.add_argument("--locale", type=str, default="de", help="Locale for the output filename (e.g. de, en)")
+    args = parser.parse_args()
+
+    prepare_model(args.locale)
