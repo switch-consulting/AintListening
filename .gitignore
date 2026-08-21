@@ -24,3 +24,6 @@ local.properties
 /AintListening/build/
 /AintListening/proguard-rules.pro
 /gradle/gradle-daemon-jvm.properties
+# Model Prep folders
+model-prep/onnx_export/
+model-prep/onnx_quantized/
