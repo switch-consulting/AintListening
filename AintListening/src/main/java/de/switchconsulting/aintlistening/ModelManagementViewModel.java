@@ -9,6 +9,7 @@ import java.io.File;
 
 public class ModelManagementViewModel extends AndroidViewModel {
 
+    private final ModelDownloader modelDownloader = new ModelDownloader();
     private final MutableLiveData<DownloadState> _downloadState = new MutableLiveData<>(DownloadState.idle());
     public final LiveData<DownloadState> downloadState = _downloadState;
 
@@ -27,7 +28,7 @@ public class ModelManagementViewModel extends AndroidViewModel {
         _downloadState.setValue(DownloadState.downloading(0));
 
         File filesDir = getApplication().getFilesDir();
-        ModelDownloader.downloadAndExtract(info.url, filesDir, new ModelDownloader.Callback() {
+        modelDownloader.downloadAndExtract(info.url, filesDir, new ModelDownloader.Callback() {
             @Override
             public void onProgress(int percentage) {
                 _downloadState.postValue(DownloadState.downloading(percentage));
@@ -47,7 +48,18 @@ public class ModelManagementViewModel extends AndroidViewModel {
             public void onError(Exception e) {
                 _downloadState.postValue(DownloadState.error(e));
             }
+
+            @Override
+            public void onCancelled() {
+                _downloadState.postValue(DownloadState.idle());
+            }
         });
+    }
+
+    @Override
+    protected void onCleared() {
+        super.onCleared();
+        modelDownloader.cancel();
     }
 
     public void resetState() {
