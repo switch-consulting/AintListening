@@ -89,6 +89,10 @@ public class ModelManagementActivity extends AppCompatActivity {
     }
 
     private void startDownload(int index) {
+        if (!NetworkUtils.isOnline(this)) {
+            Toast.makeText(this, R.string.error_no_internet, Toast.LENGTH_LONG).show();
+            return;
+        }
         Log.d(TAG, "startDownload called for index: " + index);
         viewModel.startDownload(index);
     }

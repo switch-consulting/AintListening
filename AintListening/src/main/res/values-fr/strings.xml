@@ -26,6 +26,7 @@
     <string name="status_downloading">Téléchargement du modèle : %1$d%%</string>
     <string name="status_extracting">Extraction du modèle&#8230;</string>
     <string name="error_download_failed">Le téléchargement a échoué. Veuillez vérifier votre connexion Internet.</string>
+    <string name="error_no_internet">Pas de connexion internet. Veuillez vous connecter et réessayer.</string>
     <string name="error_model_setup_cancelled">Configuration annulée. L\'application ne peut pas fonctionner sans le modèle vocal.</string>
 
     <string name="label_speech_model">Modèle vocal</string>

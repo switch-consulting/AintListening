@@ -26,6 +26,7 @@
     <string name="status_downloading">Downloading model: %1$d%%</string>
     <string name="status_extracting">Extracting model&#8230;</string>
     <string name="error_download_failed">Download failed. Please check your internet connection.</string>
+    <string name="error_no_internet">No internet connection. Please connect and try again.</string>
     <string name="error_model_setup_cancelled">Setup cancelled. The app cannot function without the speech model.</string>
 
     <string name="label_speech_model">Speech Model</string>

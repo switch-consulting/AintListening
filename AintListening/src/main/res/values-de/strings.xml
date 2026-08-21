@@ -25,7 +25,8 @@
     <string name="message_starting_download">Download für %1$s wird gestartet</string>
     <string name="status_downloading">Modell wird heruntergeladen: %1$d%%</string>
     <string name="status_extracting">Modell wird entpackt&#8230;</string>
-    <string name="error_download_failed">Download failed. Bitte überprüfe deine Internetverbindung.</string>
+    <string name="error_download_failed">Download fehlgeschlagen. Bitte überprüfe deine Internetverbindung.</string>
+    <string name="error_no_internet">Keine Internetverbindung. Bitte verbinden und erneut versuchen.</string>
     <string name="error_model_setup_cancelled">Einrichtung abgebrochen. Die App kann ohne das Sprachmodell nicht funktionieren.</string>
 
     <string name="label_speech_model">Sprachmodell</string>
