@@ -11,6 +11,7 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.button.MaterialButton;
@@ -21,12 +22,15 @@ public class ModelManagementActivity extends AppCompatActivity {
     private static final String TAG = "ModelManagement";
     private LinearProgressIndicator progressIndicator;
     private LinearLayout modelListContainer;
-    private boolean isDownloading = false;
+    private ModelManagementViewModel viewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_model_management);
+
+        viewModel = new ViewModelProvider(this).get(ModelManagementViewModel.class);
+        viewModel.downloadState.observe(this, this::handleDownloadState);
 
         MaterialToolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -38,8 +42,33 @@ public class ModelManagementActivity extends AppCompatActivity {
         updateModelStatusUI();
     }
 
-    private String getModelUrl(int index) {
-        return ModelManager.SUPPORTED_MODELS[index].url;
+    private void handleDownloadState(DownloadState state) {
+        if (state == null) return;
+        switch (state.status) {
+            case IDLE:
+                progressIndicator.setVisibility(View.GONE);
+                break;
+            case DOWNLOADING:
+                progressIndicator.setVisibility(View.VISIBLE);
+                progressIndicator.setIndeterminate(false);
+                progressIndicator.setProgress(state.progress);
+                break;
+            case EXTRACTING:
+                progressIndicator.setVisibility(View.VISIBLE);
+                progressIndicator.setIndeterminate(true);
+                break;
+            case SUCCESS:
+                progressIndicator.setVisibility(View.GONE);
+                Toast.makeText(this, R.string.message_model_ready, Toast.LENGTH_SHORT).show();
+                viewModel.resetState();
+                break;
+            case ERROR:
+                progressIndicator.setVisibility(View.GONE);
+                Toast.makeText(this, R.string.error_download_failed, Toast.LENGTH_LONG).show();
+                viewModel.resetState();
+                break;
+        }
+        updateModelStatusUI();
     }
 
     private boolean isModelMissing(int index) {
@@ -48,56 +77,13 @@ public class ModelManagementActivity extends AppCompatActivity {
 
     private void startDownload(int index) {
         Log.d(TAG, "startDownload called for index: " + index);
-        if (isDownloading) {
-            Log.d(TAG, "Download already in progress, ignoring.");
-            return;
-        }
-
-        isDownloading = true;
-        progressIndicator.setVisibility(View.VISIBLE);
-        progressIndicator.setIndeterminate(false);
-        progressIndicator.setProgress(0);
-
-        updateModelStatusUI();
-
-        Log.d(TAG, "Starting ModelDownloader for index " + index);
-        ModelDownloader.downloadAndExtract(getModelUrl(index), getFilesDir(), new ModelDownloader.Callback() {
-            @Override
-            public void onProgress(int percentage) {
-                runOnUiThread(() -> progressIndicator.setProgress(percentage));
-            }
-
-            @Override
-            public void onExtracting() {
-                Log.d(TAG, "Extracting model...");
-                runOnUiThread(() -> progressIndicator.setIndeterminate(true));
-            }
-
-            @Override
-            public void onSuccess() {
-                Log.d(TAG, "Download and extraction successful.");
-                runOnUiThread(() -> {
-                    isDownloading = false;
-                    progressIndicator.setVisibility(View.GONE);
-                    Toast.makeText(ModelManagementActivity.this, R.string.message_model_ready, Toast.LENGTH_SHORT).show();
-                    updateModelStatusUI();
-                });
-            }
-
-            @Override
-            public void onError(Exception e) {
-                Log.e(TAG, "Download failed", e);
-                runOnUiThread(() -> {
-                    isDownloading = false;
-                    progressIndicator.setVisibility(View.GONE);
-                    Toast.makeText(ModelManagementActivity.this, R.string.error_download_failed, Toast.LENGTH_LONG).show();
-                    updateModelStatusUI();
-                });
-            }
-        });
+        viewModel.startDownload(index);
     }
 
     private void updateModelStatusUI() {
+        DownloadState currentState = viewModel.downloadState.getValue();
+        boolean isBusy = currentState != null && currentState.status != DownloadState.Status.IDLE;
+
         if (modelListContainer.getChildCount() == 0) {
             LayoutInflater inflater = LayoutInflater.from(this);
             for (int i = 0; i < ModelManager.SUPPORTED_MODELS.length; i++) {
@@ -123,7 +109,7 @@ public class ModelManagementActivity extends AppCompatActivity {
                 icon.setColorFilter(ContextCompat.getColor(this, android.R.color.holo_red_dark));
                 statusText.setText(getString(R.string.status_unavailable_with_size, info.size));
                 downloadButton.setVisibility(View.VISIBLE);
-                downloadButton.setEnabled(!isDownloading);
+                downloadButton.setEnabled(!isBusy);
                 downloadButton.setOnClickListener(v -> {
                     Toast.makeText(this, getString(R.string.message_starting_download, info.displayName), Toast.LENGTH_SHORT).show();
                     startDownload(index);
@@ -135,7 +121,7 @@ public class ModelManagementActivity extends AppCompatActivity {
                 statusText.setText(R.string.status_available);
                 downloadButton.setVisibility(View.GONE);
                 deleteButton.setVisibility(View.VISIBLE);
-                deleteButton.setEnabled(!isDownloading);
+                deleteButton.setEnabled(!isBusy);
                 deleteButton.setOnClickListener(v -> confirmDelete(index, info.displayName));
             }
         }
