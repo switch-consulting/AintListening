@@ -107,6 +107,7 @@ public class ModelDownloader {
                     connection.setConnectTimeout(15000);
                     connection.setReadTimeout(15000);
                     connection.setInstanceFollowRedirects(true);
+                    connection.setRequestProperty("User-Agent", "AintListening-ModelDownloader");
                     
                     int responseCode = connection.getResponseCode();
                     Log.d(TAG, "URL: " + currentUrl + " -> Response: " + responseCode);
@@ -156,6 +157,15 @@ public class ModelDownloader {
                 }
 
                 if (isCancelled) throw new InterruptedException();
+
+                // Check if it's a Git LFS pointer instead of a zip
+                if (tempZip.length() < 500) {
+                    try (java.util.Scanner scanner = new java.util.Scanner(tempZip)) {
+                        if (scanner.hasNextLine() && scanner.nextLine().startsWith("version https://git-lfs")) {
+                            throw new Exception("Downloaded file is a Git LFS pointer. Check LFS quota or URL.");
+                        }
+                    }
+                }
 
                 handler.post(callback::onExtracting);
                 extractZip(tempZip, targetBaseDir);

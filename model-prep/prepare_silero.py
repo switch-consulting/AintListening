@@ -33,8 +33,9 @@ def prepare_silero(locale="de"):
     # as it's often handled by simple char-level or custom logic,
     # but we package it as 'model.onnx' for compatibility with your app's extractor.
     print(f"\n--- Step 2: Packaging into {zip_path} ---")
+    model_name = os.path.splitext(zip_filename)[0]
     with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as zipf:
-        zipf.write(temp_model, "model.onnx")
+        zipf.write(temp_model, f"{model_name}/model.onnx")
         # Silero models are self-contained, but if your app expects a config.json,
         # you might need to add a placeholder one here.
 

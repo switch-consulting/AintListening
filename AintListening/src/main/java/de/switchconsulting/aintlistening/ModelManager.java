@@ -37,7 +37,7 @@ class ModelManager {
 
     /** The list of smart formatting (punctuation) models supported by the application. */
     static final ModelInfo[] SUPPORTED_SMART_FORMATTING_MODELS = {
-            new ModelInfo("punctuation-model-de", "https://github.com/switch-consulting/AintListening/raw/refs/heads/main/models/ONNXModel_de.zip?download=", "Smart Formatting (DE)", "200MB")
+            new ModelInfo("ONNXModel_de", "https://github.com/switch-consulting/AintListening/raw/main/models/ONNXModel_de.zip", "Smart Formatting (DE)", "200MB")
     };
 
     /**
@@ -62,6 +62,11 @@ class ModelManager {
     static List<String> getAvailableLanguageNames(Context context) {
         List<String> available = new ArrayList<>();
         for (ModelInfo info : SUPPORTED_MODELS) {
+            if (isModelDownloaded(context, info)) {
+                available.add(info.displayName);
+            }
+        }
+        for (ModelInfo info : SUPPORTED_SMART_FORMATTING_MODELS) {
             if (isModelDownloaded(context, info)) {
                 available.add(info.displayName);
             }

@@ -78,6 +78,7 @@ def prepare_model(locale="de"):
 
     # 3. Packaging into ZIP
     print(f"\n--- Step 3: Packaging files into {zip_path} ---")
+    model_name = os.path.splitext(zip_filename)[0]
     with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as zipf:
         for root, _, files in os.walk(QUANT_DIR):
             for file in files:
@@ -88,10 +89,12 @@ def prepare_model(locale="de"):
                     # Rename the quantized model to 'model.onnx' inside the zip
                     # so the Android app can always look for the same filename
                     if "model_quantized.onnx" in file:
-                        arcname = "model.onnx"
+                        rel_path = "model.onnx"
                     else:
-                        arcname = os.path.relpath(file_path, QUANT_DIR)
+                        rel_path = os.path.relpath(file_path, QUANT_DIR)
 
+                    # Nest inside a folder named after the model and force forward slashes
+                    arcname = f"{model_name}/{rel_path.replace(os.sep, '/')}"
                     zipf.write(file_path, arcname)
                     print(f"Added {arcname} to zip")
 
