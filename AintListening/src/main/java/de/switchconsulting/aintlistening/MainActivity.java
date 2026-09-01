@@ -295,13 +295,45 @@ public class MainActivity extends AppCompatActivity {
             String finalTranscript = transcript;
             // selectedModelIndex 0 is Deutsch
             if (selectedModelIndex == 0 && ModelManager.isModelDownloaded(this, ModelManager.SUPPORTED_SMART_FORMATTING_MODELS[0])) {
-                Log.i(TAG, "Smart formatting model is available for German. Applying...");
+                Log.i(TAG, "Smart formatting model is available for German. Applying paragraph-wise...");
                 try {
-                    runOnUiThread(() -> transcriptTextView.setText(R.string.status_applying_smart_formatting));
                     if (smartFormatter == null) {
                         smartFormatter = new SmartFormatter(this);
                     }
-                    finalTranscript = smartFormatter.format(transcript);
+                    
+                    String[] paragraphs = transcript.split("\n\n");
+                    runOnUiThread(() -> {
+                        progressIndicator.setIndeterminate(false);
+                        progressIndicator.setMax(paragraphs.length);
+                        progressIndicator.setProgress(0);
+                    });
+
+                    StringBuilder currentFormatted = new StringBuilder();
+                    for (int i = 0; i < paragraphs.length; i++) {
+                        String para = paragraphs[i];
+                        if (para.trim().isEmpty()) {
+                            if (i > 0) currentFormatted.append("\n\n");
+                            currentFormatted.append(para);
+                        } else {
+                            String formattedPara = smartFormatter.format(para);
+                            if (i > 0) currentFormatted.append("\n\n");
+                            currentFormatted.append(formattedPara);
+                        }
+                        
+                        // Construct the full text for stepwise UI update
+                        StringBuilder fullDisplay = new StringBuilder(currentFormatted);
+                        for (int j = i + 1; j < paragraphs.length; j++) {
+                            fullDisplay.append("\n\n").append(paragraphs[j]);
+                        }
+                        
+                        final String displayUpdate = fullDisplay.toString().trim();
+                        final int progress = i + 1;
+                        runOnUiThread(() -> {
+                            transcriptTextView.setText(displayUpdate);
+                            progressIndicator.setProgress(progress);
+                        });
+                    }
+                    finalTranscript = currentFormatted.toString();
                 } catch (Exception e) {
                     Log.e(TAG, "Smart formatting failed", e);
                 }
