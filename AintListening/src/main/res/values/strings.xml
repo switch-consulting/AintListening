@@ -23,6 +23,7 @@
     <string name="error_read_failed">Could not read shared audio file.</string>
     <string name="status_loading_model">Loading speech model&#8230;</string>
     <string name="status_transcribing">Transcribing offline&#8230;</string>
+    <string name="status_applying_smart_formatting">Applying smart formatting&#8230;</string>
     <string name="status_no_speech">No speech recognized.</string>
     <string name="error_transcription_failed">Transcription failed. Check if model is available.</string>
     <string name="waiting_for_audio">Waiting for shared audio&#8230;</string>

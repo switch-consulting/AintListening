@@ -23,6 +23,7 @@
     <string name="error_read_failed">Die geteilte Audiodatei konnte nicht gelesen werden.</string>
     <string name="status_loading_model">Sprachmodell wird geladen&#8230;</string>
     <string name="status_transcribing">Transkribiere offline&#8230;</string>
+    <string name="status_applying_smart_formatting">Wende intelligente Formatierung an&#8230;</string>
     <string name="status_no_speech">Keine Sprache erkannt.</string>
     <string name="error_transcription_failed">Transkription fehlgeschlagen. Prüfe, ob das Modell verfügbar ist.</string>
     <string name="waiting_for_audio">Warten auf geteiltes Audio&#8230;</string>

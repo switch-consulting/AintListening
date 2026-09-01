@@ -19,6 +19,7 @@ package de.switchconsulting.aintlistening;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
@@ -56,6 +57,7 @@ public class MainActivity extends AppCompatActivity {
 
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
     private Model voskModel;
+    private SmartFormatter smartFormatter;
     private int selectedModelIndex = 0;
     private int loadedModelIndex = -1; // Track which model is actually in memory
 
@@ -125,6 +127,9 @@ public class MainActivity extends AppCompatActivity {
         executorService.shutdownNow();
         if (voskModel != null) {
             voskModel.close();
+        }
+        if (smartFormatter != null) {
+            smartFormatter.close();
         }
     }
 
@@ -286,13 +291,32 @@ public class MainActivity extends AppCompatActivity {
             runOnUiThread(() -> transcriptTextView.setText(R.string.status_transcribing));
 
             String transcript = recognizeWav(voskModel, wavFile);
+            
+            String finalTranscript = transcript;
+            // selectedModelIndex 0 is Deutsch
+            if (selectedModelIndex == 0 && ModelManager.isModelDownloaded(this, ModelManager.SUPPORTED_SMART_FORMATTING_MODELS[0])) {
+                Log.i(TAG, "Smart formatting model is available for German. Applying...");
+                try {
+                    runOnUiThread(() -> transcriptTextView.setText(R.string.status_applying_smart_formatting));
+                    if (smartFormatter == null) {
+                        smartFormatter = new SmartFormatter(this);
+                    }
+                    finalTranscript = smartFormatter.format(transcript);
+                } catch (Exception e) {
+                    Log.e(TAG, "Smart formatting failed", e);
+                }
+            } else {
+                Log.d(TAG, "Smart formatting skipped (not German or model not downloaded).");
+            }
+
+            String result = finalTranscript.trim().isEmpty()
+                    ? getString(R.string.status_no_speech)
+                    : finalTranscript.trim();
+
             runOnUiThread(() -> {
                 progressIndicator.setVisibility(View.GONE);
-                String result = transcript.trim().isEmpty()
-                        ? getString(R.string.status_no_speech)
-                        : transcript.trim();
                 transcriptTextView.setText(result);
-                if (!transcript.trim().isEmpty()) {
+                if (!result.equals(getString(R.string.status_no_speech))) {
                     saveLastMessage(result);
                 }
             });
@@ -348,7 +372,7 @@ public class MainActivity extends AppCompatActivity {
                     String partialText = getPartialTextFromJson(partialJson);
                     if (!partialText.isEmpty()) {
                         String currentDisplay = fullText.toString();
-                        if (fullText.length() > 0) currentDisplay += "\n\n";
+                        if (!TextUtils.isEmpty(fullText)) currentDisplay += "\n\n";
                         updateTranscriptUI(currentDisplay + partialText);
                     }
                 }
@@ -397,7 +421,7 @@ public class MainActivity extends AppCompatActivity {
             JSONObject obj = new JSONObject(json);
             String text = obj.optString("text", "").trim();
             if (!text.isEmpty()) {
-                if (out.length() > 0) out.append("\n\n");
+                if (!TextUtils.isEmpty(out)) out.append("\n\n");
                 out.append(text);
             }
         } catch (Exception ignored) {

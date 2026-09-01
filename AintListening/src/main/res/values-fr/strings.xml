@@ -23,6 +23,7 @@
     <string name="error_read_failed">Impossible de lire le fichier audio partagé.</string>
     <string name="status_loading_model">Chargement du modèle vocal&#8230;</string>
     <string name="status_transcribing">Transcription hors ligne&#8230;</string>
+    <string name="status_applying_smart_formatting">Application du formatage intelligent&#8230;</string>
     <string name="status_no_speech">Aucune parole reconnue.</string>
     <string name="error_transcription_failed">La transcription a échoué. Vérifiez si le modèle est disponible.</string>
     <string name="waiting_for_audio">En attente de l\'audio partagé&#8230;</string>
