@@ -184,7 +184,7 @@ public class SmartFormatter {
                 }
 
                 // 2. Add space if not the first word
-                if (TextUtils.isEmpty(result)) {
+                if (!TextUtils.isEmpty(result)) {
                     result.append(" ");
                 }
 

@@ -19,7 +19,6 @@ package de.switchconsulting.aintlistening;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
@@ -32,12 +31,7 @@ import androidx.core.content.IntentCompat;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.progressindicator.LinearProgressIndicator;
 
-import org.json.JSONObject;
-import org.vosk.Model;
-import org.vosk.Recognizer;
-
 import java.io.File;
-import java.io.FileInputStream;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -56,10 +50,9 @@ public class MainActivity extends AppCompatActivity {
     private TextView transcriptTextView;
 
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
-    private Model voskModel;
+    private final Transcriber transcriber = new Transcriber();
     private SmartFormatter smartFormatter;
     private int selectedModelIndex = 0;
-    private int loadedModelIndex = -1; // Track which model is actually in memory
 
     /**
      * Initializes the activity, sets up UI components, and handles any incoming intent.
@@ -125,8 +118,8 @@ public class MainActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         executorService.shutdownNow();
-        if (voskModel != null) {
-            voskModel.close();
+        if (transcriber != null) {
+            transcriber.close();
         }
         if (smartFormatter != null) {
             smartFormatter.close();
@@ -271,27 +264,23 @@ public class MainActivity extends AppCompatActivity {
     private void runVoskRecognition(@NonNull File wavFile) {
         try {
             runOnUiThread(() -> transcriptTextView.setText(R.string.status_loading_model));
-            
-            // Check if we need to load a different model or if none is loaded
-            if (voskModel != null) {
-                // Simplified check: since Vosk Model doesn't expose its path easily,
-                // we'll reload if the index might have changed.
-                // A better way is to track which index is currently loaded.
-                if (loadedModelIndex != selectedModelIndex) {
-                    voskModel.close();
-                    voskModel = null;
-                }
-            }
 
-            if (voskModel == null) {
-                voskModel = loadSpeechModel();
-                loadedModelIndex = selectedModelIndex;
-            }
+            transcriber.ensureModelLoaded(this, selectedModelIndex);
 
             runOnUiThread(() -> transcriptTextView.setText(R.string.status_transcribing));
 
-            String transcript = recognizeWav(voskModel, wavFile);
-            
+            String transcript = transcriber.transcribe(wavFile, new Transcriber.TranscriptionListener() {
+                @Override
+                public void onPartialResult(String text) {
+                    updateTranscriptUI(text);
+                }
+
+                @Override
+                public void onResult(String text) {
+                    updateTranscriptUI(text);
+                }
+            });
+
             String finalTranscript = transcript;
             // selectedModelIndex 0 is Deutsch
             if (selectedModelIndex == 0 && ModelManager.isModelDownloaded(this, ModelManager.SUPPORTED_SMART_FORMATTING_MODELS[0])) {
@@ -359,106 +348,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * Loads the Vosk Model object from the filesystem for the currently selected language.
-     *
-     * @return The initialized Vosk Model.
-     * @throws Exception If the model directory is not found or loading fails.
-     */
-    private Model loadSpeechModel() throws Exception {
-        File modelDir = new File(getFilesDir(), ModelManager.SUPPORTED_MODELS[selectedModelIndex].name);
-        if (!modelDir.exists() || !modelDir.isDirectory()) {
-            throw new IllegalStateException("Vosk model not found at: " + modelDir.getAbsolutePath());
-        }
-        return new Model(modelDir.getAbsolutePath());
-    }
-
-    /**
-     * Performs speech recognition on a WAV file using the provided Vosk model.
-     *
-     * @param model   The Vosk Model to use.
-     * @param wavFile The WAV file to recognize.
-     * @return The full transcribed text.
-     * @throws Exception If an error occurs during recognition.
-     */
-    private String recognizeWav(@NonNull Model model, @NonNull File wavFile) throws Exception {
-        StringBuilder fullText = new StringBuilder();
-
-        try (FileInputStream fis = new FileInputStream(wavFile);
-             Recognizer recognizer = new Recognizer(model, 16000.0f)) {
-
-            // Skip WAV header (44 bytes typical PCM header)
-            long skipped = fis.skip(44);
-            if (skipped < 44) {
-                throw new IllegalStateException("Invalid WAV file header");
-            }
-
-            byte[] buffer = new byte[4096];
-            int nread;
-            while ((nread = fis.read(buffer)) >= 0) {
-                if (recognizer.acceptWaveForm(buffer, nread)) {
-                    String resultJson = recognizer.getResult();
-                    appendTextFromResultJson(fullText, resultJson);
-                    updateTranscriptUI(fullText.toString());
-                } else {
-                    String partialJson = recognizer.getPartialResult();
-                    String partialText = getPartialTextFromJson(partialJson);
-                    if (!partialText.isEmpty()) {
-                        String currentDisplay = fullText.toString();
-                        if (!TextUtils.isEmpty(fullText)) currentDisplay += "\n\n";
-                        updateTranscriptUI(currentDisplay + partialText);
-                    }
-                }
-            }
-
-            appendTextFromResultJson(fullText, recognizer.getFinalResult());
-        }
-
-        return fullText.toString();
-    }
-
-    /**
      * Updates the transcript TextView with the provided text on the UI thread.
      *
      * @param text The text to display.
      */
     private void updateTranscriptUI(String text) {
         runOnUiThread(() -> transcriptTextView.setText(text.trim()));
-    }
-
-    /**
-     * Extracts the partial transcription text from a Vosk result JSON string.
-     *
-     * @param json The JSON string returned by the recognizer.
-     * @return The partial text, or an empty string if not found.
-     */
-    private String getPartialTextFromJson(String json) {
-        if (json == null || json.trim().isEmpty()) return "";
-        try {
-            JSONObject obj = new JSONObject(json);
-            return obj.optString("partial", "").trim();
-        } catch (Exception ignored) {
-            return "";
-        }
-    }
-
-    /**
-     * Appends the final transcription text from a Vosk result JSON string to a StringBuilder.
-     *
-     * @param out  The StringBuilder to append to.
-     * @param json The JSON string returned by the recognizer.
-     */
-    private void appendTextFromResultJson(@NonNull StringBuilder out, String json) {
-        if (json == null || json.trim().isEmpty()) return;
-        try {
-            JSONObject obj = new JSONObject(json);
-            String text = obj.optString("text", "").trim();
-            if (!text.isEmpty()) {
-                if (!TextUtils.isEmpty(out)) out.append("\n\n");
-                out.append(text);
-            }
-        } catch (Exception ignored) {
-            // ignore malformed partials
-        }
     }
 
     /**
