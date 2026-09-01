@@ -44,7 +44,7 @@ public class SmartFormatter {
 
     // Label mapping for oliverguhr/fullstop-punctuation-multilingual-sonar-base
     // 0: 0 (None), 1: . , 2: , , 3: ? , 4: - , 5: :
-    private static final Map<Integer, String> LABEL_MAP = new HashMap<>();
+    static final Map<Integer, String> LABEL_MAP = new HashMap<>();
     static {
         LABEL_MAP.put(1, ".");
         LABEL_MAP.put(2, ",");
@@ -165,45 +165,80 @@ public class SmartFormatter {
         }
     }
 
-    private String reconstructText(String[] tokens, float[][] logits) {
+    static String reconstructText(String[] tokens, float[][] logits) {
         StringBuilder result = new StringBuilder();
-        
+        String pendingPunct = null;
+        boolean shouldCapitalize = true;
+
         for (int i = 0; i < tokens.length; i++) {
             String token = tokens[i];
-            
-            // Skip special tokens
-            if (token.equals("<s>") || token.equals("</s>") || token.equals("<pad>") || 
-                token.equals("[CLS]") || token.equals("[SEP]") || token.equals("<unk>")) {
-                continue;
-            }
-            
-            int label = argmax(logits[i]);
-            String punct = LABEL_MAP.get(label);
-            
-            Log.v(TAG, String.format("Token [%s]: Label=%d, Punct=[%s]", token, label, punct == null ? "none" : punct));
+            if (isSpecialToken(token)) continue;
 
-            final String effectiveToken;
-            //noinspection UnicodeEscape
-            if (token.startsWith(" ") || token.startsWith("\u2581")) {
-                if (!TextUtils.isEmpty(result)) result.append(" ");
-                effectiveToken = token.substring(1);
+            if (isNewWord(token)) {
+                // 1. Apply punctuation from the PREVIOUS word
+                if (pendingPunct != null) {
+                    result.append(pendingPunct);
+                    if (isSentenceEnding(pendingPunct)) {
+                        shouldCapitalize = true;
+                    }
+                }
+
+                // 2. Add space if not the first word
+                if (TextUtils.isEmpty(result)) {
+                    result.append(" ");
+                }
+
+                // 3. Append the word part, capitalizing if needed
+                String wordPart = getCleanToken(token);
+                if (shouldCapitalize && !wordPart.isEmpty()) {
+                    result.append(Character.toUpperCase(wordPart.charAt(0)));
+                    if (wordPart.length() > 1) {
+                        result.append(wordPart.substring(1));
+                    }
+                    shouldCapitalize = false;
+                } else {
+                    result.append(wordPart);
+                }
+
+                // 4. Determine punctuation for this NEW word (First Sub-token Rule)
+                int label = argmax(logits[i]);
+                pendingPunct = LABEL_MAP.get(label);
             } else {
-                effectiveToken = token;
-            }
-            
-            result.append(effectiveToken);
-            
-            if (punct != null) {
-                result.append(punct);
+                // Continuation sub-token - just append content, no punctuation check here
+                result.append(getCleanToken(token));
             }
         }
-        
-        String finalOutput = result.toString().trim();
-        Log.d(TAG, "Final output: " + finalOutput);
-        return finalOutput;
+
+        // Apply final punctuation
+        if (pendingPunct != null) {
+            result.append(pendingPunct);
+        }
+
+        return result.toString().trim();
     }
 
-    private int argmax(float[] array) {
+    static boolean isSpecialToken(String token) {
+        return token.equals("<s>") || token.equals("</s>") || token.equals("<pad>") ||
+                token.equals("[CLS]") || token.equals("[SEP]") || token.equals("<unk>");
+    }
+
+    static boolean isNewWord(String token) {
+        // SentencePiece uses   (U+2581) or a regular space to denote the start of a word
+        return token.startsWith(" ") || token.startsWith("\u2581");
+    }
+
+    static String getCleanToken(String token) {
+        if (token.startsWith(" ") || token.startsWith("\u2581")) {
+            return token.substring(1);
+        }
+        return token;
+    }
+
+    static boolean isSentenceEnding(String punct) {
+        return ".".equals(punct) || "?".equals(punct) || ":".equals(punct);
+    }
+
+    static int argmax(float[] array) {
         int maxIndex = 0;
         for (int i = 1; i < array.length; i++) {
             if (array[i] > array[maxIndex]) {
