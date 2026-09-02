@@ -22,6 +22,7 @@ import android.util.Log;
 
 import java.io.File;
 import java.nio.LongBuffer;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -53,11 +54,23 @@ public class SmartFormatter {
         LABEL_MAP.put(5, ":");
     }
 
+    /**
+     * Constructs a new SmartFormatter and initializes the ONNX environment and model.
+     *
+     * @param context The application context.
+     * @throws Exception If model or tokenizer initialization fails.
+     */
     public SmartFormatter(Context context) throws Exception {
         this.env = OrtEnvironment.getEnvironment();
         loadModel(context);
     }
 
+    /**
+     * Loads the ONNX model and tokenizer from the application's internal files directory.
+     *
+     * @param context The application context.
+     * @throws Exception If the model or tokenizer files are not found or fail to load.
+     */
     private void loadModel(Context context) throws Exception {
         File initialDir = new File(context.getFilesDir(), "ONNXModel_de");
         File nestedDir = new File(initialDir, "ONNXModel_de");
@@ -130,7 +143,7 @@ public class SmartFormatter {
         long[] attentionMask = encoding.getAttentionMask();
         String[] tokens = encoding.getTokens();
         
-        Log.d(TAG, "Tokens: " + java.util.Arrays.toString(tokens));
+        Log.d(TAG, "Tokens: " + Arrays.toString(tokens));
         
         long[] shape = {1, inputIds.length};
         OnnxTensor inputIdsTensor = OnnxTensor.createTensor(env, LongBuffer.wrap(inputIds), shape);

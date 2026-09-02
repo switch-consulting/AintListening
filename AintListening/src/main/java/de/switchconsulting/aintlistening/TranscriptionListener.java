@@ -14,7 +14,23 @@
  * limitations under the License.
  */
 
-// Top-level build file where you can add configuration options common to all sub-projects/modules.
-plugins {
-    id 'com.android.application' version '9.4.0' apply false
+package de.switchconsulting.aintlistening;
+
+/**
+ * Interface for receiving transcription results.
+ */
+public interface TranscriptionListener {
+    /**
+     * Called when a partial transcription result is available.
+     *
+     * @param text The partial transcription text.
+     */
+    void onPartialResult(String text);
+
+    /**
+     * Called when a final transcription result is available.
+     *
+     * @param text The final transcription text.
+     */
+    void onResult(String text);
 }

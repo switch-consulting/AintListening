@@ -35,11 +35,6 @@ import java.io.FileInputStream;
 public class Transcriber {
     private static final String TAG = "Transcriber";
 
-    public interface TranscriptionListener {
-        void onPartialResult(String text);
-        void onResult(String text);
-    }
-
     private Model model;
     private int loadedModelIndex = -1;
 
@@ -133,6 +128,12 @@ public class Transcriber {
         return fullText.toString();
     }
 
+    /**
+     * Extracts the partial transcription text from a Vosk JSON result string.
+     *
+     * @param json The JSON result from the recognizer.
+     * @return The partial text string.
+     */
     private String extractPartialTextFromJson(String json) {
         if (json == null || json.trim().isEmpty()) return "";
         try {
@@ -143,6 +144,12 @@ public class Transcriber {
         }
     }
 
+    /**
+     * Extracts the final transcription text from a Vosk JSON result string.
+     *
+     * @param json The JSON result from the recognizer.
+     * @return The text string.
+     */
     private String extractTextFromResultJson(String json) {
         if (json == null || json.trim().isEmpty()) return "";
         try {

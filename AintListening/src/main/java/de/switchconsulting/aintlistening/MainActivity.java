@@ -269,7 +269,7 @@ public class MainActivity extends AppCompatActivity {
 
             runOnUiThread(() -> transcriptTextView.setText(R.string.status_transcribing));
 
-            String transcript = transcriber.transcribe(wavFile, new Transcriber.TranscriptionListener() {
+            String transcript = transcriber.transcribe(wavFile, new TranscriptionListener() {
                 @Override
                 public void onPartialResult(String text) {
                     updateTranscriptUI(text);
