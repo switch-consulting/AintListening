@@ -29,7 +29,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.progressindicator.LinearProgressIndicator;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -73,16 +73,10 @@ public class ModelManagementActivity extends AppCompatActivity {
      * Configures the RecyclerView and its adapter.
      */
     private void setupRecyclerView() {
-        List<ModelInfo> allModels = new ArrayList<>();
-        for (LanguageSupport language : ModelManager.SUPPORTED_LANGUAGES) {
-            allModels.add(language.getTranscriptionModel());
-            if (language.getFormattingModel() != null) {
-                allModels.add(language.getFormattingModel());
-            }
-        }
+        List<LanguageSupport> languages = Arrays.asList(ModelManager.SUPPORTED_LANGUAGES);
 
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        adapter = new ModelAdapter(allModels, new ModelAdapter.InteractionListener() {
+        adapter = new ModelAdapter(languages, new ModelAdapter.InteractionListener() {
             @Override
             public void onDownloadClicked(ModelInfo info) {
                 Toast.makeText(ModelManagementActivity.this, getString(R.string.message_starting_download, info.displayName), Toast.LENGTH_SHORT).show();

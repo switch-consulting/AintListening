@@ -53,6 +53,9 @@
     <string name="status_available">Available</string>
     <string name="status_unavailable">Not Found</string>
     <string name="status_unavailable_with_size">Not Found (%1$s)</string>
+    <string name="status_not_supported">Not Supported</string>
+    <string name="label_transcriber">Transcriber</string>
+    <string name="label_smart_formatting_title">Smart Formatting</string>
     <string name="last_message_header">Last converted message:</string>
     <string name="label_smart_formatting">Smart Formatting (DE)</string>
 </resources>

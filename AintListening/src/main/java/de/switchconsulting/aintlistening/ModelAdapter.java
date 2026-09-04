@@ -32,8 +32,8 @@ import com.google.android.material.button.MaterialButton;
 import java.util.List;
 
 /**
- * A RecyclerView adapter for displaying a list of speech models and their current status (installed or not).
- * It provides buttons for downloading or deleting models.
+ * A RecyclerView adapter for displaying language-grouped speech models and their current status.
+ * It provides buttons for downloading or deleting transcription and formatting models.
  */
 public class ModelAdapter extends RecyclerView.Adapter<ModelAdapter.ViewHolder> {
 
@@ -56,18 +56,18 @@ public class ModelAdapter extends RecyclerView.Adapter<ModelAdapter.ViewHolder> 
         void onDeleteClicked(ModelInfo info);
     }
 
-    private final List<ModelInfo> models;
+    private final List<LanguageSupport> languages;
     private final InteractionListener listener;
     private boolean isBusy = false;
 
     /**
      * Constructs a new ModelAdapter.
      *
-     * @param models   The list of models to display.
-     * @param listener The listener for interaction events.
+     * @param languages The list of supported languages to display.
+     * @param listener  The listener for interaction events.
      */
-    public ModelAdapter(List<ModelInfo> models, InteractionListener listener) {
-        this.models = models;
+    public ModelAdapter(List<LanguageSupport> languages, InteractionListener listener) {
+        this.languages = languages;
         this.listener = listener;
     }
 
@@ -95,30 +95,29 @@ public class ModelAdapter extends RecyclerView.Adapter<ModelAdapter.ViewHolder> 
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.item_model_status, parent, false);
+                .inflate(R.layout.item_language_support, parent, false);
         return new ViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        ModelInfo model = models.get(position);
-        holder.bind(model, isBusy, listener);
+        LanguageSupport language = languages.get(position);
+        holder.bind(language, isBusy, listener);
     }
 
     @Override
     public int getItemCount() {
-        return models.size();
+        return languages.size();
     }
 
     /**
-     * ViewHolder class for model list items.
+     * ViewHolder class for language group items.
      */
     public static class ViewHolder extends RecyclerView.ViewHolder {
-        private final ImageView icon;
-        private final TextView nameText;
-        private final TextView statusText;
-        private final MaterialButton downloadButton;
-        private final MaterialButton deleteButton;
+        private final TextView languageNameText;
+        private final View transcriberRow;
+        private final View formattingRow;
+        private final TextView formattingNotSupportedText;
 
         /**
          * Constructs a new ViewHolder.
@@ -127,24 +126,43 @@ public class ModelAdapter extends RecyclerView.Adapter<ModelAdapter.ViewHolder> 
          */
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
-            icon = itemView.findViewById(R.id.modelStatusIcon);
-            nameText = itemView.findViewById(R.id.modelNameText);
-            statusText = itemView.findViewById(R.id.modelStatusText);
-            downloadButton = itemView.findViewById(R.id.inlineDownloadButton);
-            deleteButton = itemView.findViewById(R.id.inlineDeleteButton);
+            languageNameText = itemView.findViewById(R.id.languageNameText);
+            transcriberRow = itemView.findViewById(R.id.transcriberModelRow);
+            formattingRow = itemView.findViewById(R.id.formattingModelRow);
+            formattingNotSupportedText = itemView.findViewById(R.id.formattingNotSupportedText);
         }
 
         /**
-         * Binds a model's data to the view.
+         * Binds language support data to the view.
          *
-         * @param info     The model information.
+         * @param language The language support information.
          * @param isBusy   Whether the adapter is currently busy.
          * @param listener The listener for interaction events.
          */
-        public void bind(ModelInfo info, boolean isBusy, InteractionListener listener) {
-            Context context = itemView.getContext();
-            nameText.setText(info.displayName);
+        public void bind(LanguageSupport language, boolean isBusy, InteractionListener listener) {
+            languageNameText.setText(language.getLanguage());
 
+            bindModelRow(transcriberRow, language.getTranscriptionModel(), isBusy, listener);
+
+            if (language.getFormattingModel() != null) {
+                formattingRow.setVisibility(View.VISIBLE);
+                formattingNotSupportedText.setVisibility(View.GONE);
+                bindModelRow(formattingRow, language.getFormattingModel(), isBusy, listener);
+            } else {
+                formattingRow.setVisibility(View.GONE);
+                formattingNotSupportedText.setVisibility(View.VISIBLE);
+            }
+        }
+
+        private void bindModelRow(View rowView, ModelInfo info, boolean isBusy, InteractionListener listener) {
+            Context context = rowView.getContext();
+            ImageView icon = rowView.findViewById(R.id.modelStatusIcon);
+            TextView nameText = rowView.findViewById(R.id.modelNameText);
+            TextView statusText = rowView.findViewById(R.id.modelStatusText);
+            MaterialButton downloadButton = rowView.findViewById(R.id.inlineDownloadButton);
+            MaterialButton deleteButton = rowView.findViewById(R.id.inlineDeleteButton);
+
+            nameText.setText(info.displayName);
             boolean isDownloaded = ModelManager.INSTANCE.isModelDownloaded(context, info);
 
             if (!isDownloaded) {
