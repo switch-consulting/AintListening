@@ -58,4 +58,6 @@
     <string name="label_smart_formatting_title">Formateo inteligente</string>
     <string name="last_message_header">Último mensaje convertido:</string>
     <string name="label_smart_formatting">Formato Inteligente (DE)</string>
+    <string name="cd_raw_text">Mostrar texto transcrito</string>
+    <string name="cd_smart_text">Mostrar texto con formato inteligente</string>
 </resources>

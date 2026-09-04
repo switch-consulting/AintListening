@@ -27,9 +27,14 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.IntentCompat;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.progressindicator.LinearProgressIndicator;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -48,29 +53,27 @@ public class MainActivity extends AppCompatActivity {
     private static final String KEY_LAST_MESSAGE = "last_message";
 
     private LinearProgressIndicator progressIndicator;
-    private TextView transcriptTextView;
+    private TextView statusTextView;
+    private TranscriptionAdapter transcriptionAdapter;
 
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
     private final Transcriber transcriber = new Transcriber();
     private SmartFormatter smartFormatter;
     private int selectedModelIndex = 0;
 
-    /**
-     * Initializes the activity, sets up UI components, and handles any incoming intent.
-     *
-     * @param savedInstanceState If the activity is being re-initialized after previously being shut down,
-     *                           this Bundle contains the data it most recently supplied.
-     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // Keep it for German now as requested
         selectedModelIndex = 0;
 
         progressIndicator = findViewById(R.id.progressIndicator);
-        transcriptTextView = findViewById(R.id.transcriptTextView);
+        statusTextView = findViewById(R.id.statusTextView);
+        RecyclerView transcriptRecyclerView = findViewById(R.id.transcriptRecyclerView);
+        transcriptionAdapter = new TranscriptionAdapter();
+        transcriptRecyclerView.setAdapter(transcriptionAdapter);
+
         MaterialButton configureButton = findViewById(R.id.configureButton);
         MaterialButton closeButton = findViewById(R.id.closeButton);
 
@@ -84,18 +87,12 @@ public class MainActivity extends AppCompatActivity {
         handleIncomingIntent(getIntent());
     }
 
-    /**
-     * Refreshes the UI when the activity resumes, specifically the list of available languages.
-     */
     @Override
     protected void onResume() {
         super.onResume();
         updateAvailableLanguagesUI();
     }
 
-    /**
-     * Updates the UI to show which transcription languages (models) are currently installed.
-     */
     private void updateAvailableLanguagesUI() {
         TextView supportedLanguagesText = findViewById(R.id.supportedLanguagesText);
         List<String> available = ModelManager.getAvailableLanguageNames(this);
@@ -112,9 +109,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    /**
-     * Shuts down the executor service and closes the Vosk model when the activity is destroyed.
-     */
     @Override
     protected void onDestroy() {
         super.onDestroy();
@@ -127,11 +121,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    /**
-     * Handles new intents received while the activity is running.
-     *
-     * @param intent The new intent that was started for the activity.
-     */
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
@@ -139,11 +128,6 @@ public class MainActivity extends AppCompatActivity {
         handleIncomingIntent(intent);
     }
 
-    /**
-     * Processes an incoming intent, checking if it contains an audio stream to transcribe.
-     *
-     * @param intent The intent to handle.
-     */
     private void handleIncomingIntent(Intent intent) {
         String action = intent.getAction();
         String type = intent.getType();
@@ -157,19 +141,13 @@ public class MainActivity extends AppCompatActivity {
         Uri audioUri = IntentCompat.getParcelableExtra(intent, Intent.EXTRA_STREAM, Uri.class);
         if (audioUri == null) {
             progressIndicator.setVisibility(View.GONE);
-            transcriptTextView.setText(R.string.error_no_stream);
+            showError(getString(R.string.error_no_stream));
             return;
         }
 
         checkModelsAndProceed(audioUri);
     }
 
-    /**
-     * Checks which models are downloaded and decides whether to start transcription
-     * or show a language selection dialog.
-     *
-     * @param audioUri The URI of the audio to transcribe.
-     */
     private void checkModelsAndProceed(Uri audioUri) {
         List<Integer> availableIndices = new ArrayList<>();
         for (int i = 0; i < ModelManager.SUPPORTED_LANGUAGES.length; i++) {
@@ -184,28 +162,20 @@ public class MainActivity extends AppCompatActivity {
         }
 
         if (availableIndices.size() == 1) {
-            // Only one model, use it automatically
             selectedModelIndex = availableIndices.get(0);
             startTranscription(audioUri);
         } else {
-            // Multiple models, ask the user
             showLanguageSelectionDialog(availableIndices, audioUri);
         }
     }
 
-    /**
-     * Shows a dialog allowing the user to select the language for transcription.
-     *
-     * @param availableIndices The indices of available models in ModelManager.SUPPORTED_LANGUAGES.
-     * @param audioUri         The URI of the audio to transcribe.
-     */
     private void showLanguageSelectionDialog(List<Integer> availableIndices, Uri audioUri) {
         String[] languages = new String[availableIndices.size()];
         for (int i = 0; i < availableIndices.size(); i++) {
             languages[i] = ModelManager.SUPPORTED_LANGUAGES[availableIndices.get(i)].getLanguage();
         }
 
-        new com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
+        new MaterialAlertDialogBuilder(this)
                 .setTitle(R.string.dialog_select_transcription_language)
                 .setItems(languages, (dialog, which) -> {
                     selectedModelIndex = availableIndices.get(which);
@@ -213,34 +183,25 @@ public class MainActivity extends AppCompatActivity {
                 })
                 .setNegativeButton(R.string.button_cancel, (dialog, which) -> {
                     progressIndicator.setVisibility(View.GONE);
-                    transcriptTextView.setText(R.string.intro_instruction);
+                    showInfo(getString(R.string.intro_instruction));
                 })
                 .show();
     }
 
-    /**
-     * Starts the transcription process by updating the UI and executing the transcription task.
-     *
-     * @param audioUri The URI of the audio to transcribe.
-     */
     private void startTranscription(Uri audioUri) {
         progressIndicator.setVisibility(View.VISIBLE);
         progressIndicator.setIndeterminate(true);
-        transcriptTextView.setText(R.string.status_preparing);
+        transcriptionAdapter.setParagraphs(new ArrayList<>());
+        showStatus(getString(R.string.status_preparing));
 
         executorService.execute(() -> transcribeFromUri(audioUri));
     }
 
-    /**
-     * Decodes the audio from a URI to a WAV file suitable for Vosk and then runs recognition.
-     *
-     * @param audioUri The URI of the audio to transcribe.
-     */
     private void transcribeFromUri(@NonNull Uri audioUri) {
         File wavFile = new File(getCacheDir(), "incoming_audio_16k_mono.wav");
 
         try {
-            runOnUiThread(() -> transcriptTextView.setText(R.string.status_converting));
+            showStatus(getString(R.string.status_converting));
 
             boolean success = OpusToWavDecoder.decodeOpusToWav(this, audioUri, wavFile);
 
@@ -257,18 +218,11 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    /**
-     * Loads the speech model (if needed) and runs the Vosk recognition on the given WAV file.
-     *
-     * @param wavFile The WAV file to recognize.
-     */
     private void runVoskRecognition(@NonNull File wavFile) {
         try {
-            runOnUiThread(() -> transcriptTextView.setText(R.string.status_loading_model));
-
+            showStatus(getString(R.string.status_loading_model));
             transcriber.ensureModelLoaded(this, selectedModelIndex);
-
-            runOnUiThread(() -> transcriptTextView.setText(R.string.status_transcribing));
+            showStatus(getString(R.string.status_transcribing));
 
             String transcript = transcriber.transcribe(wavFile, new TranscriptionListener() {
                 @Override
@@ -282,19 +236,27 @@ public class MainActivity extends AppCompatActivity {
                 }
             });
 
-            String finalTranscript = transcript;
-            LanguageSupport selectedLanguage = ModelManager.SUPPORTED_LANGUAGES[selectedModelIndex];
+            applySmartFormattingAndDisplay(transcript, selectedModelIndex, true);
+        } catch (Exception e) {
+            Log.e(TAG, "Vosk transcription failed", e);
+            showError(getString(R.string.error_transcription_failed));
+        }
+    }
 
-            if (selectedLanguage.isFormattingDownloaded(this)) {
-                Log.i(TAG, "Smart formatting model is available for " + selectedLanguage.getLanguage() + ". Applying paragraph-wise...");
+    private void applySmartFormattingAndDisplay(String transcript, int modelIndex, boolean shouldSave) {
+        executorService.execute(() -> {
+            LanguageSupport selectedLanguage = ModelManager.SUPPORTED_LANGUAGES[modelIndex];
+            List<TranscriptionParagraph> paragraphList = new ArrayList<>();
+
+            if (selectedLanguage.isFormattingDownloaded(this) && !transcript.trim().isEmpty()) {
                 try {
+                    showStatus(getString(R.string.status_applying_smart_formatting));
                     ModelInfo targetModel = selectedLanguage.getFormattingModel();
                     if (targetModel != null) {
                         if (smartFormatter != null && !smartFormatter.getModelInfo().equals(targetModel)) {
                             smartFormatter.close();
                             smartFormatter = null;
                         }
-
                         if (smartFormatter == null) {
                             smartFormatter = new SmartFormatter(this, targetModel);
                         }
@@ -302,107 +264,163 @@ public class MainActivity extends AppCompatActivity {
 
                     String[] paragraphs = transcript.split("\n\n");
                     runOnUiThread(() -> {
+                        progressIndicator.setVisibility(View.VISIBLE);
                         progressIndicator.setIndeterminate(false);
                         progressIndicator.setMax(paragraphs.length);
                         progressIndicator.setProgress(0);
                     });
 
-                    StringBuilder currentFormatted = new StringBuilder();
                     for (int i = 0; i < paragraphs.length; i++) {
-                        String para = paragraphs[i];
-                        if (para.trim().isEmpty()) {
-                            if (i > 0) currentFormatted.append("\n\n");
-                            currentFormatted.append(para);
-                        } else {
-                            String formattedPara = smartFormatter.format(para);
-                            if (i > 0) currentFormatted.append("\n\n");
-                            currentFormatted.append(formattedPara);
-                        }
+                        String rawPara = paragraphs[i];
+                        if (rawPara.trim().isEmpty()) continue;
+
+                        String formattedPara = smartFormatter.format(rawPara);
+                        TranscriptionParagraph p = new TranscriptionParagraph(rawPara, formattedPara);
+                        paragraphList.add(p);
                         
-                        // Construct the full text for stepwise UI update
-                        StringBuilder fullDisplay = new StringBuilder(currentFormatted);
+                        // Show already formatted paragraphs + remaining raw ones
+                        final List<TranscriptionParagraph> currentDisplayList = new ArrayList<>(paragraphList);
                         for (int j = i + 1; j < paragraphs.length; j++) {
-                            fullDisplay.append("\n\n").append(paragraphs[j]);
+                            if (!paragraphs[j].trim().isEmpty()) {
+                                currentDisplayList.add(new TranscriptionParagraph(paragraphs[j], null));
+                            }
                         }
                         
-                        final String displayUpdate = fullDisplay.toString().trim();
                         final int progress = i + 1;
                         runOnUiThread(() -> {
-                            transcriptTextView.setText(displayUpdate);
+                            transcriptionAdapter.setParagraphs(currentDisplayList);
                             progressIndicator.setProgress(progress);
                         });
                     }
-                    finalTranscript = currentFormatted.toString();
                 } catch (Exception e) {
                     Log.e(TAG, "Smart formatting failed", e);
+                    // Fallback to raw paragraphs if not already added
+                    if (paragraphList.isEmpty()) {
+                        String[] rawParas = transcript.split("\n\n");
+                        for (String rp : rawParas) {
+                            if (!rp.trim().isEmpty()) {
+                                paragraphList.add(new TranscriptionParagraph(rp, null));
+                            }
+                        }
+                    }
                 }
             } else {
-                Log.d(TAG, "Smart formatting skipped (not German or model not downloaded).");
+                String[] rawParas = transcript.split("\n\n");
+                for (String rp : rawParas) {
+                    if (!rp.trim().isEmpty()) {
+                        paragraphList.add(new TranscriptionParagraph(rp, null));
+                    }
+                }
             }
 
-            String result = finalTranscript.trim().isEmpty()
-                    ? getString(R.string.status_no_speech)
-                    : finalTranscript.trim();
-
-            runOnUiThread(() -> {
-                progressIndicator.setVisibility(View.GONE);
-                transcriptTextView.setText(result);
-                if (!result.equals(getString(R.string.status_no_speech))) {
-                    saveLastMessage(result);
-                }
-            });
-        } catch (Exception e) {
-            Log.e(TAG, "Vosk transcription failed", e);
-            showError(getString(R.string.error_transcription_failed));
-        }
+            if (paragraphList.isEmpty()) {
+                showStatus(getString(R.string.status_no_speech));
+                runOnUiThread(() -> progressIndicator.setVisibility(View.GONE));
+            } else {
+                runOnUiThread(() -> {
+                    statusTextView.setVisibility(View.GONE);
+                    progressIndicator.setVisibility(View.GONE);
+                    transcriptionAdapter.setParagraphs(paragraphList);
+                    if (shouldSave) {
+                        saveLastMessage(paragraphList, modelIndex);
+                    }
+                });
+            }
+        });
     }
 
-    /**
-     * Updates the transcript TextView with the provided text on the UI thread.
-     *
-     * @param text The text to display.
-     */
     private void updateTranscriptUI(String text) {
-        runOnUiThread(() -> transcriptTextView.setText(text.trim()));
+        runOnUiThread(() -> {
+            if (text.trim().isEmpty()) return;
+            String[] paras = text.split("\n\n");
+            List<TranscriptionParagraph> pList = new ArrayList<>();
+            for (String p : paras) {
+                if (!p.trim().isEmpty()) {
+                    pList.add(new TranscriptionParagraph(p.trim(), null));
+                }
+            }
+            transcriptionAdapter.setParagraphs(pList);
+        });
     }
 
-    /**
-     * Shows an error message in the UI and as a Toast.
-     *
-     * @param message The error message to display.
-     */
+    private void showStatus(String message) {
+        runOnUiThread(() -> {
+            statusTextView.setText(message);
+            statusTextView.setVisibility(View.VISIBLE);
+        });
+    }
+
+    private void showInfo(String message) {
+        runOnUiThread(() -> {
+            statusTextView.setText(message);
+            statusTextView.setVisibility(View.VISIBLE);
+            transcriptionAdapter.setParagraphs(new ArrayList<>());
+        });
+    }
+
     private void showError(@NonNull String message) {
         runOnUiThread(() -> {
             progressIndicator.setVisibility(View.GONE);
-            transcriptTextView.setText(message);
+            statusTextView.setText(message);
+            statusTextView.setVisibility(View.VISIBLE);
             Toast.makeText(MainActivity.this, message, Toast.LENGTH_LONG).show();
         });
     }
 
-    /**
-     * Saves the last transcribed message to SharedPreferences.
-     *
-     * @param transcript The transcription text to save.
-     */
-    private void saveLastMessage(String transcript) {
-        getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
-                .edit()
-                .putString(KEY_LAST_MESSAGE, transcript)
-                .apply();
+    private void saveLastMessage(List<TranscriptionParagraph> paragraphs, int modelIndex) {
+        try {
+            JSONArray array = new JSONArray();
+            for (TranscriptionParagraph p : paragraphs) {
+                JSONObject obj = new JSONObject();
+                obj.put("raw", p.getRawText());
+                obj.put("formatted", p.getFormattedText());
+                obj.put("showFormatted", p.isShowFormatted());
+                array.put(obj);
+            }
+            getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
+                    .edit()
+                    .putString("last_paragraphs_json", array.toString())
+                    .putInt("last_model_index", modelIndex)
+                    .apply();
+        } catch (Exception e) {
+            Log.e(TAG, "Failed to save last message", e);
+        }
     }
 
-    /**
-     * Loads and displays the last transcribed message from SharedPreferences.
-     */
     private void loadLastMessage() {
-        String lastMessage = getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
-                .getString(KEY_LAST_MESSAGE, null);
+        String json = getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
+                .getString("last_paragraphs_json", null);
 
-        if (lastMessage != null) {
-            String displayedText = getString(R.string.last_message_header) + "\n\n" + lastMessage;
-            transcriptTextView.setText(displayedText);
+        if (json != null) {
+            try {
+                JSONArray array = new JSONArray(json);
+                List<TranscriptionParagraph> paragraphs = new ArrayList<>();
+                for (int i = 0; i < array.length(); i++) {
+                    JSONObject obj = array.getJSONObject(i);
+                    TranscriptionParagraph p = new TranscriptionParagraph(
+                            obj.getString("raw"),
+                            obj.has("formatted") && !obj.isNull("formatted") ? obj.getString("formatted") : null
+                    );
+                    p.setShowFormatted(obj.optBoolean("showFormatted", p.isShowFormatted()));
+                    paragraphs.add(p);
+                }
+                transcriptionAdapter.setParagraphs(paragraphs);
+            } catch (Exception e) {
+                Log.e(TAG, "Failed to load last message", e);
+                showInfo(getString(R.string.intro_instruction));
+            }
         } else {
-            transcriptTextView.setText(R.string.intro_instruction);
+            // Fallback to old format if present
+            String lastMessage = getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
+                    .getString(KEY_LAST_MESSAGE, null);
+            int lastModelIndex = getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
+                    .getInt("last_model_index", 0);
+
+            if (lastMessage != null) {
+                applySmartFormattingAndDisplay(lastMessage, lastModelIndex, false);
+            } else {
+                showInfo(getString(R.string.intro_instruction));
+            }
         }
     }
 }
