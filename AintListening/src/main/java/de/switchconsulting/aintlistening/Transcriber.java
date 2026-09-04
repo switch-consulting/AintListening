@@ -96,6 +96,7 @@ public class Transcriber {
                     String resultJson = recognizer.getResult();
                     String text = extractTextFromResultJson(resultJson);
                     if (!TextUtils.isEmpty(text)) {
+                        Log.d(TAG, "Vosk segment finalized: " + text);
                         if (!TextUtils.isEmpty(fullText)) {
                             fullText.append("\n\n");
                         }
@@ -118,6 +119,7 @@ public class Transcriber {
             String finalJson = recognizer.getFinalResult();
             String finalText = extractTextFromResultJson(finalJson);
             if (!TextUtils.isEmpty(finalText)) {
+                Log.d(TAG, "Vosk final segment: " + finalText);
                 if (!TextUtils.isEmpty(fullText)) {
                     fullText.append("\n\n");
                 }

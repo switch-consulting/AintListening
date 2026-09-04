@@ -272,6 +272,10 @@ public class MainActivity extends AppCompatActivity {
                         if (rawPara.trim().isEmpty()) continue;
 
                         String formattedPara = smartFormatter.format(rawPara);
+                        Log.d(TAG, "Formatting paragraph " + (i + 1) + "/" + paragraphs.length);
+                        Log.d(TAG, "Raw: " + rawPara);
+                        Log.d(TAG, "Formatted: " + formattedPara);
+
                         TranscriptionParagraph p = new TranscriptionParagraph(rawPara, formattedPara);
                         paragraphList.add(p);
                         
@@ -302,9 +306,12 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
             } else {
+                Log.d(TAG, "Smart formatting skipped: model not downloaded or transcript empty.");
                 String[] rawParas = transcript.split("\n\n");
-                for (String rp : rawParas) {
+                for (int i = 0; i < rawParas.length; i++) {
+                    String rp = rawParas[i];
                     if (!rp.trim().isEmpty()) {
+                        Log.d(TAG, "Paragraph " + (i + 1) + "/" + rawParas.length + " (Raw only): " + rp);
                         paragraphList.add(new TranscriptionParagraph(rp, null));
                     }
                 }
