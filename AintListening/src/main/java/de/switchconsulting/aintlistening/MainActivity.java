@@ -33,9 +33,6 @@ import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.progressindicator.LinearProgressIndicator;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
-
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -49,12 +46,11 @@ import java.util.concurrent.Executors;
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "AintListening";
-    private static final String PREFS_NAME = "AintListeningPrefs";
-    private static final String KEY_LAST_MESSAGE = "last_message";
 
     private LinearProgressIndicator progressIndicator;
     private TextView statusTextView;
     private TranscriptionAdapter transcriptionAdapter;
+    private Persistency persistency;
 
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
     private final Transcriber transcriber = new Transcriber();
@@ -66,6 +62,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        persistency = new Persistency(this);
         selectedModelIndex = 0;
 
         progressIndicator = findViewById(R.id.progressIndicator);
@@ -322,7 +319,7 @@ public class MainActivity extends AppCompatActivity {
                     progressIndicator.setVisibility(View.GONE);
                     transcriptionAdapter.setParagraphs(paragraphList);
                     if (shouldSave) {
-                        saveLastMessage(paragraphList, modelIndex);
+                        persistency.saveLastMessage(paragraphList, modelIndex);
                     }
                 });
             }
@@ -367,56 +364,16 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void saveLastMessage(List<TranscriptionParagraph> paragraphs, int modelIndex) {
-        try {
-            JSONArray array = new JSONArray();
-            for (TranscriptionParagraph p : paragraphs) {
-                JSONObject obj = new JSONObject();
-                obj.put("raw", p.getRawText());
-                obj.put("formatted", p.getFormattedText());
-                obj.put("showFormatted", p.isShowFormatted());
-                array.put(obj);
-            }
-            getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
-                    .edit()
-                    .putString("last_paragraphs_json", array.toString())
-                    .putInt("last_model_index", modelIndex)
-                    .apply();
-        } catch (Exception e) {
-            Log.e(TAG, "Failed to save last message", e);
-        }
-    }
-
     private void loadLastMessage() {
-        String json = getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
-                .getString("last_paragraphs_json", null);
+        List<TranscriptionParagraph> paragraphs = persistency.loadLastMessage();
 
-        if (json != null) {
-            try {
-                JSONArray array = new JSONArray(json);
-                List<TranscriptionParagraph> paragraphs = new ArrayList<>();
-                for (int i = 0; i < array.length(); i++) {
-                    JSONObject obj = array.getJSONObject(i);
-                    TranscriptionParagraph p = new TranscriptionParagraph(
-                            obj.getString("raw"),
-                            obj.has("formatted") && !obj.isNull("formatted") ? obj.getString("formatted") : null
-                    );
-                    p.setShowFormatted(obj.optBoolean("showFormatted", p.isShowFormatted()));
-                    paragraphs.add(p);
-                }
-                transcriptionAdapter.setParagraphs(paragraphs);
-            } catch (Exception e) {
-                Log.e(TAG, "Failed to load last message", e);
-                showInfo(getString(R.string.intro_instruction));
-            }
+        if (paragraphs != null) {
+            transcriptionAdapter.setParagraphs(paragraphs);
         } else {
             // Fallback to old format if present
-            String lastMessage = getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
-                    .getString(KEY_LAST_MESSAGE, null);
-            int lastModelIndex = getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
-                    .getInt("last_model_index", 0);
-
+            String lastMessage = persistency.loadLegacyLastMessage();
             if (lastMessage != null) {
+                int lastModelIndex = persistency.loadLastModelIndex();
                 applySmartFormattingAndDisplay(lastMessage, lastModelIndex, false);
             } else {
                 showInfo(getString(R.string.intro_instruction));
