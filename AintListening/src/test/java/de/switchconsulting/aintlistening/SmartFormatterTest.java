@@ -75,4 +75,52 @@ public class SmartFormatterTest {
         String result = SmartFormatter.reconstructText(tokens, logits);
         assertEquals("Das ist gut. Super", result);
     }
+
+    /**
+     * Tests German capitalization heuristic.
+     */
+    @Test
+    public void testReconstructText_GermanCapitalization() {
+        // "ja ist es büro mutter"
+        // Start "Ja" (always capitalized)
+        // "ist", "es" (function words, stay lowercase)
+        // "büro", "mutter" (nouns, should be capitalized)
+        String[] tokens = {" ja", " ist", " es", " büro", " mutter"};
+        float[][] logits = new float[5][6];
+
+        String result = SmartFormatter.reconstructText(tokens, logits);
+        assertEquals("Ja ist es Büro Mutter", result);
+    }
+
+    /**
+     * Tests robust punctuation (taking it from any sub-token).
+     */
+    @Test
+    public void testReconstructText_SplitWordPunctuation() {
+        // "besorgen" split into " be", "sorge", "n"
+        // Period predicted on the LAST sub-token "n"
+        String[] tokens = {" be", "sorge", "n", " morgen"};
+        float[][] logits = new float[4][6];
+        logits[0][0] = 1.0f;
+        logits[1][0] = 1.0f;
+        logits[2][1] = 1.0f; // label 1 (.) for "n"
+        logits[3][0] = 1.0f;
+
+        String result = SmartFormatter.reconstructText(tokens, logits);
+        // "Besorgen" is capitalized (heuristic or start), followed by period, then "Morgen" (heuristic)
+        assertEquals("Besorgen. Morgen", result);
+    }
+
+    /**
+     * Verifies the user's specific problematic case.
+     */
+    @Test
+    public void testReconstructText_UserExample() {
+        String[] tokens = {" ja", " ist", " es", " so", " dass", " ich", " gestern", " war", " es", " sogar",
+                           " dienstag", " bis", " donnerstag", " im", " büro", " mutter", " pflege"};
+        float[][] logits = new float[tokens.length][6];
+
+        String result = SmartFormatter.reconstructText(tokens, logits);
+        assertEquals("Ja ist es so dass ich gestern war es sogar Dienstag bis Donnerstag im Büro Mutter Pflege", result);
+    }
 }

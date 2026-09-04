@@ -26,7 +26,10 @@ import java.io.File;
 import java.nio.LongBuffer;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 
 import ai.djl.huggingface.tokenizers.Encoding;
 import ai.djl.huggingface.tokenizers.HuggingFaceTokenizer;
@@ -56,6 +59,33 @@ public class SmartFormatter {
         LABEL_MAP.put(4, "-");
         LABEL_MAP.put(5, ":");
     }
+
+    /**
+     * Heuristic for German noun capitalization (Negative POS Tagging approach).
+     * In German, nouns and proper nouns are capitalized, while function words, verbs,
+     * and adjectives are lowercase (unless at the start of a sentence).
+     * This set contains common German words that should remain lowercase.
+     */
+    private static final Set<String> GERMAN_LOWERCASE_WORDS = new HashSet<>(Arrays.asList(
+            "der", "die", "das", "ein", "eine", "einer", "einem", "einen", "eines",
+            "und", "oder", "aber", "denn", "doch", "noch", "als", "wie", "so", "ja", "nein",
+            "ich", "du", "er", "sie", "es", "wir", "ihr", "mein", "dein", "sein", "unser", "euer",
+            "mich", "dich", "sich", "uns", "euch", "mir", "dir", "ihm", "ihr", "den", "dem",
+            "in", "an", "zu", "auf", "mit", "von", "aus", "bei", "nach", "für", "um", "über", "vor", "durch", "seit", "gegen",
+            "ist", "sind", "war", "waren", "bin", "bist", "habe", "hat", "hatte", "wird", "werden", "kann", "können", "muss", "müssen", "soll", "wollen",
+            "nicht", "auch", "nur", "schon", "jetzt", "immer", "wenn", "dass", "weil", "da", "dort", "hier",
+            "man", "jemand", "etwas", "nichts", "alles", "alle", "jeder", "kein", "keine",
+            "diese", "dieser", "dieses", "diesem", "diesen", "welche", "welcher", "welches",
+            "am", "im", "ans", "ins", "zur", "zum", "vom", "beim", "bis",
+            "gut", "geht", "sehr", "viel", "ganz", "mehr", "immer", "nie", "oft", "vielleicht",
+            "dann", "danach", "heute", "morgen", "gestern", "sogar", "gibt", "drauf", "auch", "oder",
+            "teilweise", "um", "dient", "wegen", "meine", "deine", "seine", "ihre", "unser", "unserer", "euer", "eurer",
+            "doch", "diese", "dieser", "dieses", "diesem", "diesen", "einigen", "einiger", "einiges",
+            "dringend", "weiter", "kümmern", "machen", "tun", "geht", "gut", "schon", "noch", "nur", "viel", "mehr", "sehr",
+            "für", "mit", "von", "aus", "bei", "nach", "seit", "zu", "um", "über", "unter", "zwischen", "vor", "nach", "ohne", "gegen",
+            "ergibt", "was", "gegessen", "länger", "also", "verschiedne", "wo", "raus", "genommen", "nutzt", "wieder",
+            "warum", "wie", "wann", "wer", "wen", "wem", "weshalb", "wieso", "viele", "alle", "alles", "etwas", "nichts"
+    ));
 
     /**
      * Constructs a new SmartFormatter and initializes the ONNX environment and model.
@@ -210,29 +240,54 @@ public class SmartFormatter {
                     }
                 }
 
-                // 2. Add space if not the first word
-                if (!TextUtils.isEmpty(result)) {
-                    result.append(" ");
-                }
+                // 2. Peek ahead to collect all sub-tokens of the CURRENT word
+                StringBuilder wordBuilder = new StringBuilder();
+                int label = 0;
+                int j = i;
 
-                // 3. Append the word part, capitalizing if needed
-                String wordPart = getCleanToken(token);
-                if (shouldCapitalize && !wordPart.isEmpty()) {
-                    result.append(Character.toUpperCase(wordPart.charAt(0)));
-                    if (wordPart.length() > 1) {
-                        result.append(wordPart.substring(1));
+                // Process first sub-token
+                wordBuilder.append(getCleanToken(tokens[j]));
+                int firstLabel = argmax(logits[j]);
+                if (firstLabel > 0) label = firstLabel;
+
+                // Collect remaining sub-tokens of the same word
+                j++;
+                while (j < tokens.length) {
+                    if (isSpecialToken(tokens[j])) {
+                        j++;
+                        continue;
                     }
-                    shouldCapitalize = false;
-                } else {
-                    result.append(wordPart);
+                    if (isNewWord(tokens[j])) break;
+
+                    wordBuilder.append(getCleanToken(tokens[j]));
+                    int subLabel = argmax(logits[j]);
+                    if (subLabel > 0) label = subLabel; // Take the last predicted punctuation
+                    j++;
                 }
 
-                // 4. Determine punctuation for this NEW word (First Sub-token Rule)
-                int label = argmax(logits[i]);
-                pendingPunct = LABEL_MAP.get(label);
-            } else {
-                // Continuation sub-token - just append content, no punctuation check here
-                result.append(getCleanToken(token));
+                String wordStr = wordBuilder.toString();
+                if (!wordStr.isEmpty()) {
+                    // Add space if not the first word
+                    if (!TextUtils.isEmpty(result) && result.charAt(result.length() - 1) != ' ') {
+                        result.append(" ");
+                    }
+
+                    // Capitalize if start of sentence OR German noun/adjective heuristic
+                    if (shouldCapitalize || shouldCapitalizeGermanWord(wordStr)) {
+                        result.append(Character.toUpperCase(wordStr.charAt(0)));
+                        if (wordStr.length() > 1) {
+                            result.append(wordStr.substring(1));
+                        }
+                    } else {
+                        result.append(wordStr);
+                    }
+
+                    shouldCapitalize = false;
+                    pendingPunct = LABEL_MAP.get(label);
+                }
+
+                // Advance main loop to the last token of this word
+                i = j - 1;
             }
         }
 
@@ -242,6 +297,12 @@ public class SmartFormatter {
         }
 
         return result.toString().trim();
+    }
+
+    private static boolean shouldCapitalizeGermanWord(String word) {
+        if (word == null || word.isEmpty()) return false;
+        String lower = word.toLowerCase(Locale.GERMAN);
+        return !GERMAN_LOWERCASE_WORDS.contains(lower);
     }
 
     static boolean isSpecialToken(String token) {
