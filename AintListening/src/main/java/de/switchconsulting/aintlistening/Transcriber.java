@@ -42,7 +42,7 @@ public class Transcriber {
      * Ensures that the Vosk model for the specified language is loaded into memory.
      *
      * @param context    The application context.
-     * @param modelIndex The index of the model in ModelManager.SUPPORTED_MODELS.
+     * @param modelIndex The index of the language in ModelManager.SUPPORTED_LANGUAGES.
      * @throws Exception If the model loading fails.
      */
     public void ensureModelLoaded(Context context, int modelIndex) throws Exception {
@@ -54,11 +54,12 @@ public class Transcriber {
             model.close();
         }
 
-        File modelDir = new File(context.getFilesDir(), ModelManager.SUPPORTED_MODELS[modelIndex].name);
-        if (!modelDir.exists() || !modelDir.isDirectory()) {
-            throw new IllegalStateException("Vosk model not found at: " + modelDir.getAbsolutePath());
+        LanguageSupport language = ModelManager.SUPPORTED_LANGUAGES[modelIndex];
+        if (!language.isTranscriptionDownloaded(context)) {
+            throw new IllegalStateException("Vosk model not found for language: " + language.getLanguage());
         }
 
+        File modelDir = new File(context.getFilesDir(), language.getTranscriptionModel().name);
         Log.i(TAG, "Loading Vosk model from: " + modelDir.getAbsolutePath());
         model = new Model(modelDir.getAbsolutePath());
         loadedModelIndex = modelIndex;

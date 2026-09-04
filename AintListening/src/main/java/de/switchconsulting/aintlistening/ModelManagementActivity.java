@@ -29,6 +29,9 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.progressindicator.LinearProgressIndicator;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Activity for managing speech models. Allows users to view available models,
  * download new ones, and delete installed ones.
@@ -70,9 +73,13 @@ public class ModelManagementActivity extends AppCompatActivity {
      * Configures the RecyclerView and its adapter.
      */
     private void setupRecyclerView() {
-        java.util.List<ModelInfo> allModels = new java.util.ArrayList<>();
-        allModels.addAll(java.util.Arrays.asList(ModelManager.SUPPORTED_MODELS));
-        allModels.addAll(java.util.Arrays.asList(ModelManager.SUPPORTED_SMART_FORMATTING_MODELS));
+        List<ModelInfo> allModels = new ArrayList<>();
+        for (LanguageSupport language : ModelManager.SUPPORTED_LANGUAGES) {
+            allModels.add(language.getTranscriptionModel());
+            if (language.getFormattingModel() != null) {
+                allModels.add(language.getFormattingModel());
+            }
+        }
 
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         adapter = new ModelAdapter(allModels, new ModelAdapter.InteractionListener() {

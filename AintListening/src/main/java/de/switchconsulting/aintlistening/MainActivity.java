@@ -32,6 +32,7 @@ import com.google.android.material.button.MaterialButton;
 import com.google.android.material.progressindicator.LinearProgressIndicator;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -170,9 +171,9 @@ public class MainActivity extends AppCompatActivity {
      * @param audioUri The URI of the audio to transcribe.
      */
     private void checkModelsAndProceed(Uri audioUri) {
-        List<Integer> availableIndices = new java.util.ArrayList<>();
-        for (int i = 0; i < ModelManager.SUPPORTED_MODELS.length; i++) {
-            if (ModelManager.isModelDownloaded(this, ModelManager.SUPPORTED_MODELS[i])) {
+        List<Integer> availableIndices = new ArrayList<>();
+        for (int i = 0; i < ModelManager.SUPPORTED_LANGUAGES.length; i++) {
+            if (ModelManager.SUPPORTED_LANGUAGES[i].isTranscriptionDownloaded(this)) {
                 availableIndices.add(i);
             }
         }
@@ -195,13 +196,13 @@ public class MainActivity extends AppCompatActivity {
     /**
      * Shows a dialog allowing the user to select the language for transcription.
      *
-     * @param availableIndices The indices of available models in ModelManager.SUPPORTED_MODELS.
+     * @param availableIndices The indices of available models in ModelManager.SUPPORTED_LANGUAGES.
      * @param audioUri         The URI of the audio to transcribe.
      */
     private void showLanguageSelectionDialog(List<Integer> availableIndices, Uri audioUri) {
         String[] languages = new String[availableIndices.size()];
         for (int i = 0; i < availableIndices.size(); i++) {
-            languages[i] = ModelManager.SUPPORTED_MODELS[availableIndices.get(i)].displayName;
+            languages[i] = ModelManager.SUPPORTED_LANGUAGES[availableIndices.get(i)].getLanguage();
         }
 
         new com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
@@ -282,14 +283,23 @@ public class MainActivity extends AppCompatActivity {
             });
 
             String finalTranscript = transcript;
-            // selectedModelIndex 0 is Deutsch
-            if (selectedModelIndex == 0 && ModelManager.isModelDownloaded(this, ModelManager.SUPPORTED_SMART_FORMATTING_MODELS[0])) {
-                Log.i(TAG, "Smart formatting model is available for German. Applying paragraph-wise...");
+            LanguageSupport selectedLanguage = ModelManager.SUPPORTED_LANGUAGES[selectedModelIndex];
+
+            if (selectedLanguage.isFormattingDownloaded(this)) {
+                Log.i(TAG, "Smart formatting model is available for " + selectedLanguage.getLanguage() + ". Applying paragraph-wise...");
                 try {
-                    if (smartFormatter == null) {
-                        smartFormatter = new SmartFormatter(this);
+                    ModelInfo targetModel = selectedLanguage.getFormattingModel();
+                    if (targetModel != null) {
+                        if (smartFormatter != null && !smartFormatter.getModelInfo().equals(targetModel)) {
+                            smartFormatter.close();
+                            smartFormatter = null;
+                        }
+
+                        if (smartFormatter == null) {
+                            smartFormatter = new SmartFormatter(this, targetModel);
+                        }
                     }
-                    
+
                     String[] paragraphs = transcript.split("\n\n");
                     runOnUiThread(() -> {
                         progressIndicator.setIndeterminate(false);

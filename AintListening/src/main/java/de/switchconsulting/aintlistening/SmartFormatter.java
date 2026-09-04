@@ -20,6 +20,8 @@ import android.content.Context;
 import android.text.TextUtils;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+
 import java.io.File;
 import java.nio.LongBuffer;
 import java.util.Arrays;
@@ -42,6 +44,7 @@ public class SmartFormatter {
     private final OrtEnvironment env;
     private OrtSession session;
     private HuggingFaceTokenizer tokenizer;
+    private final ModelInfo modelInfo;
 
     // Label mapping for oliverguhr/fullstop-punctuation-multilingual-sonar-base
     // 0: 0 (None), 1: . , 2: , , 3: ? , 4: - , 5: :
@@ -58,22 +61,33 @@ public class SmartFormatter {
      * Constructs a new SmartFormatter and initializes the ONNX environment and model.
      *
      * @param context The application context.
+     * @param info    The metadata for the smart formatting model to load.
      * @throws Exception If model or tokenizer initialization fails.
      */
-    public SmartFormatter(Context context) throws Exception {
+    public SmartFormatter(@NonNull Context context, @NonNull ModelInfo info) throws Exception {
         this.env = OrtEnvironment.getEnvironment();
-        loadModel(context);
+        this.modelInfo = info;
+        loadModel(context, info);
+    }
+
+    /**
+     * @return The metadata of the currently loaded model.
+     */
+    @NonNull
+    public ModelInfo getModelInfo() {
+        return modelInfo;
     }
 
     /**
      * Loads the ONNX model and tokenizer from the application's internal files directory.
      *
      * @param context The application context.
+     * @param info    The model information.
      * @throws Exception If the model or tokenizer files are not found or fail to load.
      */
-    private void loadModel(Context context) throws Exception {
-        File initialDir = new File(context.getFilesDir(), "ONNXModel_de");
-        File nestedDir = new File(initialDir, "ONNXModel_de");
+    private void loadModel(Context context, ModelInfo info) throws Exception {
+        File initialDir = new File(context.getFilesDir(), info.name);
+        File nestedDir = new File(initialDir, info.name);
         
         final File actualDir;
         if (new File(initialDir, "model.onnx").exists()) {

@@ -145,7 +145,7 @@ public class ModelAdapter extends RecyclerView.Adapter<ModelAdapter.ViewHolder> 
             Context context = itemView.getContext();
             nameText.setText(info.displayName);
 
-            boolean isDownloaded = ModelManager.isModelDownloaded(context, info);
+            boolean isDownloaded = ModelManager.INSTANCE.isModelDownloaded(context, info);
 
             if (!isDownloaded) {
                 icon.setImageResource(R.drawable.ic_error);
