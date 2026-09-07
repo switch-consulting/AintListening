@@ -2,22 +2,13 @@ import os
 import zipfile
 import shutil
 import argparse
-from optimum.onnxruntime import ORTModelForTokenClassification
-from transformers import AutoTokenizer
-from optimum.onnxruntime.configuration import AutoQuantizationConfig
-from optimum.onnxruntime import ORTQuantizer
+from huggingface_hub import hf_hub_download
+from transformers import XLMRobertaTokenizer
+from onnxruntime.quantization import quantize_dynamic, QuantType
 
-# Configuration - Choose your model variant
-# 1. BASE (Current): ~200MB ZIP, Best Quality, Multilingual
-# 2. DISTIL: ~130MB ZIP, Fast, Multilingual
-# 3. GERMAN_ONLY: ~110MB ZIP, Best for DE only
-# 4. SILERO: ~40MB ZIP, Extremely Fast, EN/DE/ES/RU
-
-# Defaulting to a high-quality multilingual model.
-# NOTE: This model is ~200MB in ZIP format.
-MODEL_ID = "oliverguhr/fullstop-punctuation-multilingual-sonar-base"
-# For German only, use: "oliverguhr/fullstop-german-punctuation-prediction"
-# For Silero (Requires different loading logic), use a different script.
+# This is a multi-head XLM-RoBERTa model (~1.1GB unquantized).
+# Gold standard for joint punctuation and capitalization restoration.
+MODEL_ID = "1-800-BAD-CODE/xlm-roberta_punctuation_fullstop_truecase"
 
 EXPORT_DIR = "./onnx_export"
 QUANT_DIR = "./onnx_quantized"
@@ -27,82 +18,61 @@ def prepare_model(locale="de"):
     zip_filename = f"ONNXModel_{locale}.zip"
     zip_path = os.path.join(MODELS_DIR, zip_filename)
 
-    # Ensure output directory exists
+    # Clean up and ensure directories exist
     if not os.path.exists(MODELS_DIR):
         os.makedirs(MODELS_DIR)
+    for d in [EXPORT_DIR, QUANT_DIR]:
+        if os.path.exists(d):
+            shutil.rmtree(d)
+        os.makedirs(d)
 
-    # 1. Export to ONNX
-    print(f"--- Step 1: Exporting {MODEL_ID} to ONNX ---")
-    if os.path.exists(EXPORT_DIR):
-        shutil.rmtree(EXPORT_DIR)
+    # 1. Download files manually (this is a NeMo export, not a standard HF model)
+    print(f"--- Step 1: Downloading {MODEL_ID} files ---")
+    hf_hub_download(repo_id=MODEL_ID, filename="model.onnx", local_dir=EXPORT_DIR)
+    hf_hub_download(repo_id=MODEL_ID, filename="config.yaml", local_dir=EXPORT_DIR)
+    hf_hub_download(repo_id=MODEL_ID, filename="sp.model", local_dir=EXPORT_DIR)
 
-    # Added fix_mistral_regex=True as suggested by the transformers warning to handle specific regex issues in some tokenizers
-    try:
-        tokenizer = AutoTokenizer.from_pretrained(MODEL_ID, fix_mistral_regex=True)
-    except TypeError:
-        # Fallback if the installed transformers version doesn't support the flag yet
-        tokenizer = AutoTokenizer.from_pretrained(MODEL_ID)
-
-    model = ORTModelForTokenClassification.from_pretrained(MODEL_ID, export=True)
-
-    model.save_pretrained(EXPORT_DIR)
+    # 2. Prepare Tokenizer
+    print(f"\n--- Step 2: Preparing Tokenizer ---")
+    # Using use_fast=False to ensure compatibility with SentencePiece and avoid conversion bugs
+    tokenizer = XLMRobertaTokenizer.from_pretrained("xlm-roberta-base", use_fast=False)
     tokenizer.save_pretrained(EXPORT_DIR)
-    print(f"Exported to {EXPORT_DIR}")
 
-    # 2. Quantize (Crucial for Mobile - reduces size by ~4x)
-    print(f"\n--- Step 2: Quantizing model (INT8) ---")
-    if os.path.exists(QUANT_DIR):
-        shutil.rmtree(QUANT_DIR)
+    # 3. Quantize (Mandatory for this 1.1GB model)
+    print(f"\n--- Step 3: Quantizing model (INT8) ---")
+    input_model_path = os.path.join(EXPORT_DIR, "model.onnx")
+    output_model_path = os.path.join(QUANT_DIR, "model.onnx")
 
-    try:
-        quantizer = ORTQuantizer.from_pretrained(EXPORT_DIR, fix_mistral_regex=True)
-    except TypeError:
-        quantizer = ORTQuantizer.from_pretrained(EXPORT_DIR)
-
-    # Using 'arm64' or basic 'avx' configs works well for generic mobile targets
-    dqconfig = AutoQuantizationConfig.arm64(is_static=False, per_channel=False)
-
-    quantizer.quantize(
-        save_dir=QUANT_DIR,
-        quantization_config=dqconfig,
+    quantize_dynamic(
+        input_model_path,
+        output_model_path,
+        weight_type=QuantType.QUInt8
     )
-
-    # Copy necessary meta-files (tokenizer, config) to quantization directory
-    for file in os.listdir(EXPORT_DIR):
-        if not file.endswith(".onnx"):
-            src = os.path.join(EXPORT_DIR, file)
-            dst = os.path.join(QUANT_DIR, file)
-            if os.path.isfile(src):
-                shutil.copy(src, dst)
     print(f"Quantized model saved to {QUANT_DIR}")
 
-    # 3. Packaging into ZIP
-    print(f"\n--- Step 3: Packaging files into {zip_path} ---")
+    # 4. Packaging into ZIP
+    print(f"\n--- Step 4: Packaging files into {zip_path} ---")
     model_name = os.path.splitext(zip_filename)[0]
     with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as zipf:
-        for root, _, files in os.walk(QUANT_DIR):
-            for file in files:
-                # Include model, config, and tokenizer files
-                if file.endswith((".onnx", ".json", ".txt", ".model")):
-                    file_path = os.path.join(root, file)
+        # Include Quantized Model
+        zipf.write(output_model_path, f"{model_name}/model.onnx")
 
-                    # Rename the quantized model to 'model.onnx' inside the zip
-                    # so the Android app can always look for the same filename
-                    if "model_quantized.onnx" in file:
-                        rel_path = "model.onnx"
-                    else:
-                        rel_path = os.path.relpath(file_path, QUANT_DIR)
+        # Include Tokenizer files
+        tokenizer_files = ["tokenizer.json", "tokenizer_config.json", "special_tokens_map.json", "sentencepiece.bpe.model"]
+        for file in os.listdir(EXPORT_DIR):
+            if file in tokenizer_files:
+                file_path = os.path.join(EXPORT_DIR, file)
+                zipf.write(file_path, f"{model_name}/{file}")
+                print(f"Added {file} to zip")
 
-                    # Nest inside a folder named after the model and force forward slashes
-                    arcname = f"{model_name}/{rel_path.replace(os.sep, '/')}"
-                    zipf.write(file_path, arcname)
-                    print(f"Added {arcname} to zip")
-
-    print(f"\nSuccess! '{zip_path}' is ready for the Android app.")
+    print(f"\nSuccess! '{zip_path}' is ready (~280MB).")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Prepare ONNX model for Android")
     parser.add_argument("--locale", type=str, default="de", help="Locale for the output filename (e.g. de, en)")
     args = parser.parse_args()
 
-    prepare_model(args.locale)
+    try:
+        prepare_model(args.locale)
+    except Exception as e:
+        print(f"\nCRITICAL ERROR during model preparation: {e}")

@@ -25,102 +25,61 @@ import org.junit.Test;
 public class SmartFormatterTest {
 
     /**
-     * Tests reconstruction of text from tokens and logits, specifically handling word splitting.
+     * Tests reconstruction of text from tokens and predictions using multi-head logic.
      */
     @Test
-    public void testReconstructText_WordSplitting() {
+    public void testReconstructTextBadCode_WordSplitting() {
         // Example: "besorgen" split into " be", "sorge", "n"
-        // Model predicts label 1 (.) for the first sub-token " be"
         String[] tokens = {" be", "sorge", "n", " morgen"};
-        float[][] logits = new float[4][6];
-        logits[0][1] = 1.0f; // label 1 (.) for " be"
-        logits[1][0] = 1.0f; // label 0 for "sorge"
-        logits[2][0] = 1.0f; // label 0 for "n"
-        logits[3][0] = 1.0f; // label 0 for " morgen"
+        long[] prePreds = {0, 0, 0, 0};
+        long[] postPreds = {0, 0, 2, 0}; // Period on "n"
+        long[][] capPreds = {
+            {1, 0}, // " be" -> " Be"
+            {0, 0, 0, 0, 0}, // "sorge"
+            {0}, // "n"
+            {0, 0, 0, 0, 0, 0} // " morgen"
+        };
+        long[] sbdPreds = {0, 0, 1, 0}; // Boundary on "n"
 
-        String result = SmartFormatter.reconstructText(tokens, logits);
-        // Expect "Besorgen. Morgen" (Capitalized start, period after full word "besorgen", capitalized next word)
+        String result = SmartFormatter.reconstructTextBadCode(tokens, prePreds, postPreds, capPreds, sbdPreds);
+        // Expect "Besorgen. Morgen"
         assertEquals("Besorgen. Morgen", result);
     }
 
     /**
-     * Tests reconstruction of text focusing on capitalization and question mark placement.
+     * Tests German noun capitalization in the middle of a sentence.
      */
     @Test
-    public void testReconstructText_Capitalization() {
-        String[] tokens = {" hallo", " wie", " geht", " es", " dir"};
-        float[][] logits = new float[5][6];
-        logits[0][0] = 1.0f;
-        logits[1][0] = 1.0f;
-        logits[2][0] = 1.0f;
-        logits[3][0] = 1.0f;
-        logits[4][3] = 1.0f; // label 3 (?) for " dir"
+    public void testReconstructTextBadCode_GermanNouns() {
+        String[] tokens = {" ich", " gehe", " ins", " büro"};
+        long[] prePreds = new long[4];
+        long[] postPreds = new long[4];
+        long[][] capPreds = {
+            {0, 0, 0}, // " ich" (will be force-capped)
+            {0, 0, 0, 0}, // " gehe"
+            {0, 0, 0}, // " ins"
+            {1, 0, 0, 0} // " büro" -> " Büro"
+        };
+        long[] sbdPreds = new long[4];
 
-        String result = SmartFormatter.reconstructText(tokens, logits);
-        assertEquals("Hallo wie geht es dir?", result);
+        String result = SmartFormatter.reconstructTextBadCode(tokens, prePreds, postPreds, capPreds, sbdPreds);
+        assertEquals("Ich gehe ins Büro", result);
     }
 
     /**
-     * Tests reconstruction of text with multiple sentences.
+     * Tests acronym handling.
      */
     @Test
-    public void testReconstructText_MultipleSentences() {
-        String[] tokens = {" das", " ist", " gut", " super"};
-        float[][] logits = new float[4][6];
-        logits[0][0] = 1.0f;
-        logits[1][0] = 1.0f;
-        logits[2][1] = 1.0f; // label 1 (.) for " gut"
-        logits[3][0] = 1.0f;
+    public void testReconstructTextBadCode_Acronyms() {
+        String[] tokens = {" die", " usa"};
+        long[] prePreds = new long[2];
+        long[] postPreds = {0, 1}; // Acronym marker on "usa"
+        long[][] capPreds = {
+            {0, 0, 0},
+            {1, 1, 1} // All caps
+        };
 
-        String result = SmartFormatter.reconstructText(tokens, logits);
-        assertEquals("Das ist gut. Super", result);
-    }
-
-    /**
-     * Tests German capitalization heuristic.
-     */
-    @Test
-    public void testReconstructText_GermanCapitalization() {
-        // "ja ist es büro mutter"
-        // Start "Ja" (always capitalized)
-        // "ist", "es" (function words, stay lowercase)
-        // "büro", "mutter" (nouns, should be capitalized)
-        String[] tokens = {" ja", " ist", " es", " büro", " mutter"};
-        float[][] logits = new float[5][6];
-
-        String result = SmartFormatter.reconstructText(tokens, logits);
-        assertEquals("Ja ist es Büro Mutter", result);
-    }
-
-    /**
-     * Tests robust punctuation (taking it from any sub-token).
-     */
-    @Test
-    public void testReconstructText_SplitWordPunctuation() {
-        // "besorgen" split into " be", "sorge", "n"
-        // Period predicted on the LAST sub-token "n"
-        String[] tokens = {" be", "sorge", "n", " morgen"};
-        float[][] logits = new float[4][6];
-        logits[0][0] = 1.0f;
-        logits[1][0] = 1.0f;
-        logits[2][1] = 1.0f; // label 1 (.) for "n"
-        logits[3][0] = 1.0f;
-
-        String result = SmartFormatter.reconstructText(tokens, logits);
-        // "Besorgen" is capitalized (heuristic or start), followed by period, then "Morgen" (heuristic)
-        assertEquals("Besorgen. Morgen", result);
-    }
-
-    /**
-     * Verifies the user's specific problematic case.
-     */
-    @Test
-    public void testReconstructText_UserExample() {
-        String[] tokens = {" ja", " ist", " es", " so", " dass", " ich", " gestern", " war", " es", " sogar",
-                           " dienstag", " bis", " donnerstag", " im", " büro", " mutter", " pflege"};
-        float[][] logits = new float[tokens.length][6];
-
-        String result = SmartFormatter.reconstructText(tokens, logits);
-        assertEquals("Ja ist es so dass ich gestern war es sogar Dienstag bis Donnerstag im Büro Mutter Pflege", result);
+        String result = SmartFormatter.reconstructTextBadCode(tokens, prePreds, postPreds, capPreds, null);
+        assertEquals("Die U.S.A.", result);
     }
 }

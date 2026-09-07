@@ -26,10 +26,8 @@ import java.io.File;
 import java.nio.LongBuffer;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Set;
 
 import ai.djl.huggingface.tokenizers.Encoding;
 import ai.djl.huggingface.tokenizers.HuggingFaceTokenizer;
@@ -49,43 +47,12 @@ public class SmartFormatter {
     private HuggingFaceTokenizer tokenizer;
     private final ModelInfo modelInfo;
 
-    // Label mapping for oliverguhr/fullstop-punctuation-multilingual-sonar-base
-    // 0: 0 (None), 1: . , 2: , , 3: ? , 4: - , 5: :
-    static final Map<Integer, String> LABEL_MAP = new HashMap<>();
-    static {
-        LABEL_MAP.put(1, ".");
-        LABEL_MAP.put(2, ",");
-        LABEL_MAP.put(3, "?");
-        LABEL_MAP.put(4, "-");
-        LABEL_MAP.put(5, ":");
-    }
-
-    /**
-     * Heuristic for German noun capitalization (Negative POS Tagging approach).
-     * In German, nouns and proper nouns are capitalized, while function words, verbs,
-     * and adjectives are lowercase (unless at the start of a sentence).
-     * This set contains common German words that should remain lowercase.
-     */
-    private static final Set<String> GERMAN_LOWERCASE_WORDS = new HashSet<>(Arrays.asList(
-            "der", "die", "das", "ein", "eine", "einer", "einem", "einen", "eines",
-            "und", "oder", "aber", "denn", "doch", "noch", "als", "wie", "so", "ja", "nein",
-            "ich", "du", "er", "sie", "es", "wir", "ihr", "mein", "dein", "sein", "unser", "euer",
-            "mich", "dich", "sich", "uns", "euch", "mir", "dir", "ihm", "ihr", "den", "dem",
-            "in", "an", "zu", "auf", "mit", "von", "aus", "bei", "nach", "für", "um", "über", "vor", "durch", "seit", "gegen",
-            "ist", "sind", "war", "waren", "bin", "bist", "habe", "hat", "hatte", "wird", "werden", "kann", "können", "muss", "müssen", "soll", "wollen",
-            "nicht", "auch", "nur", "schon", "jetzt", "immer", "wenn", "dass", "weil", "da", "dort", "hier",
-            "man", "jemand", "etwas", "nichts", "alles", "alle", "jeder", "kein", "keine",
-            "diese", "dieser", "dieses", "diesem", "diesen", "welche", "welcher", "welches",
-            "am", "im", "ans", "ins", "zur", "zum", "vom", "beim", "bis",
-            "gut", "geht", "sehr", "viel", "ganz", "mehr", "immer", "nie", "oft", "vielleicht",
-            "dann", "danach", "heute", "morgen", "gestern", "sogar", "gibt", "drauf", "auch", "oder",
-            "teilweise", "um", "dient", "wegen", "meine", "deine", "seine", "ihre", "unser", "unserer", "euer", "eurer",
-            "doch", "diese", "dieser", "dieses", "diesem", "diesen", "einigen", "einiger", "einiges",
-            "dringend", "weiter", "kümmern", "machen", "tun", "geht", "gut", "schon", "noch", "nur", "viel", "mehr", "sehr",
-            "für", "mit", "von", "aus", "bei", "nach", "seit", "zu", "um", "über", "unter", "zwischen", "vor", "nach", "ohne", "gegen",
-            "ergibt", "was", "gegessen", "länger", "also", "verschiedne", "wo", "raus", "genommen", "nutzt", "wieder",
-            "warum", "wie", "wann", "wer", "wen", "wem", "weshalb", "wieso", "viele", "alle", "alles", "etwas", "nichts"
-    ));
+    // 1-800-BAD-CODE XLM-RoBERTa multi-head mappings
+    static final String[] PRE_PUNC_LABELS = {"", "¿", "¡"};
+    static final String[] POST_PUNC_LABELS = {
+            "", "", ".", ",", "?", "？", "，", "。", "、", "・", "।", "؟", "،", ";", "።", "፣", "፧"
+    };
+    static final int POST_PUNC_ACRONYM_INDEX = 1;
 
     /**
      * Constructs a new SmartFormatter and initializes the ONNX environment and model.
@@ -182,128 +149,149 @@ public class SmartFormatter {
 
     private String processWithModel(String text) throws Exception {
         Log.d(TAG, "Input text: " + text);
-        Encoding encoding = tokenizer.encode(text);
+        // Bad-code model expects lowercased input
+        Encoding encoding = tokenizer.encode(text.toLowerCase(Locale.GERMAN));
         long[] inputIds = encoding.getIds();
         long[] attentionMask = encoding.getAttentionMask();
         String[] tokens = encoding.getTokens();
-        
+
         Log.d(TAG, "Tokens: " + Arrays.toString(tokens));
-        
+
         long[] shape = {1, inputIds.length};
         OnnxTensor inputIdsTensor = OnnxTensor.createTensor(env, LongBuffer.wrap(inputIds), shape);
         OnnxTensor attentionMaskTensor = OnnxTensor.createTensor(env, LongBuffer.wrap(attentionMask), shape);
-        
+
         Map<String, OnnxTensor> inputs = new HashMap<>();
         inputs.put("input_ids", inputIdsTensor);
         inputs.put("attention_mask", attentionMaskTensor);
-        
-        // Add token_type_ids if required by the model (common in BERT/RoBERTa)
-        final OnnxTensor tokenTypeIdsTensor;
-        if (session.getInputNames().contains("token_type_ids")) {
-            long[] tokenTypeIds = new long[inputIds.length]; // All zeros
-            tokenTypeIdsTensor = OnnxTensor.createTensor(env, LongBuffer.wrap(tokenTypeIds), shape);
-            inputs.put("token_type_ids", tokenTypeIdsTensor);
-        } else {
-            tokenTypeIdsTensor = null;
-        }
-        
+
         try (OrtSession.Result results = session.run(inputs)) {
-            // Logits shape: [batch, sequence, num_labels]
-            float[][][] logits = (float[][][]) results.get(0).getValue();
-            Log.d(TAG, "Logits shape: " + logits.length + "x" + logits[0].length + "x" + logits[0][0].length);
-            
-            return reconstructText(tokens, logits[0]);
+            // Expected outputs: pre_preds, post_preds, cap_preds, sbd_preds
+            // These are typically indices (Long) already argmaxed by the model export
+            long[][] prePreds = (long[][]) results.get("pre_preds").map(v -> {
+                try { return v.getValue(); } catch (Exception e) { return null; }
+            }).orElse(null);
+            long[][] postPreds = (long[][]) results.get("post_preds").map(v -> {
+                try { return v.getValue(); } catch (Exception e) { return null; }
+            }).orElse(null);
+            long[][][] capPreds = (long[][][]) results.get("cap_preds").map(v -> {
+                try { return v.getValue(); } catch (Exception e) { return null; }
+            }).orElse(null);
+            long[][] sbdPreds = (long[][]) results.get("sbd_preds").map(v -> {
+                try { return v.getValue(); } catch (Exception e) { return null; }
+            }).orElse(null);
+
+            if (prePreds == null || postPreds == null || capPreds == null) {
+                Log.e(TAG, "Failed to extract predictions from multi-head model");
+                return text.trim();
+            }
+
+            return reconstructTextBadCode(tokens, prePreds[0], postPreds[0], capPreds[0], sbdPreds != null ? sbdPreds[0] : null);
         } finally {
             inputIdsTensor.close();
             attentionMaskTensor.close();
-            if (tokenTypeIdsTensor != null) {
-                tokenTypeIdsTensor.close();
-            }
         }
     }
 
-    static String reconstructText(String[] tokens, float[][] logits) {
+    static String reconstructTextBadCode(String[] tokens, long[] prePreds, long[] postPreds, long[][] capPreds, long[] sbdPreds) {
         StringBuilder result = new StringBuilder();
-        String pendingPunct = null;
-        boolean shouldCapitalize = true;
+        boolean forceCapitalizeNext = true;
 
         for (int i = 0; i < tokens.length; i++) {
             String token = tokens[i];
             if (isSpecialToken(token)) continue;
 
             if (isNewWord(token)) {
-                // 1. Apply punctuation from the PREVIOUS word
-                if (pendingPunct != null) {
-                    result.append(pendingPunct);
-                    if (isSentenceEnding(pendingPunct)) {
-                        shouldCapitalize = true;
-                    }
-                }
-
-                // 2. Peek ahead to collect all sub-tokens of the CURRENT word
-                StringBuilder wordBuilder = new StringBuilder();
-                int label = 0;
+                // 1. Peek ahead to collect all sub-tokens of the CURRENT word
                 int j = i;
+                StringBuilder wordContent = new StringBuilder();
+                int prePuncIdx = (int) prePreds[i];
+                int postPuncIdx = 0;
+                boolean isAcronym = false;
+                
+                // Track capitalization for the first character of the word
+                boolean shouldCapFirst = forceCapitalizeNext;
 
-                // Process first sub-token
-                wordBuilder.append(getCleanToken(tokens[j]));
-                int firstLabel = argmax(logits[j]);
-                if (firstLabel > 0) label = firstLabel;
-
-                // Collect remaining sub-tokens of the same word
-                j++;
                 while (j < tokens.length) {
-                    if (isSpecialToken(tokens[j])) {
-                        j++;
-                        continue;
-                    }
-                    if (isNewWord(tokens[j])) break;
+                    if (isSpecialToken(tokens[j])) { j++; continue; }
+                    if (j > i && isNewWord(tokens[j])) break;
 
-                    wordBuilder.append(getCleanToken(tokens[j]));
-                    int subLabel = argmax(logits[j]);
-                    if (subLabel > 0) label = subLabel; // Take the last predicted punctuation
+                    String subToken = getCleanToken(tokens[j]);
+                    
+                    // Apply character-level capitalization from capPreds
+                    for (int k = 0; k < subToken.length(); k++) {
+                        char c = subToken.charAt(k);
+                        // capPreds[j] contains 0 or 1 for each character
+                        // We check the k-th prediction if available
+                        boolean cap = false;
+                        if (k < capPreds[j].length) {
+                            cap = capPreds[j][k] == 1;
+                        }
+                        
+                        if (j == i && k == 0 && shouldCapFirst) {
+                            cap = true;
+                        }
+
+                        if (cap) {
+                            wordContent.append(Character.toUpperCase(c));
+                        } else {
+                            wordContent.append(c);
+                        }
+                    }
+
+                    // Update post-punctuation prediction (usually predicted on the last sub-token)
+                    postPuncIdx = (int) postPreds[j];
+                    if (postPuncIdx == POST_PUNC_ACRONYM_INDEX) isAcronym = true;
+                    
+                    // If any sub-token marks a sentence boundary, the NEXT word should be capitalized
+                    if (sbdPreds != null && sbdPreds[j] == 1) {
+                        forceCapitalizeNext = true;
+                    }
+
                     j++;
                 }
 
-                String wordStr = wordBuilder.toString();
-                if (!wordStr.isEmpty()) {
-                    // Add space if not the first word
+                String finishedWord = wordContent.toString();
+                if (!finishedWord.isEmpty()) {
                     if (!TextUtils.isEmpty(result) && result.charAt(result.length() - 1) != ' ') {
                         result.append(" ");
                     }
 
-                    // Capitalize if start of sentence OR German noun/adjective heuristic
-                    if (shouldCapitalize || shouldCapitalizeGermanWord(wordStr)) {
-                        result.append(Character.toUpperCase(wordStr.charAt(0)));
-                        if (wordStr.length() > 1) {
-                            result.append(wordStr.substring(1));
-                        }
-                    } else {
-                        result.append(wordStr);
+                    // Apply pre-punctuation
+                    if (prePuncIdx > 0 && prePuncIdx < PRE_PUNC_LABELS.length) {
+                        result.append(PRE_PUNC_LABELS[prePuncIdx]);
                     }
 
-                    shouldCapitalize = false;
-                    pendingPunct = LABEL_MAP.get(label);
+                    // Handle acronym special case (periods after every letter)
+                    if (isAcronym) {
+                        StringBuilder acro = new StringBuilder();
+                        for (char c : finishedWord.toCharArray()) {
+                            acro.append(c).append(".");
+                        }
+                        result.append(acro);
+                        forceCapitalizeNext = false; 
+                    } else {
+                        result.append(finishedWord);
+                        forceCapitalizeNext = false;
+                        // Apply post-punctuation
+                        if (postPuncIdx > 1 && postPuncIdx < POST_PUNC_LABELS.length) {
+                            String punct = POST_PUNC_LABELS[postPuncIdx];
+                            result.append(punct);
+                            if (isSentenceEnding(punct)) {
+                                forceCapitalizeNext = true;
+                            }
+                        }
+                    }
                 }
-
-                // Advance main loop to the last token of this word
+                
                 i = j - 1;
             }
-        }
-
-        // Apply final punctuation
-        if (pendingPunct != null) {
-            result.append(pendingPunct);
         }
 
         return result.toString().trim();
     }
 
-    private static boolean shouldCapitalizeGermanWord(String word) {
-        if (word == null || word.isEmpty()) return false;
-        String lower = word.toLowerCase(Locale.GERMAN);
-        return !GERMAN_LOWERCASE_WORDS.contains(lower);
-    }
+    // Old methods removed to clean up multi-head refactor
 
     static boolean isSpecialToken(String token) {
         return token.equals("<s>") || token.equals("</s>") || token.equals("<pad>") ||
@@ -324,16 +312,6 @@ public class SmartFormatter {
 
     static boolean isSentenceEnding(String punct) {
         return ".".equals(punct) || "?".equals(punct) || ":".equals(punct);
-    }
-
-    static int argmax(float[] array) {
-        int maxIndex = 0;
-        for (int i = 1; i < array.length; i++) {
-            if (array[i] > array[maxIndex]) {
-                maxIndex = i;
-            }
-        }
-        return maxIndex;
     }
 
     public void close() {
