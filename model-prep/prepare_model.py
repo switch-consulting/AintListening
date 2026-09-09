@@ -34,8 +34,10 @@ def prepare_model(locale="de"):
 
     # 2. Prepare Tokenizer
     print(f"\n--- Step 2: Preparing Tokenizer ---")
-    # Using use_fast=False to ensure compatibility with SentencePiece and avoid conversion bugs
-    tokenizer = XLMRobertaTokenizer.from_pretrained("xlm-roberta-base", use_fast=False)
+    # We need the 'fast' tokenizer to generate 'tokenizer.json' for the Android app (DJL library).
+    # We use xlm-roberta-base as the vocabulary is identical to the fine-tuned model.
+    from transformers import AutoTokenizer
+    tokenizer = AutoTokenizer.from_pretrained("xlm-roberta-base", use_fast=True)
     tokenizer.save_pretrained(EXPORT_DIR)
 
     # 3. Quantize (Mandatory for this 1.1GB model)

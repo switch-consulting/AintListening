@@ -36,7 +36,7 @@ class ModelManager {
         SUPPORTED_LANGUAGES = new LanguageSupport[]{
                 new LanguageSupport("Deutsch",
                         new ModelInfo("vosk-model-small-de-0.15", "https://alphacephei.com/vosk/models/vosk-model-small-de-0.15.zip", "Deutsch", "45MB"),
-                        new ModelInfo("ONNXModel_de", "https://github.com/switch-consulting/AintListening/raw/main/models/ONNXModel_de.zip", "Smart Formatting (DE)", "280MB"),
+                        new ModelInfo("ONNXModel_de", "https://github.com/switch-consulting/AintListening/raw/refs/heads/feature/bad-code-formatting/models/ONNXModel_de.zip", "Smart Formatting (DE)", "280MB"),
                         INSTANCE),
                 new LanguageSupport("English",
                         new ModelInfo("vosk-model-small-en-us-0.15", "https://alphacephei.com/vosk/models/vosk-model-small-en-us-0.15.zip", "English", "40MB"),

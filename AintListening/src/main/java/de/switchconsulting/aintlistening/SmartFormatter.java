@@ -28,6 +28,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 
 import ai.djl.huggingface.tokenizers.Encoding;
 import ai.djl.huggingface.tokenizers.HuggingFaceTokenizer;
@@ -159,38 +160,102 @@ public class SmartFormatter {
 
         long[] shape = {1, inputIds.length};
         OnnxTensor inputIdsTensor = OnnxTensor.createTensor(env, LongBuffer.wrap(inputIds), shape);
-        OnnxTensor attentionMaskTensor = OnnxTensor.createTensor(env, LongBuffer.wrap(attentionMask), shape);
-
+        
         Map<String, OnnxTensor> inputs = new HashMap<>();
-        inputs.put("input_ids", inputIdsTensor);
-        inputs.put("attention_mask", attentionMaskTensor);
+        // Dynamically add only the inputs the model expects
+        Set<String> expectedInputs = session.getInputNames();
+        if (expectedInputs.contains("input_ids")) {
+            inputs.put("input_ids", inputIdsTensor);
+        } else if (expectedInputs.size() == 1) {
+            // Fallback for models that just name their single input "input" or similar
+            inputs.put(expectedInputs.iterator().next(), inputIdsTensor);
+        }
+
+        OnnxTensor attentionMaskTensor;
+        if (expectedInputs.contains("attention_mask")) {
+            attentionMaskTensor = OnnxTensor.createTensor(env, LongBuffer.wrap(attentionMask), shape);
+            inputs.put("attention_mask", attentionMaskTensor);
+        } else {
+            attentionMaskTensor = null;
+        }
 
         try (OrtSession.Result results = session.run(inputs)) {
-            // Expected outputs: pre_preds, post_preds, cap_preds, sbd_preds
-            // These are typically indices (Long) already argmaxed by the model export
-            long[][] prePreds = (long[][]) results.get("pre_preds").map(v -> {
-                try { return v.getValue(); } catch (Exception e) { return null; }
-            }).orElse(null);
-            long[][] postPreds = (long[][]) results.get("post_preds").map(v -> {
-                try { return v.getValue(); } catch (Exception e) { return null; }
-            }).orElse(null);
-            long[][][] capPreds = (long[][][]) results.get("cap_preds").map(v -> {
-                try { return v.getValue(); } catch (Exception e) { return null; }
-            }).orElse(null);
-            long[][] sbdPreds = (long[][]) results.get("sbd_preds").map(v -> {
-                try { return v.getValue(); } catch (Exception e) { return null; }
-            }).orElse(null);
+            // Expected outputs from 1-800-BAD-CODE model: pre_preds, post_preds, cap_preds, seg_preds
+            long[][] prePreds = extractLongArray2D(results, "pre_preds");
+            long[][] postPreds = extractLongArray2D(results, "post_preds");
+            long[][] segPreds = extractLongArray2D(results, "seg_preds");
+            
+            long[][][] capPreds;
+            if (results.get("cap_preds").isPresent()) {
+                Object val = results.get("cap_preds").get().getValue();
+                if (val instanceof long[][][]) {
+                    capPreds = (long[][][]) val;
+                } else if (val instanceof int[][][]) {
+                    int[][][] intVals = (int[][][]) val;
+                    capPreds = new long[intVals.length][intVals[0].length][intVals[0][0].length];
+                    for (int b = 0; b < intVals.length; b++)
+                        for (int s = 0; s < intVals[0].length; s++)
+                            for (int k = 0; k < intVals[0][0].length; k++)
+                                capPreds[b][s][k] = intVals[b][s][k];
+                } else if (val instanceof boolean[][][]) {
+                    boolean[][][] boolVals = (boolean[][][]) val;
+                    capPreds = new long[boolVals.length][boolVals[0].length][boolVals[0][0].length];
+                    for (int b = 0; b < boolVals.length; b++)
+                        for (int s = 0; s < boolVals[0].length; s++)
+                            for (int k = 0; k < boolVals[0][0].length; k++)
+                                capPreds[b][s][k] = boolVals[b][s][k] ? 1 : 0;
+                } else if (val instanceof long[][]) {
+                    long[][] long2D = (long[][]) val;
+                    capPreds = new long[long2D.length][long2D[0].length][1];
+                    for (int b = 0; b < long2D.length; b++)
+                        for (int s = 0; s < long2D[0].length; s++)
+                            capPreds[b][s][0] = long2D[b][s];
+                } else if (val instanceof int[][]) {
+                    int[][] int2D = (int[][]) val;
+                    capPreds = new long[int2D.length][int2D[0].length][1];
+                    for (int b = 0; b < int2D.length; b++)
+                        for (int s = 0; s < int2D[0].length; s++)
+                            capPreds[b][s][0] = int2D[b][s];
+                } else {
+                    capPreds = null;
+                }
+            } else {
+                capPreds = null;
+            }
 
             if (prePreds == null || postPreds == null || capPreds == null) {
                 Log.e(TAG, "Failed to extract predictions from multi-head model");
                 return text.trim();
             }
 
-            return reconstructTextBadCode(tokens, prePreds[0], postPreds[0], capPreds[0], sbdPreds != null ? sbdPreds[0] : null);
+            return reconstructTextBadCode(tokens, prePreds[0], postPreds[0], capPreds[0], segPreds != null ? segPreds[0] : null);
         } finally {
             inputIdsTensor.close();
-            attentionMaskTensor.close();
+            if (attentionMaskTensor != null) {
+                attentionMaskTensor.close();
+            }
         }
+    }
+
+    private long[][] extractLongArray2D(OrtSession.Result results, String name) {
+        if (!results.get(name).isPresent()) return null;
+        try {
+            Object val = results.get(name).get().getValue();
+            if (val instanceof long[][]) return (long[][]) val;
+            if (val instanceof int[][]) {
+                int[][] intVals = (int[][]) val;
+                long[][] longVals = new long[intVals.length][intVals[0].length];
+                for (int i = 0; i < intVals.length; i++) {
+                    for (int j = 0; j < intVals[0].length; j++) {
+                        longVals[i][j] = intVals[i][j];
+                    }
+                }
+                return longVals;
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Error extracting " + name, e);
+        }
+        return null;
     }
 
     static String reconstructTextBadCode(String[] tokens, long[] prePreds, long[] postPreds, long[][] capPreds, long[] sbdPreds) {
@@ -209,33 +274,33 @@ public class SmartFormatter {
                 int postPuncIdx = 0;
                 boolean isAcronym = false;
                 
-                // Track capitalization for the first character of the word
-                boolean shouldCapFirst = forceCapitalizeNext;
-
                 while (j < tokens.length) {
                     if (isSpecialToken(tokens[j])) { j++; continue; }
                     if (j > i && isNewWord(tokens[j])) break;
 
-                    String subToken = getCleanToken(tokens[j]);
+                    String rawToken = tokens[j];
+                    String cleaned = getCleanToken(rawToken);
                     
                     // Apply character-level capitalization from capPreds
-                    for (int k = 0; k < subToken.length(); k++) {
-                        char c = subToken.charAt(k);
-                        // capPreds[j] contains 0 or 1 for each character
-                        // We check the k-th prediction if available
-                        boolean cap = false;
-                        if (k < capPreds[j].length) {
-                            cap = capPreds[j][k] == 1;
-                        }
-                        
-                        if (j == i && k == 0 && shouldCapFirst) {
-                            cap = true;
-                        }
+                    if (!cleaned.isEmpty()) {
+                        for (int k = 0; k < rawToken.length(); k++) {
+                            char c = rawToken.charAt(k);
+                            if (c == ' ' || c == '\u2581') continue;
 
-                        if (cap) {
-                            wordContent.append(Character.toUpperCase(c));
-                        } else {
-                            wordContent.append(c);
+                            boolean cap = false;
+                            if (k < capPreds[j].length) {
+                                cap = capPreds[j][k] == 1;
+                            }
+                            
+                            if (wordContent.length() == 0 && forceCapitalizeNext) {
+                                cap = true;
+                            }
+
+                            if (cap) {
+                                wordContent.append(Character.toUpperCase(c));
+                            } else {
+                                wordContent.append(c);
+                            }
                         }
                     }
 
