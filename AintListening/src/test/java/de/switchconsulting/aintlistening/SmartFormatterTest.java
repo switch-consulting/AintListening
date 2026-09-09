@@ -17,12 +17,38 @@
 package de.switchconsulting.aintlistening;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mockStatic;
+
+import android.text.TextUtils;
+
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
+import org.mockito.MockedStatic;
 
 /**
  * Unit tests for {@link SmartFormatter}.
  */
 public class SmartFormatterTest {
+
+    private MockedStatic<TextUtils> textUtilsMock;
+
+    @Before
+    public void setUp() {
+        textUtilsMock = mockStatic(TextUtils.class);
+        textUtilsMock.when(() -> TextUtils.isEmpty(any())).thenAnswer(invocation -> {
+            CharSequence s = invocation.getArgument(0);
+            return s == null || s.isEmpty();
+        });
+    }
+
+    @After
+    public void tearDown() {
+        if (textUtilsMock != null) {
+            textUtilsMock.close();
+        }
+    }
 
     /**
      * Tests reconstruction of text from tokens and predictions using multi-head logic.
@@ -75,8 +101,8 @@ public class SmartFormatterTest {
         long[] prePreds = new long[2];
         long[] postPreds = {0, 1}; // Acronym marker on "usa"
         long[][] capPreds = {
-            {0, 0, 0},
-            {1, 1, 1} // All caps
+            {0, 0, 0, 0},
+            {1, 1, 1, 1} // All caps for " usa"
         };
 
         String result = SmartFormatter.reconstructTextBadCode(tokens, prePreds, postPreds, capPreds, null);

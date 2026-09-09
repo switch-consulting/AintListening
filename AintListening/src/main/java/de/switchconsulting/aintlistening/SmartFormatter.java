@@ -188,30 +188,26 @@ public class SmartFormatter {
             long[][][] capPreds;
             if (results.get("cap_preds").isPresent()) {
                 Object val = results.get("cap_preds").get().getValue();
-                if (val instanceof long[][][]) {
-                    capPreds = (long[][][]) val;
-                } else if (val instanceof int[][][]) {
-                    int[][][] intVals = (int[][][]) val;
+                if (val instanceof long[][][] long3D) {
+                    capPreds = long3D;
+                } else if (val instanceof int[][][] intVals) {
                     capPreds = new long[intVals.length][intVals[0].length][intVals[0][0].length];
-                    for (int b = 0; b < intVals.length; b++)
-                        for (int s = 0; s < intVals[0].length; s++)
-                            for (int k = 0; k < intVals[0][0].length; k++)
-                                capPreds[b][s][k] = intVals[b][s][k];
-                } else if (val instanceof boolean[][][]) {
-                    boolean[][][] boolVals = (boolean[][][]) val;
+                    for (int batch = 0; batch < intVals.length; batch++)
+                        for (int seq = 0; seq < intVals[0].length; seq++)
+                            for (int chr = 0; chr < intVals[0][0].length; chr++)
+                                capPreds[batch][seq][chr] = intVals[batch][seq][chr];
+                } else if (val instanceof boolean[][][] boolVals) {
                     capPreds = new long[boolVals.length][boolVals[0].length][boolVals[0][0].length];
-                    for (int b = 0; b < boolVals.length; b++)
-                        for (int s = 0; s < boolVals[0].length; s++)
-                            for (int k = 0; k < boolVals[0][0].length; k++)
-                                capPreds[b][s][k] = boolVals[b][s][k] ? 1 : 0;
-                } else if (val instanceof long[][]) {
-                    long[][] long2D = (long[][]) val;
+                    for (int batch = 0; batch < boolVals.length; batch++)
+                        for (int seq = 0; seq < boolVals[0].length; seq++)
+                            for (int chr = 0; chr < boolVals[0][0].length; chr++)
+                                capPreds[batch][seq][chr] = boolVals[batch][seq][chr] ? 1 : 0;
+                } else if (val instanceof long[][] long2D) {
                     capPreds = new long[long2D.length][long2D[0].length][1];
                     for (int b = 0; b < long2D.length; b++)
                         for (int s = 0; s < long2D[0].length; s++)
                             capPreds[b][s][0] = long2D[b][s];
-                } else if (val instanceof int[][]) {
-                    int[][] int2D = (int[][]) val;
+                } else if (val instanceof int[][] int2D) {
                     capPreds = new long[int2D.length][int2D[0].length][1];
                     for (int b = 0; b < int2D.length; b++)
                         for (int s = 0; s < int2D[0].length; s++)
@@ -238,12 +234,11 @@ public class SmartFormatter {
     }
 
     private long[][] extractLongArray2D(OrtSession.Result results, String name) {
-        if (!results.get(name).isPresent()) return null;
+        if (results.get(name).isEmpty()) return null;
         try {
             Object val = results.get(name).get().getValue();
-            if (val instanceof long[][]) return (long[][]) val;
-            if (val instanceof int[][]) {
-                int[][] intVals = (int[][]) val;
+            if (val instanceof long[][] longVals) return longVals;
+            if (val instanceof int[][] intVals) {
                 long[][] longVals = new long[intVals.length][intVals[0].length];
                 for (int i = 0; i < intVals.length; i++) {
                     for (int j = 0; j < intVals[0].length; j++) {
@@ -273,34 +268,36 @@ public class SmartFormatter {
                 int prePuncIdx = (int) prePreds[i];
                 int postPuncIdx = 0;
                 boolean isAcronym = false;
-                
+                boolean capNext = false;
+
                 while (j < tokens.length) {
                     if (isSpecialToken(tokens[j])) { j++; continue; }
                     if (j > i && isNewWord(tokens[j])) break;
 
                     String rawToken = tokens[j];
-                    String cleaned = getCleanToken(rawToken);
                     
                     // Apply character-level capitalization from capPreds
-                    if (!cleaned.isEmpty()) {
-                        for (int k = 0; k < rawToken.length(); k++) {
-                            char c = rawToken.charAt(k);
-                            if (c == ' ' || c == '\u2581') continue;
+                    for (int k = 0; k < rawToken.length(); k++) {
+                        char c = rawToken.charAt(k);
+                        boolean isSpace = (c == ' ' || c == '▁');
 
-                            boolean cap = false;
-                            if (k < capPreds[j].length) {
-                                cap = capPreds[j][k] == 1;
-                            }
-                            
-                            if (wordContent.length() == 0 && forceCapitalizeNext) {
-                                cap = true;
-                            }
+                        boolean cap = false;
+                        if (k < capPreds[j].length) {
+                            cap = capPreds[j][k] == 1;
+                        }
 
-                            if (cap) {
-                                wordContent.append(Character.toUpperCase(c));
-                            } else {
-                                wordContent.append(c);
-                            }
+                        if (isSpace) {
+                            if (cap) capNext = true;
+                            continue;
+                        }
+
+                        // Capitalize if the character itself is marked, or a preceding space was marked,
+                        // or if this is the start of a sentence.
+                        if (cap || capNext || (TextUtils.isEmpty(wordContent) && forceCapitalizeNext)) {
+                            wordContent.append(Character.toUpperCase(c));
+                            capNext = false;
+                        } else {
+                            wordContent.append(c);
                         }
                     }
 
@@ -317,7 +314,7 @@ public class SmartFormatter {
                 }
 
                 String finishedWord = wordContent.toString();
-                if (!finishedWord.isEmpty()) {
+                if (!TextUtils.isEmpty(finishedWord)) {
                     if (!TextUtils.isEmpty(result) && result.charAt(result.length() - 1) != ' ') {
                         result.append(" ");
                     }
@@ -366,13 +363,6 @@ public class SmartFormatter {
     static boolean isNewWord(String token) {
         // SentencePiece uses   (U+2581) or a regular space to denote the start of a word
         return token.startsWith(" ") || token.startsWith("\u2581");
-    }
-
-    static String getCleanToken(String token) {
-        if (token.startsWith(" ") || token.startsWith("\u2581")) {
-            return token.substring(1);
-        }
-        return token;
     }
 
     static boolean isSentenceEnding(String punct) {
