@@ -67,4 +67,7 @@
     <string name="label_ui_settings">Benutzeroberfläche</string>
     <string name="label_show_playback">Abspiel-Button anzeigen</string>
     <string name="label_show_copy">Kopieren-Button anzeigen</string>
+    <string name="label_show_raw">Rohtext-Transkription anzeigen</string>
+    <string name="label_show_smart">Intelligente Formatierung anzeigen</string>
+    <string name="message_at_least_one_mode">Mindestens ein Anzeigemodus muss aktiv sein</string>
 </resources>

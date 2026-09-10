@@ -46,6 +46,8 @@ public class ModelManagementActivity extends AppCompatActivity {
     private ModelAdapter adapter;
     private ModelManagementViewModel viewModel;
     private Persistency persistency;
+    private SwitchMaterial switchRaw;
+    private SwitchMaterial switchSmart;
 
     /**
      * Initializes the activity, sets up the ViewModel, and UI components.
@@ -78,12 +80,60 @@ public class ModelManagementActivity extends AppCompatActivity {
     private void setupUISettings() {
         SwitchMaterial switchPlayback = findViewById(R.id.switchPlayback);
         SwitchMaterial switchCopy = findViewById(R.id.switchCopy);
+        switchRaw = findViewById(R.id.switchRaw);
+        switchSmart = findViewById(R.id.switchSmart);
 
         switchPlayback.setChecked(persistency.isShowPlaybackButton());
         switchCopy.setChecked(persistency.isShowCopyButton());
+        switchRaw.setChecked(persistency.isShowRawText());
+        switchSmart.setChecked(persistency.isShowSmartText());
 
         switchPlayback.setOnCheckedChangeListener((buttonView, isChecked) -> persistency.setShowPlaybackButton(isChecked));
         switchCopy.setOnCheckedChangeListener((buttonView, isChecked) -> persistency.setShowCopyButton(isChecked));
+
+        switchRaw.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (!isChecked && !switchSmart.isChecked()) {
+                switchRaw.setChecked(true);
+                Toast.makeText(this, R.string.message_at_least_one_mode, Toast.LENGTH_SHORT).show();
+            } else {
+                persistency.setShowRawText(isChecked);
+            }
+        });
+
+        switchSmart.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (!isChecked && !switchRaw.isChecked()) {
+                switchSmart.setChecked(true);
+                Toast.makeText(this, R.string.message_at_least_one_mode, Toast.LENGTH_SHORT).show();
+            } else {
+                persistency.setShowSmartText(isChecked);
+            }
+        });
+
+        updateSmartFormattingSwitchState();
+    }
+
+    private void updateSmartFormattingSwitchState() {
+        boolean isFormattingAvailable = false;
+        for (LanguageSupport lang : ModelManager.SUPPORTED_LANGUAGES) {
+            if (lang.isFormattingDownloaded(this)) {
+                isFormattingAvailable = true;
+                break;
+            }
+        }
+
+        if (!isFormattingAvailable) {
+            switchSmart.setChecked(false);
+            switchSmart.setEnabled(false);
+            persistency.setShowSmartText(false);
+            
+            // If we forced smart off, ensure raw is on
+            if (!switchRaw.isChecked()) {
+                switchRaw.setChecked(true);
+                persistency.setShowRawText(true);
+            }
+        } else {
+            switchSmart.setEnabled(true);
+        }
     }
 
     /**
@@ -167,6 +217,7 @@ public class ModelManagementActivity extends AppCompatActivity {
             adapter.setBusy(isBusy);
             adapter.refresh();
         }
+        updateSmartFormattingSwitchState();
     }
 
     /**

@@ -67,4 +67,7 @@
     <string name="label_ui_settings">User Interface</string>
     <string name="label_show_playback">Show Playback Button</string>
     <string name="label_show_copy">Show Copy Button</string>
+    <string name="label_show_raw">Show Raw Transcription</string>
+    <string name="label_show_smart">Show Smart Formatting</string>
+    <string name="message_at_least_one_mode">At least one display mode must be active</string>
 </resources>

@@ -67,4 +67,7 @@
     <string name="label_ui_settings">Interfaccia utente</string>
     <string name="label_show_playback">Mostra pulsante di riproduzione</string>
     <string name="label_show_copy">Mostra pulsante di copia</string>
+    <string name="label_show_raw">Mostra trascrizione grezza</string>
+    <string name="label_show_smart">Mostra formattazione intelligente</string>
+    <string name="message_at_least_one_mode">Almeno una modalità di visualizzazione deve essere attiva</string>
 </resources>

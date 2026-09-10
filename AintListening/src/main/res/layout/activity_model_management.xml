@@ -102,6 +102,22 @@
                 android:layout_height="wrap_content"
                 android:text="@string/label_show_copy"
                 android:checked="true"
+                android:layout_marginBottom="8dp" />
+
+            <com.google.android.material.switchmaterial.SwitchMaterial
+                android:id="@+id/switchRaw"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/label_show_raw"
+                android:checked="true"
+                android:layout_marginBottom="8dp" />
+
+            <com.google.android.material.switchmaterial.SwitchMaterial
+                android:id="@+id/switchSmart"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/label_show_smart"
+                android:checked="true"
                 android:layout_marginBottom="16dp" />
 
         </LinearLayout>

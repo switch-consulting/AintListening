@@ -67,4 +67,7 @@
     <string name="label_ui_settings">Interfaz de usuario</string>
     <string name="label_show_playback">Mostrar botón de reproducción</string>
     <string name="label_show_copy">Mostrar botón de copiar</string>
+    <string name="label_show_raw">Mostrar transcripción sin procesar</string>
+    <string name="label_show_smart">Mostrar formato inteligente</string>
+    <string name="message_at_least_one_mode">Al menos un modo de visualización debe estar activo</string>
 </resources>

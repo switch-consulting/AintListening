@@ -89,10 +89,14 @@ public class TranscriptionParagraph {
 
     /**
      * Returns the text to be displayed based on the current toggle state.
+     * Falls back to raw text if formatted text is requested but not yet available.
      *
      * @return The formatted or raw text.
      */
     public String getDisplayText() {
-        return showFormatted ? formattedText : rawText;
+        if (showFormatted && formattedText != null && !formattedText.isEmpty()) {
+            return formattedText;
+        }
+        return rawText;
     }
 }

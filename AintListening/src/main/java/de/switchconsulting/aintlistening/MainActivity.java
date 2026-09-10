@@ -96,7 +96,7 @@ public class MainActivity extends AppCompatActivity {
         super.onResume();
         updateAvailableLanguagesUI();
         if (transcriptionAdapter != null) {
-            transcriptionAdapter.notifyDataSetChanged();
+            transcriptionAdapter.notifyItemRangeChanged(0, transcriptionAdapter.getItemCount());
         }
     }
 
@@ -106,14 +106,16 @@ public class MainActivity extends AppCompatActivity {
     private void updateAvailableLanguagesUI() {
         TextView supportedLanguagesText = findViewById(R.id.supportedLanguagesText);
         List<String> available = ModelManager.getAvailableLanguageNames(this);
-        
+
         if (available.isEmpty()) {
             supportedLanguagesText.setText(R.string.status_no_models_installed);
         } else {
             StringBuilder sb = new StringBuilder();
-            for (int i = 0; i < available.size(); i++) {
-                if (i > 0) sb.append(", ");
-                sb.append(available.get(i));
+            boolean first = true;
+            for (String lang : available) {
+                if (!first) sb.append(", ");
+                sb.append(lang);
+                first = false;
             }
             supportedLanguagesText.setText(sb.toString());
         }
@@ -174,10 +176,12 @@ public class MainActivity extends AppCompatActivity {
      */
     private void checkModelsAndProceed(Uri audioUri) {
         List<Integer> availableIndices = new ArrayList<>();
-        for (int i = 0; i < ModelManager.SUPPORTED_LANGUAGES.length; i++) {
-            if (ModelManager.SUPPORTED_LANGUAGES[i].isTranscriptionDownloaded(this)) {
-                availableIndices.add(i);
+        int index = 0;
+        for (LanguageSupport lang : ModelManager.SUPPORTED_LANGUAGES) {
+            if (lang.isTranscriptionDownloaded(this)) {
+                availableIndices.add(index);
             }
+            index++;
         }
 
         if (availableIndices.isEmpty()) {
@@ -201,8 +205,9 @@ public class MainActivity extends AppCompatActivity {
      */
     private void showLanguageSelectionDialog(List<Integer> availableIndices, Uri audioUri) {
         String[] languages = new String[availableIndices.size()];
-        for (int i = 0; i < availableIndices.size(); i++) {
-            languages[i] = ModelManager.SUPPORTED_LANGUAGES[availableIndices.get(i)].getLocale().getDisplayName();
+        int idx = 0;
+        for (Integer availableIndex : availableIndices) {
+            languages[idx++] = ModelManager.SUPPORTED_LANGUAGES[availableIndex].getLocale().getDisplayName();
         }
 
         new MaterialAlertDialogBuilder(this)
@@ -301,7 +306,7 @@ public class MainActivity extends AppCompatActivity {
             LanguageSupport selectedLanguage = ModelManager.SUPPORTED_LANGUAGES[modelIndex];
             List<TranscriptionParagraph> paragraphList = new ArrayList<>();
 
-            if (selectedLanguage.isFormattingDownloaded(this) && !paragraphs.isEmpty()) {
+            if (persistency.isShowSmartText() && selectedLanguage.isFormattingDownloaded(this) && !paragraphs.isEmpty()) {
                 try {
                     showStatus(getString(R.string.status_applying_smart_formatting));
                     ModelInfo targetModel = selectedLanguage.getFormattingModel();

@@ -47,7 +47,7 @@ public class TranscriptionAdapter extends RecyclerView.Adapter<TranscriptionAdap
     private final List<TranscriptionParagraph> paragraphs = new ArrayList<>();
     private MediaPlayer mediaPlayer;
     private int currentlyPlayingPosition = -1;
-    private Persistency persistency;
+    private final Persistency persistency;
 
     public TranscriptionAdapter(Persistency persistency) {
         this.persistency = persistency;
@@ -237,18 +237,30 @@ public class TranscriptionAdapter extends RecyclerView.Adapter<TranscriptionAdap
             }
 
             // Text toggle handling
-            btnRaw.setVisibility(View.VISIBLE);
-            btnSmart.setVisibility(View.VISIBLE);
-            
+            boolean showRaw = persistency == null || persistency.isShowRawText();
+            boolean showSmart = persistency == null || persistency.isShowSmartText();
+
             boolean hasFormattedText = paragraph.getFormattedText() != null && !paragraph.getFormattedText().isEmpty();
-            
+
+            // Force state if one is hidden
+            if (!showRaw) {
+                paragraph.setShowFormatted(true);
+            } else if (!showSmart || !hasFormattedText) {
+                paragraph.setShowFormatted(false);
+            }
+
+            textView.setText(paragraph.getDisplayText());
+
+            btnRaw.setVisibility(showRaw ? View.VISIBLE : View.GONE);
+            btnSmart.setVisibility(showSmart ? View.VISIBLE : View.GONE);
+
             btnRaw.setEnabled(true); // Raw is always available
             btnSmart.setEnabled(hasFormattedText);
             btnSmart.setAlpha(hasFormattedText ? 1.0f : 0.38f);
-            
+
             toggleGroup.clearOnButtonCheckedListeners();
             toggleGroup.check(paragraph.isShowFormatted() && hasFormattedText ? R.id.btnSmart : R.id.btnRaw);
-            
+
             toggleGroup.addOnButtonCheckedListener((group, checkedId, isChecked) -> {
                 if (isChecked) {
                     if (checkedId == R.id.btnPlay) {
@@ -259,9 +271,9 @@ public class TranscriptionAdapter extends RecyclerView.Adapter<TranscriptionAdap
                         group.uncheck(R.id.btnCopy);
                         return;
                     }
-                    
+
                     boolean showFormatted = (checkedId == R.id.btnSmart);
-                    
+
                     // Only allow toggling to Smart if it's available
                     if (showFormatted && !hasFormattedText) {
                         group.uncheck(R.id.btnSmart);

@@ -37,6 +37,8 @@ public class Persistency {
     private static final String KEY_LAST_MESSAGE = "last_message";
     private static final String KEY_SHOW_PLAYBACK_BUTTON = "show_playback_button";
     private static final String KEY_SHOW_COPY_BUTTON = "show_copy_button";
+    private static final String KEY_SHOW_RAW_TEXT = "show_raw_text";
+    private static final String KEY_SHOW_SMART_TEXT = "show_smart_text";
 
     private final Context context;
 
@@ -148,6 +150,30 @@ public class Persistency {
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
                 .edit()
                 .putBoolean(KEY_SHOW_COPY_BUTTON, show)
+                .apply();
+    }
+
+    public boolean isShowRawText() {
+        return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+                .getBoolean(KEY_SHOW_RAW_TEXT, true);
+    }
+
+    public void setShowRawText(boolean show) {
+        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+                .edit()
+                .putBoolean(KEY_SHOW_RAW_TEXT, show)
+                .apply();
+    }
+
+    public boolean isShowSmartText() {
+        return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+                .getBoolean(KEY_SHOW_SMART_TEXT, true);
+    }
+
+    public void setShowSmartText(boolean show) {
+        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+                .edit()
+                .putBoolean(KEY_SHOW_SMART_TEXT, show)
                 .apply();
     }
 }
