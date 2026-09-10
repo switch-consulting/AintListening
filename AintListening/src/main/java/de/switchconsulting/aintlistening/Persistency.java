@@ -22,6 +22,8 @@ import android.util.Log;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -199,5 +201,66 @@ public class Persistency {
                 .edit()
                 .putBoolean(KEY_SHOW_SMART_TEXT, show)
                 .apply();
+    }
+
+    /**
+     * @return The file object for the main temporary incoming audio WAV.
+     */
+    public File getIncomingWavFile() {
+        return new File(context.getCacheDir(), "incoming_audio_16k_mono.wav");
+    }
+
+    /**
+     * @return The directory for storing audio chunks.
+     */
+    public File getAudioChunksDir() {
+        File chunksDir = new File(context.getFilesDir(), "audio_chunks");
+        if (!chunksDir.exists()) {
+            if (!chunksDir.mkdirs()) {
+                Log.w(TAG, "Failed to create chunks directory: " + chunksDir.getAbsolutePath());
+            }
+        }
+        return chunksDir;
+    }
+
+    /**
+     * Saves raw PCM data as a WAV chunk.
+     *
+     * @param pcmData The raw PCM data.
+     * @param index   The chunk index.
+     * @return The absolute path to the saved chunk file.
+     * @throws IOException If saving fails.
+     */
+    public String saveAudioChunk(byte[] pcmData, int index) throws IOException {
+        File chunksDir = getAudioChunksDir();
+        File chunkFile = new File(chunksDir, "chunk_" + index + ".wav");
+        WavUtils.savePcmAsWav(pcmData, chunkFile);
+        return chunkFile.getAbsolutePath();
+    }
+
+    /**
+     * Deletes all temporary audio files and chunks.
+     */
+    public void clearTemporaryFiles() {
+        // Delete incoming wav
+        File incomingWav = getIncomingWavFile();
+        if (incomingWav.exists()) {
+            if (incomingWav.delete()) {
+                Log.d(TAG, "Deleted incoming WAV: " + incomingWav.getAbsolutePath());
+            }
+        }
+
+        // Delete chunks
+        File chunksDir = new File(context.getFilesDir(), "audio_chunks");
+        if (chunksDir.exists() && chunksDir.isDirectory()) {
+            File[] files = chunksDir.listFiles();
+            if (files != null) {
+                for (File f : files) {
+                    if (f.delete()) {
+                        Log.d(TAG, "Deleted chunk: " + f.getAbsolutePath());
+                    }
+                }
+            }
+        }
     }
 }

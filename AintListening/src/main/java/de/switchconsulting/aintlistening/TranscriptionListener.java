@@ -33,4 +33,13 @@ public interface TranscriptionListener {
      * @param text The final transcription text.
      */
     void onResult(String text);
+
+    /**
+     * Called when a new audio chunk is ready to be saved.
+     *
+     * @param pcmData    The raw PCM data for the chunk.
+     * @param chunkIndex The index of the chunk.
+     * @return The absolute path where the chunk was saved, or null if it couldn't be saved.
+     */
+    String onAudioChunkAvailable(byte[] pcmData, int chunkIndex);
 }

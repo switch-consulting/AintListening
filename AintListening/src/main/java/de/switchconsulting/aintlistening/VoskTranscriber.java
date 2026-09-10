@@ -86,22 +86,6 @@ public class VoskTranscriber implements Transcriber {
 
         List<TranscriptionParagraph> paragraphs = new ArrayList<>();
         StringBuilder fullText = new StringBuilder();
-        
-        File chunksDir = new File(context.getFilesDir(), "audio_chunks");
-        if (!chunksDir.exists()) {
-            if (!chunksDir.mkdirs()) {
-                Log.w(TAG, "Failed to create chunks directory: " + chunksDir.getAbsolutePath());
-            }
-        }
-        // Clean up old chunks
-        File[] oldChunks = chunksDir.listFiles();
-        if (oldChunks != null) {
-            for (File f : oldChunks) {
-                if (!f.delete()) {
-                    Log.w(TAG, "Failed to delete old chunk: " + f.getAbsolutePath());
-                }
-            }
-        }
 
         try (FileInputStream fis = new FileInputStream(wavFile);
              Recognizer recognizer = new Recognizer(model, 16000.0f);
@@ -119,18 +103,20 @@ public class VoskTranscriber implements Transcriber {
 
             while ((nread = fis.read(buffer)) >= 0) {
                 currentPcm.write(buffer, 0, nread);
-                
+
                 if (recognizer.acceptWaveForm(buffer, nread)) {
                     String resultJson = recognizer.getResult();
                     String text = extractTextFromResultJson(resultJson);
                     if (!TextUtils.isEmpty(text)) {
                         Log.d(TAG, "Vosk segment finalized: " + text);
-                        
-                        File chunkFile = new File(chunksDir, "chunk_" + (chunkIndex++) + ".wav");
-                        WavUtils.savePcmAsWav(currentPcm.toByteArray(), chunkFile);
+
+                        String audioPath = null;
+                        if (listener != null) {
+                            audioPath = listener.onAudioChunkAvailable(currentPcm.toByteArray(), chunkIndex++);
+                        }
                         currentPcm.reset();
 
-                        TranscriptionParagraph p = new TranscriptionParagraph(text, null, chunkFile.getAbsolutePath());
+                        TranscriptionParagraph p = new TranscriptionParagraph(text, null, audioPath);
                         paragraphs.add(p);
 
                         if (!TextUtils.isEmpty(fullText)) {
@@ -156,11 +142,13 @@ public class VoskTranscriber implements Transcriber {
             String finalText = extractTextFromResultJson(finalJson);
             if (!TextUtils.isEmpty(finalText)) {
                 Log.d(TAG, "Vosk final segment: " + finalText);
-                
-                File chunkFile = new File(chunksDir, "chunk_" + (chunkIndex) + ".wav");
-                WavUtils.savePcmAsWav(currentPcm.toByteArray(), chunkFile);
-                
-                TranscriptionParagraph p = new TranscriptionParagraph(finalText, null, chunkFile.getAbsolutePath());
+
+                String audioPath = null;
+                if (listener != null) {
+                    audioPath = listener.onAudioChunkAvailable(currentPcm.toByteArray(), chunkIndex);
+                }
+
+                TranscriptionParagraph p = new TranscriptionParagraph(finalText, null, audioPath);
                 paragraphs.add(p);
 
                 if (!TextUtils.isEmpty(fullText)) {

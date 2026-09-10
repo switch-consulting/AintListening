@@ -245,6 +245,8 @@ public class MainActivity extends AppCompatActivity {
         transcriptionAdapter.setParagraphs(new ArrayList<>());
         showStatus(getString(R.string.status_preparing));
 
+        persistency.clearTemporaryFiles();
+
         executorService.execute(() -> transcribeFromUri(audioUri));
     }
 
@@ -254,7 +256,7 @@ public class MainActivity extends AppCompatActivity {
      * @param audioUri The source audio URI.
      */
     private void transcribeFromUri(@NonNull Uri audioUri) {
-        File wavFile = new File(getCacheDir(), "incoming_audio_16k_mono.wav");
+        File wavFile = persistency.getIncomingWavFile();
 
         try {
             showStatus(getString(R.string.status_converting));
@@ -294,6 +296,16 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onResult(String text) {
                     updateTranscriptUI(text);
+                }
+
+                @Override
+                public String onAudioChunkAvailable(byte[] pcmData, int chunkIndex) {
+                    try {
+                        return persistency.saveAudioChunk(pcmData, chunkIndex);
+                    } catch (Exception e) {
+                        Log.e(TAG, "Failed to save audio chunk", e);
+                        return null;
+                    }
                 }
             });
 
