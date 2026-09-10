@@ -17,10 +17,9 @@ This tool downloads state-of-the-art punctuation and capitalization models, quan
 
 ## Usage
 
-The tool provides a high-quality joint model that handles both punctuation restoration and German capitalization (true-casing) in a single pass.
+The tool provides a high-quality joint model that handles both punctuation restoration and German capitalization (true-casing) in a single pass using a Multi-Head XLM-RoBERTa architecture.
 
-### Gold Standard (Multi-Head XLM-RoBERTa)
-This is the recommended option for maximum accuracy in German. It uses the `1-800-BAD-CODE` model which features 4 prediction heads for pre-punctuation, post-punctuation, character-level capitalization, and sentence segmentation.
+It uses the `1-800-BAD-CODE` model which features 4 prediction heads for pre-punctuation, post-punctuation, character-level capitalization, and sentence segmentation.
 
 ```bash
 python prepare_model.py --locale de
@@ -29,15 +28,6 @@ python prepare_model.py --locale de
 - **Output**: `../models/ONNXModel_de.zip`
 - **Size**: ~280MB (INT8 Quantized)
 - **Note**: The first run will download ~1.1GB of model weights before quantizing.
-
-### Mobile Optimized (Silero TE v2)
-An alternative for very low-end devices or space-constrained environments. Note that the Android app's `SmartFormatter` must be adjusted to support the Silero architecture if switching to this option.
-
-```bash
-python prepare_silero.py
-```
-- **Size**: ~40MB
-- **Capabilities**: Joint punctuation and capitalization.
 
 ## Troubleshooting
 

@@ -170,55 +170,72 @@ public class TranscriptionAdapter extends RecyclerView.Adapter<TranscriptionAdap
         void bind(TranscriptionParagraph paragraph, int position) {
             textView.setText(paragraph.getDisplayText());
 
+            // Play button handling
+            btnPlay.setVisibility(View.VISIBLE);
             if (paragraph.getAudioFilePath() == null) {
-                btnPlay.setVisibility(View.GONE);
+                btnPlay.setEnabled(false);
+                btnPlay.setIconResource(R.drawable.ic_play_arrow);
+                btnPlay.setAlpha(0.38f); // Standard disabled alpha
             } else {
-                btnPlay.setVisibility(View.VISIBLE);
+                btnPlay.setEnabled(true);
+                btnPlay.setAlpha(1.0f);
                 boolean isCurrent = (currentlyPlayingPosition == position);
                 boolean isPlaying = isCurrent && mediaPlayer != null && mediaPlayer.isPlaying();
                 btnPlay.setIconResource(isPlaying ? R.drawable.ic_pause : R.drawable.ic_play_arrow);
                 btnPlay.setOnClickListener(v -> togglePlayback(position, btnPlay));
             }
 
-            // If no formatted text is available, hide the toggle buttons
-            if (paragraph.getFormattedText() == null || paragraph.getFormattedText().isEmpty()) {
-                btnRaw.setVisibility(View.GONE);
-                btnSmart.setVisibility(View.GONE);
-            } else {
-                btnRaw.setVisibility(View.VISIBLE);
-                btnSmart.setVisibility(View.VISIBLE);
-                
-                toggleGroup.clearOnButtonCheckedListeners();
-                toggleGroup.check(paragraph.isShowFormatted() ? R.id.btnSmart : R.id.btnRaw);
-                
-                toggleGroup.addOnButtonCheckedListener((group, checkedId, isChecked) -> {
-                    if (isChecked) {
-                        if (checkedId == R.id.btnPlay) {
-                            group.uncheck(R.id.btnPlay);
-                            return;
-                        }
-                        
-                        boolean showFormatted = (checkedId == R.id.btnSmart);
-                        if (showFormatted) {
-                            group.uncheck(R.id.btnRaw);
-                        } else {
-                            group.uncheck(R.id.btnSmart);
-                        }
+            // Text toggle handling
+            btnRaw.setVisibility(View.VISIBLE);
+            btnSmart.setVisibility(View.VISIBLE);
+            
+            boolean hasFormattedText = paragraph.getFormattedText() != null && !paragraph.getFormattedText().isEmpty();
+            
+            btnRaw.setEnabled(true); // Raw is always available
+            btnSmart.setEnabled(hasFormattedText);
+            btnSmart.setAlpha(hasFormattedText ? 1.0f : 0.38f);
+            
+            toggleGroup.clearOnButtonCheckedListeners();
+            toggleGroup.check(paragraph.isShowFormatted() && hasFormattedText ? R.id.btnSmart : R.id.btnRaw);
+            
+            toggleGroup.addOnButtonCheckedListener((group, checkedId, isChecked) -> {
+                if (isChecked) {
+                    if (checkedId == R.id.btnPlay) {
+                        group.uncheck(R.id.btnPlay);
+                        return;
+                    }
+                    
+                    boolean showFormatted = (checkedId == R.id.btnSmart);
+                    
+                    // Only allow toggling to Smart if it's available
+                    if (showFormatted && !hasFormattedText) {
+                        group.uncheck(R.id.btnSmart);
+                        group.check(R.id.btnRaw);
+                        return;
+                    }
 
-                        if (paragraph.isShowFormatted() != showFormatted) {
-                            paragraph.setShowFormatted(showFormatted);
-                            textView.setText(paragraph.getDisplayText());
-                        }
+                    if (showFormatted) {
+                        group.uncheck(R.id.btnRaw);
                     } else {
-                        // Prevent unchecking the currently selected text mode
-                        if (checkedId == R.id.btnRaw && !paragraph.isShowFormatted()) {
-                            group.check(R.id.btnRaw);
-                        } else if (checkedId == R.id.btnSmart && paragraph.isShowFormatted()) {
-                            group.check(R.id.btnSmart);
+                        group.uncheck(R.id.btnSmart);
+                    }
+
+                    if (paragraph.isShowFormatted() != showFormatted) {
+                        paragraph.setShowFormatted(showFormatted);
+                        textView.setText(paragraph.getDisplayText());
+                    }
+                } else {
+                    // Prevent unchecking the currently selected text mode
+                    if (checkedId == R.id.btnRaw && !paragraph.isShowFormatted()) {
+                        group.check(R.id.btnRaw);
+                    } else if (checkedId == R.id.btnSmart && (paragraph.isShowFormatted() || !hasFormattedText)) {
+                        // If smart is checked but we are unchecking it, or if smart isn't even valid
+                        if (paragraph.isShowFormatted()) {
+                             group.check(R.id.btnSmart);
                         }
                     }
-                });
-            }
+                }
+            });
         }
     }
 }
