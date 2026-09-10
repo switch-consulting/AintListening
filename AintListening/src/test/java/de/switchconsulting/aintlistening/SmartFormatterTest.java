@@ -67,7 +67,7 @@ public class SmartFormatterTest {
         };
         long[] sbdPreds = {0, 0, 1, 0}; // Boundary on "n"
 
-        String result = SmartFormatter.reconstructTextBadCode(tokens, prePreds, postPreds, capPreds, sbdPreds);
+        String result = OnnxSmartFormatter.reconstructTextBadCode(tokens, prePreds, postPreds, capPreds, sbdPreds);
         // Expect "Besorgen. Morgen"
         assertEquals("Besorgen. Morgen", result);
     }
@@ -88,7 +88,7 @@ public class SmartFormatterTest {
         };
         long[] sbdPreds = new long[4];
 
-        String result = SmartFormatter.reconstructTextBadCode(tokens, prePreds, postPreds, capPreds, sbdPreds);
+        String result = OnnxSmartFormatter.reconstructTextBadCode(tokens, prePreds, postPreds, capPreds, sbdPreds);
         assertEquals("Ich gehe ins Büro", result);
     }
 
@@ -105,7 +105,7 @@ public class SmartFormatterTest {
             {1, 1, 1, 1} // All caps for " usa"
         };
 
-        String result = SmartFormatter.reconstructTextBadCode(tokens, prePreds, postPreds, capPreds, null);
+        String result = OnnxSmartFormatter.reconstructTextBadCode(tokens, prePreds, postPreds, capPreds, null);
         assertEquals("Die U.S.A.", result);
     }
 }

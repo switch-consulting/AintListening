@@ -53,7 +53,7 @@ public class MainActivity extends AppCompatActivity {
     private Persistency persistency;
 
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
-    private final Transcriber transcriber = new Transcriber();
+    private final Transcriber transcriber = new VoskTranscriber();
     private SmartFormatter smartFormatter;
     private int selectedModelIndex = 0;
 
@@ -255,7 +255,7 @@ public class MainActivity extends AppCompatActivity {
                             smartFormatter = null;
                         }
                         if (smartFormatter == null) {
-                            smartFormatter = new SmartFormatter(this, targetModel);
+                            smartFormatter = new OnnxSmartFormatter(this, targetModel);
                         }
                     }
 
