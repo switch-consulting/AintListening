@@ -27,21 +27,21 @@ public class TranscriptionParagraph {
     private boolean showFormatted;
 
     /**
-     * Constructs a new TranscriptionParagraph with no audio file.
+     * Constructs a new TranscriptionParagraph with raw and optionally formatted text.
      *
-     * @param rawText       The raw transcribed text.
-     * @param formattedText The smart formatted text.
+     * @param rawText       The raw transcription text.
+     * @param formattedText The smart-formatted text, or null if not available.
      */
     public TranscriptionParagraph(String rawText, String formattedText) {
         this(rawText, formattedText, null);
     }
 
     /**
-     * Constructs a new TranscriptionParagraph.
+     * Constructs a new TranscriptionParagraph with raw text, formatted text, and an audio file path.
      *
-     * @param rawText       The raw transcribed text.
-     * @param formattedText The smart formatted text.
-     * @param audioFilePath The path to the associated audio chunk.
+     * @param rawText       The raw transcription text.
+     * @param formattedText The smart-formatted text, or null if not available.
+     * @param audioFilePath The absolute path to the associated audio chunk file.
      */
     public TranscriptionParagraph(String rawText, String formattedText, String audioFilePath) {
         this.rawText = rawText;
@@ -51,37 +51,37 @@ public class TranscriptionParagraph {
     }
 
     /**
-     * @return The raw transcribed text.
+     * @return The raw transcription text.
      */
     public String getRawText() {
         return rawText;
     }
 
     /**
-     * @return The smart formatted text.
+     * @return The smart-formatted text, or null if not available.
      */
     public String getFormattedText() {
         return formattedText;
     }
 
     /**
-     * @return The path to the audio file chunk.
+     * @return The absolute path to the audio file chunk.
      */
     public String getAudioFilePath() {
         return audioFilePath;
     }
 
     /**
-     * @return True if the formatted text should be displayed, false otherwise.
+     * @return True if the formatted text should be displayed, false for raw text.
      */
     public boolean isShowFormatted() {
         return showFormatted;
     }
 
     /**
-     * Sets whether to show the formatted text.
+     * Sets whether to show the formatted or raw text.
      *
-     * @param showFormatted True to show formatted, false to show raw.
+     * @param showFormatted True to show formatted text.
      */
     public void setShowFormatted(boolean showFormatted) {
         this.showFormatted = showFormatted;
@@ -89,9 +89,8 @@ public class TranscriptionParagraph {
 
     /**
      * Returns the text to be displayed based on the current toggle state.
-     * Falls back to raw text if formatted text is requested but not yet available.
      *
-     * @return The formatted or raw text.
+     * @return The text to display.
      */
     public String getDisplayText() {
         if (showFormatted && formattedText != null && !formattedText.isEmpty()) {

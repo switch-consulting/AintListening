@@ -77,6 +77,9 @@ public class ModelManagementActivity extends AppCompatActivity {
         updateModelStatusUI();
     }
 
+    /**
+     * Configures the UI settings for transcription options (raw text and smart formatting).
+     */
     private void setupUISettings() {
         SwitchMaterial switchPlayback = findViewById(R.id.switchPlayback);
         SwitchMaterial switchCopy = findViewById(R.id.switchCopy);
@@ -112,6 +115,9 @@ public class ModelManagementActivity extends AppCompatActivity {
         updateSmartFormattingSwitchState();
     }
 
+    /**
+     * Updates the enabled state of the smart formatting switch based on the availability of the model.
+     */
     private void updateSmartFormattingSwitchState() {
         boolean isFormattingAvailable = false;
         for (LanguageSupport lang : ModelManager.SUPPORTED_LANGUAGES) {
@@ -137,7 +143,7 @@ public class ModelManagementActivity extends AppCompatActivity {
     }
 
     /**
-     * Configures the RecyclerView and its adapter.
+     * Sets up the RecyclerView to display the list of supported language models.
      */
     private void setupRecyclerView() {
         List<LanguageSupport> languages = Arrays.asList(ModelManager.SUPPORTED_LANGUAGES);
@@ -159,9 +165,9 @@ public class ModelManagementActivity extends AppCompatActivity {
     }
 
     /**
-     * Handles changes in the download state reported by the ViewModel.
+     * Handles updates to the download state and reflects them in the UI.
      *
-     * @param state The new DownloadState.
+     * @param state The current download state.
      */
     private void handleDownloadState(DownloadState state) {
         if (state == null) return;
@@ -193,9 +199,9 @@ public class ModelManagementActivity extends AppCompatActivity {
     }
 
     /**
-     * Initiates the download of the specified model.
+     * Initiates the download of a specified model.
      *
-     * @param info The model information to download.
+     * @param info The model information.
      */
     private void startDownload(ModelInfo info) {
         if (!NetworkUtils.isOnline(this)) {
@@ -207,7 +213,7 @@ public class ModelManagementActivity extends AppCompatActivity {
     }
 
     /**
-     * Updates the UI to reflect the current installation status of all models.
+     * Updates the UI list to reflect changes in model installation status.
      */
     private void updateModelStatusUI() {
         DownloadState currentState = viewModel.downloadState.getValue();

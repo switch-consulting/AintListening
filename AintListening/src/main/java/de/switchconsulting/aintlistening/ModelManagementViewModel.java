@@ -44,10 +44,9 @@ public class ModelManagementViewModel extends AndroidViewModel {
     }
 
     /**
-     * Starts the download and extraction of the specified model.
-     * If a download is already in progress, this method does nothing.
+     * Starts the download process for a given model.
      *
-     * @param info The ModelInfo to download.
+     * @param info The model information.
      */
     public void startDownload(ModelInfo info) {
         if (_downloadState.getValue() != null && 
@@ -99,7 +98,7 @@ public class ModelManagementViewModel extends AndroidViewModel {
     }
 
     /**
-     * Resets the download state to IDLE.
+     * Resets the download state to idle.
      */
     public void resetState() {
         _downloadState.setValue(DownloadState.idle());

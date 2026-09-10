@@ -72,10 +72,9 @@ public class ModelAdapter extends RecyclerView.Adapter<ModelAdapter.ViewHolder> 
     }
 
     /**
-     * Sets whether the adapter is in a busy state (e.g., during a download).
-     * Disables or enables interaction buttons accordingly.
+     * Sets the busy state of the adapter. While busy, interaction elements are disabled.
      *
-     * @param busy True if the adapter should be busy, false otherwise.
+     * @param busy True if the adapter is busy (e.g., during a download).
      */
     public void setBusy(boolean busy) {
         if (this.isBusy != busy) {
@@ -85,7 +84,7 @@ public class ModelAdapter extends RecyclerView.Adapter<ModelAdapter.ViewHolder> 
     }
 
     /**
-     * Refreshes the entire list of models.
+     * Refreshes the adapter by notifying that the dataset has changed.
      */
     public void refresh() {
         notifyItemRangeChanged(0, getItemCount());
@@ -154,6 +153,14 @@ public class ModelAdapter extends RecyclerView.Adapter<ModelAdapter.ViewHolder> 
             }
         }
 
+        /**
+         * Binds model information to a specific row (transcription or formatting).
+         *
+         * @param rowView  The row view.
+         * @param info     The model information.
+         * @param isBusy   Whether the adapter is currently busy.
+         * @param listener The listener for user interactions.
+         */
         private void bindModelRow(View rowView, ModelInfo info, boolean isBusy, InteractionListener listener) {
             Context context = rowView.getContext();
             ImageView icon = rowView.findViewById(R.id.modelStatusIcon);

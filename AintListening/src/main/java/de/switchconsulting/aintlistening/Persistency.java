@@ -129,11 +129,17 @@ public class Persistency {
                 .getInt(KEY_LAST_MODEL_INDEX, 0);
     }
 
+    /**
+     * @return True if the playback button should be shown.
+     */
     public boolean isShowPlaybackButton() {
         return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
                 .getBoolean(KEY_SHOW_PLAYBACK_BUTTON, true);
     }
 
+    /**
+     * @param show True to show the playback button.
+     */
     public void setShowPlaybackButton(boolean show) {
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
                 .edit()
@@ -141,11 +147,17 @@ public class Persistency {
                 .apply();
     }
 
+    /**
+     * @return True if the copy button should be shown.
+     */
     public boolean isShowCopyButton() {
         return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
                 .getBoolean(KEY_SHOW_COPY_BUTTON, true);
     }
 
+    /**
+     * @param show True to show the copy button.
+     */
     public void setShowCopyButton(boolean show) {
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
                 .edit()
@@ -153,11 +165,17 @@ public class Persistency {
                 .apply();
     }
 
+    /**
+     * @return True if the raw text should be shown by default.
+     */
     public boolean isShowRawText() {
         return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
                 .getBoolean(KEY_SHOW_RAW_TEXT, true);
     }
 
+    /**
+     * @param show True to show raw text by default.
+     */
     public void setShowRawText(boolean show) {
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
                 .edit()
@@ -165,11 +183,17 @@ public class Persistency {
                 .apply();
     }
 
+    /**
+     * @return True if the smart formatted text should be shown by default.
+     */
     public boolean isShowSmartText() {
         return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
                 .getBoolean(KEY_SHOW_SMART_TEXT, true);
     }
 
+    /**
+     * @param show True to show smart formatted text by default.
+     */
     public void setShowSmartText(boolean show) {
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
                 .edit()

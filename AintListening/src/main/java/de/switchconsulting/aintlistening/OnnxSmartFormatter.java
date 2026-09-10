@@ -382,16 +382,34 @@ public class OnnxSmartFormatter implements SmartFormatter {
 
     // Old methods removed to clean up multi-head refactor
 
+    /**
+     * Checks if a token is a special model token (e.g., [CLS], [SEP], etc.).
+     *
+     * @param token The token to check.
+     * @return True if it is a special token, false otherwise.
+     */
     static boolean isSpecialToken(String token) {
         return token.equals("<s>") || token.equals("</s>") || token.equals("<pad>") ||
                 token.equals("[CLS]") || token.equals("[SEP]") || token.equals("<unk>");
     }
 
+    /**
+     * Checks if a token represents the start of a new word based on SentencePiece conventions.
+     *
+     * @param token The token to check.
+     * @return True if it starts a new word, false otherwise.
+     */
     static boolean isNewWord(String token) {
         // SentencePiece uses   (U+2581) or a regular space to denote the start of a word
         return token.startsWith(" ") || token.startsWith("\u2581");
     }
 
+    /**
+     * Checks if a punctuation string should trigger capitalization of the next word.
+     *
+     * @param punct The punctuation string.
+     * @return True if it is a sentence-ending punctuation, false otherwise.
+     */
     static boolean isSentenceEnding(String punct) {
         return ".".equals(punct) || "?".equals(punct) || ":".equals(punct);
     }

@@ -91,6 +91,9 @@ public class MainActivity extends AppCompatActivity {
         handleIncomingIntent(getIntent());
     }
 
+    /**
+     * Called when the activity is resumed. Refreshes the supported languages UI and notifies the adapter.
+     */
     @Override
     protected void onResume() {
         super.onResume();
@@ -121,6 +124,9 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Cleans up resources, shuts down the executor service, and releases transcriber and adapter.
+     */
     @Override
     protected void onDestroy() {
         super.onDestroy();
@@ -136,6 +142,11 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Handles new intents received while the activity is already running.
+     *
+     * @param intent The new intent.
+     */
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
@@ -407,6 +418,11 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Displays an informational message to the user and clears the transcription list.
+     *
+     * @param message The information message to display.
+     */
     private void showInfo(String message) {
         runOnUiThread(() -> {
             statusTextView.setText(message);

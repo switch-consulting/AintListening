@@ -30,6 +30,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.Scanner;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -160,7 +161,7 @@ public class ModelDownloader {
 
                 // Check if it's a Git LFS pointer instead of a zip
                 if (tempZip.length() < 500) {
-                    try (java.util.Scanner scanner = new java.util.Scanner(tempZip)) {
+                    try (Scanner scanner = new Scanner(tempZip)) {
                         if (scanner.hasNextLine() && scanner.nextLine().startsWith("version https://git-lfs")) {
                             throw new Exception("Downloaded file is a Git LFS pointer. Check LFS quota or URL.");
                         }
@@ -198,7 +199,7 @@ public class ModelDownloader {
     }
 
     /**
-     * Cancels the current download and extraction operation.
+     * Cancels the current download and extraction task.
      */
     public void cancel() {
         isCancelled = true;

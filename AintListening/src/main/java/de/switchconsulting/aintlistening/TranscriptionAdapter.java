@@ -93,7 +93,7 @@ public class TranscriptionAdapter extends RecyclerView.Adapter<TranscriptionAdap
     }
 
     /**
-     * Releases the MediaPlayer and other resources.
+     * Releases resources, such as the MediaPlayer.
      */
     public void release() {
         if (mediaPlayer != null) {
@@ -167,7 +167,7 @@ public class TranscriptionAdapter extends RecyclerView.Adapter<TranscriptionAdap
     }
 
     /**
-     * Stops the current audio playback and releases the MediaPlayer.
+     * Stops current audio playback and resets the playback state.
      */
     private void stopPlayback() {
         if (mediaPlayer != null) {
