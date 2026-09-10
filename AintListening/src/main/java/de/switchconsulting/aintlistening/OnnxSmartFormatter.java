@@ -149,6 +149,13 @@ public class OnnxSmartFormatter implements SmartFormatter {
         }
     }
 
+    /**
+     * Processes the text with the ONNX model to predict punctuation and capitalization.
+     *
+     * @param text The input text.
+     * @return The formatted text.
+     * @throws Exception if model inference fails.
+     */
     private String processWithModel(String text) throws Exception {
         Log.d(TAG, "Input text: " + text);
         // Bad-code model expects lowercased input
@@ -234,6 +241,13 @@ public class OnnxSmartFormatter implements SmartFormatter {
         }
     }
 
+    /**
+     * Extracts a 2D long array from the ONNX result, handling both int and long types.
+     *
+     * @param results The ONNX session results.
+     * @param name    The name of the output to extract.
+     * @return A 2D long array, or null if extraction fails.
+     */
     private long[][] extractLongArray2D(OrtSession.Result results, String name) {
         if (results.get(name).isEmpty()) return null;
         try {
@@ -254,6 +268,18 @@ public class OnnxSmartFormatter implements SmartFormatter {
         return null;
     }
 
+    /**
+     * Reconstructs the text using predictions from the 1-800-BAD-CODE model architecture.
+     * This involves combining tokens and applying predicted pre-punctuation, post-punctuation,
+     * character-level capitalization, and sentence boundary detection.
+     *
+     * @param tokens     The input tokens.
+     * @param prePreds   Predicted pre-punctuation labels.
+     * @param postPreds  Predicted post-punctuation labels.
+     * @param capPreds   Predicted character-level capitalization labels.
+     * @param sbdPreds   Predicted sentence boundary labels.
+     * @return The reconstructed and formatted text.
+     */
     static String reconstructTextBadCode(String[] tokens, long[] prePreds, long[] postPreds, long[][] capPreds, long[] sbdPreds) {
         StringBuilder result = new StringBuilder();
         boolean forceCapitalizeNext = true;

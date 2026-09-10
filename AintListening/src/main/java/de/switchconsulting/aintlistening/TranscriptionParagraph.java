@@ -26,10 +26,23 @@ public class TranscriptionParagraph {
     private final String audioFilePath;
     private boolean showFormatted;
 
+    /**
+     * Constructs a new TranscriptionParagraph with no audio file.
+     *
+     * @param rawText       The raw transcribed text.
+     * @param formattedText The smart formatted text.
+     */
     public TranscriptionParagraph(String rawText, String formattedText) {
         this(rawText, formattedText, null);
     }
 
+    /**
+     * Constructs a new TranscriptionParagraph.
+     *
+     * @param rawText       The raw transcribed text.
+     * @param formattedText The smart formatted text.
+     * @param audioFilePath The path to the associated audio chunk.
+     */
     public TranscriptionParagraph(String rawText, String formattedText, String audioFilePath) {
         this.rawText = rawText;
         this.formattedText = formattedText;
@@ -37,26 +50,48 @@ public class TranscriptionParagraph {
         this.showFormatted = formattedText != null && !formattedText.isEmpty();
     }
 
+    /**
+     * @return The raw transcribed text.
+     */
     public String getRawText() {
         return rawText;
     }
 
+    /**
+     * @return The smart formatted text.
+     */
     public String getFormattedText() {
         return formattedText;
     }
 
+    /**
+     * @return The path to the audio file chunk.
+     */
     public String getAudioFilePath() {
         return audioFilePath;
     }
 
+    /**
+     * @return True if the formatted text should be displayed, false otherwise.
+     */
     public boolean isShowFormatted() {
         return showFormatted;
     }
 
+    /**
+     * Sets whether to show the formatted text.
+     *
+     * @param showFormatted True to show formatted, false to show raw.
+     */
     public void setShowFormatted(boolean showFormatted) {
         this.showFormatted = showFormatted;
     }
 
+    /**
+     * Returns the text to be displayed based on the current toggle state.
+     *
+     * @return The formatted or raw text.
+     */
     public String getDisplayText() {
         return showFormatted ? formattedText : rawText;
     }

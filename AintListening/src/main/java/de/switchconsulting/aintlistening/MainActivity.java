@@ -57,6 +57,13 @@ public class MainActivity extends AppCompatActivity {
     private SmartFormatter smartFormatter;
     private int selectedModelIndex = 0;
 
+    /**
+     * Initializes the activity, sets up the UI components, and handles incoming intents.
+     *
+     * @param savedInstanceState If the activity is being re-initialized after
+     *                           previously being shut down then this Bundle contains the data it most
+     *                           recently supplied in {@link #onSaveInstanceState}.  <b><i>Note: Otherwise it is null.</i></b>
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -90,6 +97,9 @@ public class MainActivity extends AppCompatActivity {
         updateAvailableLanguagesUI();
     }
 
+    /**
+     * Updates the UI to show which transcription models are currently installed.
+     */
     private void updateAvailableLanguagesUI() {
         TextView supportedLanguagesText = findViewById(R.id.supportedLanguagesText);
         List<String> available = ModelManager.getAvailableLanguageNames(this);
@@ -128,6 +138,12 @@ public class MainActivity extends AppCompatActivity {
         handleIncomingIntent(intent);
     }
 
+    /**
+     * Handles an incoming ACTION_SEND intent containing audio data.
+     * If the intent is not a valid audio share, it loads the last saved transcription.
+     *
+     * @param intent The intent to handle.
+     */
     private void handleIncomingIntent(Intent intent) {
         String action = intent.getAction();
         String type = intent.getType();
@@ -148,6 +164,11 @@ public class MainActivity extends AppCompatActivity {
         checkModelsAndProceed(audioUri);
     }
 
+    /**
+     * Checks which models are downloaded and proceeds with transcription or prompts for language selection.
+     *
+     * @param audioUri The URI of the audio to transcribe.
+     */
     private void checkModelsAndProceed(Uri audioUri) {
         List<Integer> availableIndices = new ArrayList<>();
         for (int i = 0; i < ModelManager.SUPPORTED_LANGUAGES.length; i++) {
@@ -169,6 +190,12 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Shows a dialog for the user to select the transcription language when multiple models are available.
+     *
+     * @param availableIndices The indices of the available models in {@link ModelManager#SUPPORTED_LANGUAGES}.
+     * @param audioUri         The URI of the audio to transcribe.
+     */
     private void showLanguageSelectionDialog(List<Integer> availableIndices, Uri audioUri) {
         String[] languages = new String[availableIndices.size()];
         for (int i = 0; i < availableIndices.size(); i++) {
@@ -188,6 +215,11 @@ public class MainActivity extends AppCompatActivity {
                 .show();
     }
 
+    /**
+     * Prepares the UI and starts the transcription process in the background.
+     *
+     * @param audioUri The URI of the audio to transcribe.
+     */
     private void startTranscription(Uri audioUri) {
         progressIndicator.setVisibility(View.VISIBLE);
         progressIndicator.setIndeterminate(true);
@@ -197,6 +229,11 @@ public class MainActivity extends AppCompatActivity {
         executorService.execute(() -> transcribeFromUri(audioUri));
     }
 
+    /**
+     * Decodes the audio from the URI into a WAV file suitable for Vosk.
+     *
+     * @param audioUri The source audio URI.
+     */
     private void transcribeFromUri(@NonNull Uri audioUri) {
         File wavFile = new File(getCacheDir(), "incoming_audio_16k_mono.wav");
 
@@ -218,6 +255,11 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Runs the Vosk recognition engine on the provided WAV file.
+     *
+     * @param wavFile The audio file to transcribe.
+     */
     private void runVoskRecognition(@NonNull File wavFile) {
         try {
             showStatus(getString(R.string.status_loading_model));
@@ -243,6 +285,14 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Applies smart formatting (punctuation, casing) to the raw transcription paragraphs using an ONNX model.
+     * Displays the progress and final result in the UI.
+     *
+     * @param paragraphs The raw transcription paragraphs.
+     * @param modelIndex The index of the language model used.
+     * @param shouldSave Whether the result should be saved to persistent storage.
+     */
     private void applySmartFormattingAndDisplay(List<TranscriptionParagraph> paragraphs, int modelIndex, boolean shouldSave) {
         executorService.execute(() -> {
             LanguageSupport selectedLanguage = ModelManager.SUPPORTED_LANGUAGES[modelIndex];
@@ -318,6 +368,11 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Updates the transcription adapter with new text (partial or full results).
+     *
+     * @param text The transcription text.
+     */
     private void updateTranscriptUI(String text) {
         runOnUiThread(() -> {
             if (text.trim().isEmpty()) return;
@@ -332,6 +387,11 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Shows a status message to the user.
+     *
+     * @param message The status message.
+     */
     private void showStatus(String message) {
         runOnUiThread(() -> {
             statusTextView.setText(message);
@@ -347,6 +407,11 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Shows an error message to the user via UI and Toast.
+     *
+     * @param message The error message.
+     */
     private void showError(@NonNull String message) {
         runOnUiThread(() -> {
             progressIndicator.setVisibility(View.GONE);
@@ -356,6 +421,9 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Loads the last saved transcription from persistent storage.
+     */
     private void loadLastMessage() {
         List<TranscriptionParagraph> paragraphs = persistency.loadLastMessage();
 

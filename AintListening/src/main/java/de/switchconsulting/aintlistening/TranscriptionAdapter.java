@@ -48,6 +48,11 @@ public class TranscriptionAdapter extends RecyclerView.Adapter<TranscriptionAdap
     private MediaPlayer mediaPlayer;
     private int currentlyPlayingPosition = -1;
 
+    /**
+     * Updates the list of paragraphs displayed by the adapter using DiffUtil for efficient updates.
+     *
+     * @param newParagraphs The new list of transcription paragraphs.
+     */
     public void setParagraphs(List<TranscriptionParagraph> newParagraphs) {
         DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(new DiffUtil.Callback() {
             @Override
@@ -82,6 +87,9 @@ public class TranscriptionAdapter extends RecyclerView.Adapter<TranscriptionAdap
         diffResult.dispatchUpdatesTo(this);
     }
 
+    /**
+     * Releases the MediaPlayer and other resources.
+     */
     public void release() {
         if (mediaPlayer != null) {
             mediaPlayer.release();
@@ -108,6 +116,12 @@ public class TranscriptionAdapter extends RecyclerView.Adapter<TranscriptionAdap
         return paragraphs.size();
     }
 
+    /**
+     * Toggles audio playback for the paragraph at the specified position.
+     *
+     * @param position   The position of the paragraph in the list.
+     * @param playButton The button that triggered the playback toggle.
+     */
     private void togglePlayback(int position, MaterialButton playButton) {
         if (currentlyPlayingPosition == position) {
             if (mediaPlayer != null && mediaPlayer.isPlaying()) {
@@ -122,6 +136,12 @@ public class TranscriptionAdapter extends RecyclerView.Adapter<TranscriptionAdap
         }
     }
 
+    /**
+     * Starts audio playback for the paragraph at the specified position.
+     *
+     * @param position   The position of the paragraph in the list.
+     * @param playButton The button that triggered the playback.
+     */
     private void startPlayback(int position, MaterialButton playButton) {
         stopPlayback();
 
@@ -141,6 +161,9 @@ public class TranscriptionAdapter extends RecyclerView.Adapter<TranscriptionAdap
         }
     }
 
+    /**
+     * Stops the current audio playback and releases the MediaPlayer.
+     */
     private void stopPlayback() {
         if (mediaPlayer != null) {
             mediaPlayer.stop();

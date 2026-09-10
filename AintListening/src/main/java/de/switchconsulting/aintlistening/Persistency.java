@@ -38,6 +38,11 @@ public class Persistency {
 
     private final Context context;
 
+    /**
+     * Constructs a new Persistency instance.
+     *
+     * @param context The application context.
+     */
     public Persistency(Context context) {
         this.context = context.getApplicationContext();
     }

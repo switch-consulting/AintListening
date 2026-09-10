@@ -17,10 +17,26 @@
 package de.switchconsulting.aintlistening;
 
 /**
- * Interface for post-processing of transcribed text to apply formatting.
+ * Interface for post-processing transcribed text to apply formatting like punctuation and casing.
  */
 public interface SmartFormatter {
+    /**
+     * Formats the given raw transcription text.
+     *
+     * @param text The raw text to format.
+     * @return The formatted text.
+     */
     String format(String text);
+
+    /**
+     * Gets information about the model being used for formatting.
+     *
+     * @return The model info.
+     */
     ModelInfo getModelInfo();
+
+    /**
+     * Releases resources used by the formatter.
+     */
     void close();
 }

@@ -21,10 +21,31 @@ import java.io.File;
 import java.util.List;
 
 /**
- * Interface for speech-to-text transcription.
+ * Interface for speech-to-text transcription services.
  */
 public interface Transcriber {
+    /**
+     * Ensures that the transcription model for the specified language index is loaded and ready.
+     *
+     * @param context    The application context.
+     * @param modelIndex The index of the model in the supported languages list.
+     * @throws Exception if model loading fails.
+     */
     void ensureModelLoaded(Context context, int modelIndex) throws Exception;
+
+    /**
+     * Transcribes the provided audio file.
+     *
+     * @param context  The application context.
+     * @param wavFile  The WAV audio file to transcribe.
+     * @param listener A listener to receive transcription updates.
+     * @return A list of transcribed paragraphs.
+     * @throws Exception if transcription fails.
+     */
     List<TranscriptionParagraph> transcribe(Context context, File wavFile, TranscriptionListener listener) throws Exception;
+
+    /**
+     * Releases any resources held by the transcriber.
+     */
     void close();
 }
