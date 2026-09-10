@@ -56,7 +56,7 @@ public class Transcriber {
 
         LanguageSupport language = ModelManager.SUPPORTED_LANGUAGES[modelIndex];
         if (!language.isTranscriptionDownloaded(context)) {
-            throw new IllegalStateException("Vosk model not found for language: " + language.getLanguage());
+            throw new IllegalStateException("Vosk model not found for language: " + language.getLocale().getDisplayName());
         }
 
         File modelDir = new File(context.getFilesDir(), language.getTranscriptionModel().name);

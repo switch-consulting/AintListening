@@ -140,7 +140,7 @@ public class ModelAdapter extends RecyclerView.Adapter<ModelAdapter.ViewHolder> 
          * @param listener The listener for interaction events.
          */
         public void bind(LanguageSupport language, boolean isBusy, InteractionListener listener) {
-            languageNameText.setText(language.getLanguage());
+            languageNameText.setText(language.getLocale().getDisplayName());
 
             bindModelRow(transcriberRow, language.getTranscriptionModel(), isBusy, listener);
 
@@ -162,7 +162,7 @@ public class ModelAdapter extends RecyclerView.Adapter<ModelAdapter.ViewHolder> 
             MaterialButton downloadButton = rowView.findViewById(R.id.inlineDownloadButton);
             MaterialButton deleteButton = rowView.findViewById(R.id.inlineDeleteButton);
 
-            nameText.setText(info.displayName);
+            nameText.setText(info.locale.getDisplayName());
             boolean isDownloaded = ModelManager.INSTANCE.isModelDownloaded(context, info);
 
             if (!isDownloaded) {

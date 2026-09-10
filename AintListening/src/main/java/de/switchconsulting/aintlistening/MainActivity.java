@@ -169,7 +169,7 @@ public class MainActivity extends AppCompatActivity {
     private void showLanguageSelectionDialog(List<Integer> availableIndices, Uri audioUri) {
         String[] languages = new String[availableIndices.size()];
         for (int i = 0; i < availableIndices.size(); i++) {
-            languages[i] = ModelManager.SUPPORTED_LANGUAGES[availableIndices.get(i)].getLanguage();
+            languages[i] = ModelManager.SUPPORTED_LANGUAGES[availableIndices.get(i)].getLocale().getDisplayName();
         }
 
         new MaterialAlertDialogBuilder(this)

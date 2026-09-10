@@ -20,6 +20,7 @@ import android.content.Context;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Utility class for managing speech models. Provides metadata for supported models
@@ -34,24 +35,24 @@ class ModelManager {
 
     static {
         SUPPORTED_LANGUAGES = new LanguageSupport[]{
-                new LanguageSupport("Deutsch",
-                        new ModelInfo("vosk-model-small-de-0.15", "https://alphacephei.com/vosk/models/vosk-model-small-de-0.15.zip", "Deutsch", "45MB"),
-                        new ModelInfo("ONNXModel_de", "https://github.com/switch-consulting/AintListening/raw/main/models/ONNXModel_de.zip", "Smart Formatting (DE)", "280MB"),
+                new LanguageSupport(Locale.GERMAN,
+                        new ModelInfo("vosk-model-small-de-0.15", "https://alphacephei.com/vosk/models/vosk-model-small-de-0.15.zip", Locale.GERMAN, "45MB"),
+                        new ModelInfo("ONNXModel_de", "https://github.com/switch-consulting/AintListening/raw/main/models/ONNXModel_de.zip", Locale.GERMAN, "280MB"),
                         INSTANCE),
-                new LanguageSupport("English",
-                        new ModelInfo("vosk-model-small-en-us-0.15", "https://alphacephei.com/vosk/models/vosk-model-small-en-us-0.15.zip", "English", "40MB"),
+                new LanguageSupport(Locale.ENGLISH,
+                        new ModelInfo("vosk-model-small-en-us-0.15", "https://alphacephei.com/vosk/models/vosk-model-small-en-us-0.15.zip", Locale.ENGLISH, "40MB"),
                         null,
                         INSTANCE),
-                new LanguageSupport("Español",
-                        new ModelInfo("vosk-model-small-es-0.42", "https://alphacephei.com/vosk/models/vosk-model-small-es-0.42.zip", "Español", "39MB"),
+                new LanguageSupport(new Locale("es"),
+                        new ModelInfo("vosk-model-small-es-0.42", "https://alphacephei.com/vosk/models/vosk-model-small-es-0.42.zip", new Locale("es"), "39MB"),
                         null,
                         INSTANCE),
-                new LanguageSupport("Français",
-                        new ModelInfo("vosk-model-small-fr-0.22", "https://alphacephei.com/vosk/models/vosk-model-small-fr-0.22.zip", "Français", "41MB"),
+                new LanguageSupport(Locale.FRENCH,
+                        new ModelInfo("vosk-model-small-fr-0.22", "https://alphacephei.com/vosk/models/vosk-model-small-fr-0.22.zip", Locale.FRENCH, "41MB"),
                         null,
                         INSTANCE),
-                new LanguageSupport("Italiano",
-                        new ModelInfo("vosk-model-small-it-0.22", "https://alphacephei.com/vosk/models/vosk-model-small-it-0.22.zip", "Italiano", "48MB"),
+                new LanguageSupport(Locale.ITALIAN,
+                        new ModelInfo("vosk-model-small-it-0.22", "https://alphacephei.com/vosk/models/vosk-model-small-it-0.22.zip", Locale.ITALIAN, "48MB"),
                         null,
                         INSTANCE)
         };
@@ -80,7 +81,7 @@ class ModelManager {
         List<String> available = new ArrayList<>();
         for (LanguageSupport language : SUPPORTED_LANGUAGES) {
             if (language.isTranscriptionDownloaded(context)) {
-                available.add(language.getLanguage());
+                available.add(language.getLocale().getDisplayName());
             }
         }
         return available;

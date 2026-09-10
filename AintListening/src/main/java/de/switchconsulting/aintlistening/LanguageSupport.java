@@ -19,6 +19,7 @@ package de.switchconsulting.aintlistening;
 import android.content.Context;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import java.util.Locale;
 import java.util.Objects;
 
 /**
@@ -27,8 +28,8 @@ import java.util.Objects;
  * It uses a {@link ModelManager} to check for model availability.
  */
 public class LanguageSupport {
-    /** The language identifier, serving as the primary key. */
-    private final String language;
+    /** The locale of the language, serving as the primary key. */
+    private final Locale locale;
     /** The metadata for the speech-to-text transcription model. */
     private final ModelInfo transcriptionModel;
     /** The metadata for the smart formatting (punctuation) model. */
@@ -39,27 +40,27 @@ public class LanguageSupport {
     /**
      * Constructs a new LanguageSupport instance.
      *
-     * @param language           The language identifier (primary key).
+     * @param locale             The locale of the language (primary key).
      * @param transcriptionModel The transcription model information.
      * @param formattingModel    The formatting model information, or null if not supported.
      * @param modelManager       The manager to delegate model checks to.
      */
-    LanguageSupport(@NonNull String language,
+    LanguageSupport(@NonNull Locale locale,
                     @NonNull ModelInfo transcriptionModel,
                     @Nullable ModelInfo formattingModel,
                     @NonNull ModelManager modelManager) {
-        this.language = language;
+        this.locale = locale;
         this.transcriptionModel = transcriptionModel;
         this.formattingModel = formattingModel;
         this.modelManager = modelManager;
     }
 
     /**
-     * @return The language identifier.
+     * @return The locale of the language.
      */
     @NonNull
-    public String getLanguage() {
-        return language;
+    public Locale getLocale() {
+        return locale;
     }
 
     /**
@@ -103,11 +104,11 @@ public class LanguageSupport {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         LanguageSupport that = (LanguageSupport) o;
-        return Objects.equals(language, that.language);
+        return Objects.equals(locale, that.locale);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(language);
+        return Objects.hash(locale);
     }
 }

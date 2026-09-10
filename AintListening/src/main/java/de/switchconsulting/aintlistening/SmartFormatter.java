@@ -26,7 +26,6 @@ import java.io.File;
 import java.nio.LongBuffer;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
@@ -151,7 +150,7 @@ public class SmartFormatter {
     private String processWithModel(String text) throws Exception {
         Log.d(TAG, "Input text: " + text);
         // Bad-code model expects lowercased input
-        Encoding encoding = tokenizer.encode(text.toLowerCase(Locale.GERMAN));
+        Encoding encoding = tokenizer.encode(text.toLowerCase(modelInfo.locale));
         long[] inputIds = encoding.getIds();
         long[] attentionMask = encoding.getAttentionMask();
         String[] tokens = encoding.getTokens();

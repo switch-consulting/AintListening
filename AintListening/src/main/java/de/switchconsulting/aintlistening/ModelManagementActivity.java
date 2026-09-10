@@ -27,6 +27,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.appbar.MaterialToolbar;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.progressindicator.LinearProgressIndicator;
 
 import java.util.Arrays;
@@ -79,7 +80,7 @@ public class ModelManagementActivity extends AppCompatActivity {
         adapter = new ModelAdapter(languages, new ModelAdapter.InteractionListener() {
             @Override
             public void onDownloadClicked(ModelInfo info) {
-                Toast.makeText(ModelManagementActivity.this, getString(R.string.message_starting_download, info.displayName), Toast.LENGTH_SHORT).show();
+                Toast.makeText(ModelManagementActivity.this, getString(R.string.message_starting_download, info.locale.getDisplayName()), Toast.LENGTH_SHORT).show();
                 startDownload(info);
             }
 
@@ -158,9 +159,9 @@ public class ModelManagementActivity extends AppCompatActivity {
      * @param info The model information to delete.
      */
     private void confirmDelete(ModelInfo info) {
-        new com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
+        new MaterialAlertDialogBuilder(this)
                 .setTitle(R.string.dialog_confirm_delete_title)
-                .setMessage(getString(R.string.dialog_confirm_delete_message, info.displayName))
+                .setMessage(getString(R.string.dialog_confirm_delete_message, info.locale.getDisplayName()))
                 .setPositiveButton(R.string.button_remove, (dialog, which) -> {
                     if (ModelManager.deleteModel(this, info)) {
                         updateModelStatusUI();
