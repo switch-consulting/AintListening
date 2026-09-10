@@ -33,27 +33,31 @@ class ModelManager {
     /** The list of languages and their associated models supported by the application. */
     static final LanguageSupport[] SUPPORTED_LANGUAGES;
 
+    private static final String SHARED_PUNC_MODEL_NAME = "ONNXModel_multilingual";
+    private static final String SHARED_PUNC_MODEL_URL = "https://github.com/switch-consulting/AintListening/raw/main/models/ONNXModel_multilingual.zip";
+    private static final String SHARED_PUNC_MODEL_SIZE = "280MB";
+
     static {
         SUPPORTED_LANGUAGES = new LanguageSupport[]{
                 new LanguageSupport(Locale.GERMAN,
                         new ModelInfo("vosk-model-small-de-0.15", "https://alphacephei.com/vosk/models/vosk-model-small-de-0.15.zip", Locale.GERMAN, "45MB"),
-                        new ModelInfo("ONNXModel_de", "https://github.com/switch-consulting/AintListening/raw/main/models/ONNXModel_de.zip", Locale.GERMAN, "280MB"),
+                        new ModelInfo(SHARED_PUNC_MODEL_NAME, SHARED_PUNC_MODEL_URL, Locale.GERMAN, SHARED_PUNC_MODEL_SIZE),
                         INSTANCE),
                 new LanguageSupport(Locale.ENGLISH,
                         new ModelInfo("vosk-model-small-en-us-0.15", "https://alphacephei.com/vosk/models/vosk-model-small-en-us-0.15.zip", Locale.ENGLISH, "40MB"),
-                        null,
+                        new ModelInfo(SHARED_PUNC_MODEL_NAME, SHARED_PUNC_MODEL_URL, Locale.ENGLISH, SHARED_PUNC_MODEL_SIZE),
                         INSTANCE),
-                new LanguageSupport(new Locale("es"),
-                        new ModelInfo("vosk-model-small-es-0.42", "https://alphacephei.com/vosk/models/vosk-model-small-es-0.42.zip", new Locale("es"), "39MB"),
-                        null,
+                new LanguageSupport(Locale.forLanguageTag("es"),
+                        new ModelInfo("vosk-model-small-es-0.42", "https://alphacephei.com/vosk/models/vosk-model-small-es-0.42.zip", Locale.forLanguageTag("es"), "39MB"),
+                        new ModelInfo(SHARED_PUNC_MODEL_NAME, SHARED_PUNC_MODEL_URL, Locale.forLanguageTag("es"), SHARED_PUNC_MODEL_SIZE),
                         INSTANCE),
                 new LanguageSupport(Locale.FRENCH,
                         new ModelInfo("vosk-model-small-fr-0.22", "https://alphacephei.com/vosk/models/vosk-model-small-fr-0.22.zip", Locale.FRENCH, "41MB"),
-                        null,
+                        new ModelInfo(SHARED_PUNC_MODEL_NAME, SHARED_PUNC_MODEL_URL, Locale.FRENCH, SHARED_PUNC_MODEL_SIZE),
                         INSTANCE),
                 new LanguageSupport(Locale.ITALIAN,
                         new ModelInfo("vosk-model-small-it-0.22", "https://alphacephei.com/vosk/models/vosk-model-small-it-0.22.zip", Locale.ITALIAN, "48MB"),
-                        null,
+                        new ModelInfo(SHARED_PUNC_MODEL_NAME, SHARED_PUNC_MODEL_URL, Locale.ITALIAN, SHARED_PUNC_MODEL_SIZE),
                         INSTANCE)
         };
     }

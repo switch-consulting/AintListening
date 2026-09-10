@@ -13,9 +13,10 @@ MODEL_ID = "1-800-BAD-CODE/xlm-roberta_punctuation_fullstop_truecase"
 EXPORT_DIR = "./onnx_export"
 QUANT_DIR = "./onnx_quantized"
 MODELS_DIR = "../models"
+MODEL_NAME = "ONNXModel_multilingual"
 
-def prepare_model(locale="de"):
-    zip_filename = f"ONNXModel_{locale}.zip"
+def prepare_model():
+    zip_filename = f"{MODEL_NAME}.zip"
     zip_path = os.path.join(MODELS_DIR, zip_filename)
 
     # Clean up and ensure directories exist
@@ -54,27 +55,23 @@ def prepare_model(locale="de"):
 
     # 4. Packaging into ZIP
     print(f"\n--- Step 4: Packaging files into {zip_path} ---")
-    model_name = os.path.splitext(zip_filename)[0]
     with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as zipf:
         # Include Quantized Model
-        zipf.write(output_model_path, f"{model_name}/model.onnx")
+        zipf.write(output_model_path, f"{MODEL_NAME}/model.onnx")
 
         # Include Tokenizer files
         tokenizer_files = ["tokenizer.json", "tokenizer_config.json", "special_tokens_map.json", "sentencepiece.bpe.model"]
         for file in os.listdir(EXPORT_DIR):
             if file in tokenizer_files:
                 file_path = os.path.join(EXPORT_DIR, file)
-                zipf.write(file_path, f"{model_name}/{file}")
+                zipf.write(file_path, f"{MODEL_NAME}/{file}")
                 print(f"Added {file} to zip")
 
     print(f"\nSuccess! '{zip_path}' is ready (~280MB).")
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Prepare ONNX model for Android")
-    parser.add_argument("--locale", type=str, default="de", help="Locale for the output filename (e.g. de, en)")
-    args = parser.parse_args()
-
+    print("Preparing Multilingual ONNX model for AintListening...")
     try:
-        prepare_model(args.locale)
+        prepare_model()
     except Exception as e:
         print(f"\nCRITICAL ERROR during model preparation: {e}")
