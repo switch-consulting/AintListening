@@ -4,9 +4,12 @@ Offline-first Android app to transcribe shared WhatsApp voice messages (`.opus`)
 
 ## Stack
 - Java
-- Android SDK 34 / minSdk 26
+- Android SDK 37 / minSdk 26
 - Native MediaCodec for Opus decoding
-- Vosk Android (`com.alphacephei:vosk-android:0.3.75`)
+- Vosk Android (`com.alphacephei:vosk-android:0.3.75`) for offline speech recognition
+- Microsoft ONNX Runtime (`com.microsoft.onnxruntime:onnxruntime-android`) for model inference
+- Deep Java Library (DJL) & Hugging Face Tokenizers for text processing
+- Material Design 3 UI components
 
 ## Build & Run
 1. Open project in a recent version of Android Studio.
@@ -26,6 +29,20 @@ The app requires the German speech model for offline transcription.
 3. App converts audio to 16kHz mono WAV and transcribes locally.
 4. Copy transcript from selectable text view.
 
+## Testing & Sideloading (Beta)
+To test the app on your Android device without building from source:
+
+1. **Download the APK**: Go to the [Releases](https://github.com/switchconsulting/AintListening/releases) section and download the latest `AintListening-debug.apk`.
+2. **Transfer (if needed)**: Move the file to your Android device.
+3. **Enable Unknown Sources**: 
+   - Open the APK on the phone. 
+   - If prompted, go to **Settings** and enable "Allow from this source" for the app you are using to open the file (e.g., your browser or File Manager).
+4. **Install**: Follow the prompts to complete the installation.
+5. **Note**: Since this is a Debug build, Android might show a warning about an "Unsafe App" or "Play Protect". Choose "Install anyway" to proceed.
+
 ## License Notes
-- App source: Apache License 2.0
-- Vosk model/data may have separate model licenses—verify before distribution
+- **App Source**: Apache License 2.0
+- **Vosk**: Apache License 2.0. Models (e.g., German small) may have separate licenses—verify before commercial distribution.
+- **ONNX Runtime**: MIT License
+- **DJL / Hugging Face Tokenizers**: Apache License 2.0
+- **Vosk Model**: Verify individual model license at [alphacephei.com](https://alphacephei.com/vosk/models) (usually Alpaca/Apache/Creative Commons).
