@@ -62,4 +62,6 @@
     <string name="cd_smart_text">Mostrar texto con formato inteligente</string>
     <string name="cd_play_audio">Reproducir fragmento de audio</string>
     <string name="cd_stop_audio">Detener audio</string>
+    <string name="cd_copy_text">Copiar texto al portapapeles</string>
+    <string name="message_copied_to_clipboard">Copiado al portapapeles</string>
 </resources>

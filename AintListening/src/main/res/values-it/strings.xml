@@ -62,4 +62,6 @@
     <string name="cd_smart_text">Mostra il testo formattato in modo intelligente</string>
     <string name="cd_play_audio">Riproduci frammento audio</string>
     <string name="cd_stop_audio">Interrompi audio</string>
+    <string name="cd_copy_text">Copia il testo negli appunti</string>
+    <string name="message_copied_to_clipboard">Copiato negli appunti</string>
 </resources>

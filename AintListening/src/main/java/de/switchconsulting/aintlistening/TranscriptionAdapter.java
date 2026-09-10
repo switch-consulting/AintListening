@@ -16,6 +16,9 @@
 
 package de.switchconsulting.aintlistening;
 
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.Context;
 import android.media.MediaPlayer;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -156,6 +159,7 @@ public class TranscriptionAdapter extends RecyclerView.Adapter<TranscriptionAdap
         private final MaterialButton btnPlay;
         private final MaterialButton btnRaw;
         private final MaterialButton btnSmart;
+        private final MaterialButton btnCopy;
         private final MaterialButtonToggleGroup toggleGroup;
 
         public ViewHolder(View view) {
@@ -164,6 +168,7 @@ public class TranscriptionAdapter extends RecyclerView.Adapter<TranscriptionAdap
             btnPlay = view.findViewById(R.id.btnPlay);
             btnRaw = view.findViewById(R.id.btnRaw);
             btnSmart = view.findViewById(R.id.btnSmart);
+            btnCopy = view.findViewById(R.id.btnCopy);
             toggleGroup = view.findViewById(R.id.toggleGroup);
         }
 
@@ -185,6 +190,17 @@ public class TranscriptionAdapter extends RecyclerView.Adapter<TranscriptionAdap
                 btnPlay.setOnClickListener(v -> togglePlayback(position, btnPlay));
             }
 
+            // Copy button handling
+            btnCopy.setVisibility(View.VISIBLE);
+            btnCopy.setOnClickListener(v -> {
+                ClipboardManager clipboard = (ClipboardManager) v.getContext().getSystemService(Context.CLIPBOARD_SERVICE);
+                ClipData clip = ClipData.newPlainText("Transcription", paragraph.getDisplayText());
+                if (clipboard != null) {
+                    clipboard.setPrimaryClip(clip);
+                    Toast.makeText(v.getContext(), R.string.message_copied_to_clipboard, Toast.LENGTH_SHORT).show();
+                }
+            });
+
             // Text toggle handling
             btnRaw.setVisibility(View.VISIBLE);
             btnSmart.setVisibility(View.VISIBLE);
@@ -202,6 +218,10 @@ public class TranscriptionAdapter extends RecyclerView.Adapter<TranscriptionAdap
                 if (isChecked) {
                     if (checkedId == R.id.btnPlay) {
                         group.uncheck(R.id.btnPlay);
+                        return;
+                    }
+                    if (checkedId == R.id.btnCopy) {
+                        group.uncheck(R.id.btnCopy);
                         return;
                     }
                     

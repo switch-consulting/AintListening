@@ -62,4 +62,6 @@
     <string name="cd_smart_text">Smart-formatierten Text anzeigen</string>
     <string name="cd_play_audio">Audio-Abschnitt abspielen</string>
     <string name="cd_stop_audio">Wiedergabe stoppen</string>
+    <string name="cd_copy_text">Text in Zwischenablage kopieren</string>
+    <string name="message_copied_to_clipboard">In Zwischenablage kopiert</string>
 </resources>

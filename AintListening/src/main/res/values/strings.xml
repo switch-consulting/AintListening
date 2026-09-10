@@ -62,4 +62,6 @@
     <string name="cd_smart_text">Show smart formatted text</string>
     <string name="cd_play_audio">Play audio chunk</string>
     <string name="cd_stop_audio">Stop audio</string>
+    <string name="cd_copy_text">Copy text to clipboard</string>
+    <string name="message_copied_to_clipboard">Copied to clipboard</string>
 </resources>

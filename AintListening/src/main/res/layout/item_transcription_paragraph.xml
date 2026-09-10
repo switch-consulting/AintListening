@@ -99,6 +99,22 @@
                 android:insetBottom="0dp"
                 android:contentDescription="@string/cd_smart_text" />
 
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnCopy"
+                style="@style/Widget.Material3.Button.OutlinedButton.Icon"
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                app:icon="@drawable/ic_content_copy"
+                app:iconSize="20dp"
+                app:iconPadding="0dp"
+                app:iconGravity="textStart"
+                app:cornerRadius="8dp"
+                android:insetLeft="0dp"
+                android:insetTop="0dp"
+                android:insetRight="0dp"
+                android:insetBottom="0dp"
+                android:contentDescription="@string/cd_copy_text" />
+
         </com.google.android.material.button.MaterialButtonToggleGroup>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
