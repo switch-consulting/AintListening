@@ -60,4 +60,6 @@
     <string name="label_smart_formatting">Smart Formatting (DE)</string>
     <string name="cd_raw_text">Show transcribed text</string>
     <string name="cd_smart_text">Show smart formatted text</string>
+    <string name="cd_play_audio">Play audio chunk</string>
+    <string name="cd_stop_audio">Stop audio</string>
 </resources>

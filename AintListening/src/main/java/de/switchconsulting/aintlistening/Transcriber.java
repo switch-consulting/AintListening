@@ -18,12 +18,13 @@ package de.switchconsulting.aintlistening;
 
 import android.content.Context;
 import java.io.File;
+import java.util.List;
 
 /**
  * Interface for speech-to-text transcription.
  */
 public interface Transcriber {
     void ensureModelLoaded(Context context, int modelIndex) throws Exception;
-    String transcribe(File wavFile, TranscriptionListener listener) throws Exception;
+    List<TranscriptionParagraph> transcribe(Context context, File wavFile, TranscriptionListener listener) throws Exception;
     void close();
 }

@@ -116,6 +116,9 @@ public class MainActivity extends AppCompatActivity {
         if (smartFormatter != null) {
             smartFormatter.close();
         }
+        if (transcriptionAdapter != null) {
+            transcriptionAdapter.release();
+        }
     }
 
     @Override
@@ -221,7 +224,7 @@ public class MainActivity extends AppCompatActivity {
             transcriber.ensureModelLoaded(this, selectedModelIndex);
             showStatus(getString(R.string.status_transcribing));
 
-            String transcript = transcriber.transcribe(wavFile, new TranscriptionListener() {
+            List<TranscriptionParagraph> paragraphList = transcriber.transcribe(this, wavFile, new TranscriptionListener() {
                 @Override
                 public void onPartialResult(String text) {
                     updateTranscriptUI(text);
@@ -233,19 +236,19 @@ public class MainActivity extends AppCompatActivity {
                 }
             });
 
-            applySmartFormattingAndDisplay(transcript, selectedModelIndex, true);
+            applySmartFormattingAndDisplay(paragraphList, selectedModelIndex, true);
         } catch (Exception e) {
             Log.e(TAG, "Vosk transcription failed", e);
             showError(getString(R.string.error_transcription_failed));
         }
     }
 
-    private void applySmartFormattingAndDisplay(String transcript, int modelIndex, boolean shouldSave) {
+    private void applySmartFormattingAndDisplay(List<TranscriptionParagraph> paragraphs, int modelIndex, boolean shouldSave) {
         executorService.execute(() -> {
             LanguageSupport selectedLanguage = ModelManager.SUPPORTED_LANGUAGES[modelIndex];
             List<TranscriptionParagraph> paragraphList = new ArrayList<>();
 
-            if (selectedLanguage.isFormattingDownloaded(this) && !transcript.trim().isEmpty()) {
+            if (selectedLanguage.isFormattingDownloaded(this) && !paragraphs.isEmpty()) {
                 try {
                     showStatus(getString(R.string.status_applying_smart_formatting));
                     ModelInfo targetModel = selectedLanguage.getFormattingModel();
@@ -259,32 +262,28 @@ public class MainActivity extends AppCompatActivity {
                         }
                     }
 
-                    String[] paragraphs = transcript.split("\n\n");
                     runOnUiThread(() -> {
                         progressIndicator.setVisibility(View.VISIBLE);
                         progressIndicator.setIndeterminate(false);
-                        progressIndicator.setMax(paragraphs.length);
+                        progressIndicator.setMax(paragraphs.size());
                         progressIndicator.setProgress(0);
                     });
 
-                    for (int i = 0; i < paragraphs.length; i++) {
-                        String rawPara = paragraphs[i];
+                    for (int i = 0; i < paragraphs.size(); i++) {
+                        TranscriptionParagraph p = paragraphs.get(i);
+                        String rawPara = p.getRawText();
                         if (rawPara.trim().isEmpty()) continue;
 
                         String formattedPara = smartFormatter.format(rawPara);
-                        Log.d(TAG, "Formatting paragraph " + (i + 1) + "/" + paragraphs.length);
-                        Log.d(TAG, "Raw: " + rawPara);
-                        Log.d(TAG, "Formatted: " + formattedPara);
+                        Log.d(TAG, "Formatting paragraph " + (i + 1) + "/" + paragraphs.size());
 
-                        TranscriptionParagraph p = new TranscriptionParagraph(rawPara, formattedPara);
-                        paragraphList.add(p);
+                        TranscriptionParagraph formattedP = new TranscriptionParagraph(rawPara, formattedPara, p.getAudioFilePath());
+                        paragraphList.add(formattedP);
                         
                         // Show already formatted paragraphs + remaining raw ones
                         final List<TranscriptionParagraph> currentDisplayList = new ArrayList<>(paragraphList);
-                        for (int j = i + 1; j < paragraphs.length; j++) {
-                            if (!paragraphs[j].trim().isEmpty()) {
-                                currentDisplayList.add(new TranscriptionParagraph(paragraphs[j], null));
-                            }
+                        for (int j = i + 1; j < paragraphs.size(); j++) {
+                            currentDisplayList.add(paragraphs.get(j));
                         }
                         
                         final int progress = i + 1;
@@ -295,26 +294,12 @@ public class MainActivity extends AppCompatActivity {
                     }
                 } catch (Exception e) {
                     Log.e(TAG, "Smart formatting failed", e);
-                    // Fallback to raw paragraphs if not already added
-                    if (paragraphList.isEmpty()) {
-                        String[] rawParas = transcript.split("\n\n");
-                        for (String rp : rawParas) {
-                            if (!rp.trim().isEmpty()) {
-                                paragraphList.add(new TranscriptionParagraph(rp, null));
-                            }
-                        }
-                    }
+                    paragraphList.clear();
+                    paragraphList.addAll(paragraphs);
                 }
             } else {
                 Log.d(TAG, "Smart formatting skipped: model not downloaded or transcript empty.");
-                String[] rawParas = transcript.split("\n\n");
-                for (int i = 0; i < rawParas.length; i++) {
-                    String rp = rawParas[i];
-                    if (!rp.trim().isEmpty()) {
-                        Log.d(TAG, "Paragraph " + (i + 1) + "/" + rawParas.length + " (Raw only): " + rp);
-                        paragraphList.add(new TranscriptionParagraph(rp, null));
-                    }
-                }
+                paragraphList.addAll(paragraphs);
             }
 
             if (paragraphList.isEmpty()) {
@@ -381,7 +366,14 @@ public class MainActivity extends AppCompatActivity {
             String lastMessage = persistency.loadLegacyLastMessage();
             if (lastMessage != null) {
                 int lastModelIndex = persistency.loadLastModelIndex();
-                applySmartFormattingAndDisplay(lastMessage, lastModelIndex, false);
+                String[] rawParas = lastMessage.split("\n\n");
+                List<TranscriptionParagraph> pList = new ArrayList<>();
+                for (String rp : rawParas) {
+                    if (!rp.trim().isEmpty()) {
+                        pList.add(new TranscriptionParagraph(rp, null));
+                    }
+                }
+                applySmartFormattingAndDisplay(pList, lastModelIndex, false);
             } else {
                 showInfo(getString(R.string.intro_instruction));
             }

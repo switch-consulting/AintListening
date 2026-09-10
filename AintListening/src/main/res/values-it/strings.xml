@@ -60,4 +60,6 @@
     <string name="label_smart_formatting">Formattazione Intelligente (DE)</string>
     <string name="cd_raw_text">Mostra il testo trascritto</string>
     <string name="cd_smart_text">Mostra il testo formattato in modo intelligente</string>
+    <string name="cd_play_audio">Riproduci frammento audio</string>
+    <string name="cd_stop_audio">Interrompi audio</string>
 </resources>

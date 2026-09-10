@@ -56,6 +56,7 @@ public class Persistency {
                 obj.put("raw", p.getRawText());
                 obj.put("formatted", p.getFormattedText());
                 obj.put("showFormatted", p.isShowFormatted());
+                obj.put("audioPath", p.getAudioFilePath());
                 array.put(obj);
             }
             context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
@@ -85,7 +86,8 @@ public class Persistency {
                     JSONObject obj = array.getJSONObject(i);
                     TranscriptionParagraph p = new TranscriptionParagraph(
                             obj.getString("raw"),
-                            obj.has("formatted") && !obj.isNull("formatted") ? obj.getString("formatted") : null
+                            obj.has("formatted") && !obj.isNull("formatted") ? obj.getString("formatted") : null,
+                            obj.has("audioPath") && !obj.isNull("audioPath") ? obj.getString("audioPath") : null
                     );
                     p.setShowFormatted(obj.optBoolean("showFormatted", p.isShowFormatted()));
                     paragraphs.add(p);

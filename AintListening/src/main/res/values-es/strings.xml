@@ -60,4 +60,6 @@
     <string name="label_smart_formatting">Formato Inteligente (DE)</string>
     <string name="cd_raw_text">Mostrar texto transcrito</string>
     <string name="cd_smart_text">Mostrar texto con formato inteligente</string>
+    <string name="cd_play_audio">Reproducir fragmento de audio</string>
+    <string name="cd_stop_audio">Detener audio</string>
 </resources>

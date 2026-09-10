@@ -23,11 +23,17 @@ package de.switchconsulting.aintlistening;
 public class TranscriptionParagraph {
     private final String rawText;
     private final String formattedText;
+    private final String audioFilePath;
     private boolean showFormatted;
 
     public TranscriptionParagraph(String rawText, String formattedText) {
+        this(rawText, formattedText, null);
+    }
+
+    public TranscriptionParagraph(String rawText, String formattedText, String audioFilePath) {
         this.rawText = rawText;
         this.formattedText = formattedText;
+        this.audioFilePath = audioFilePath;
         this.showFormatted = formattedText != null && !formattedText.isEmpty();
     }
 
@@ -37,6 +43,10 @@ public class TranscriptionParagraph {
 
     public String getFormattedText() {
         return formattedText;
+    }
+
+    public String getAudioFilePath() {
+        return audioFilePath;
     }
 
     public boolean isShowFormatted() {
