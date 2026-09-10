@@ -47,6 +47,11 @@ public class TranscriptionAdapter extends RecyclerView.Adapter<TranscriptionAdap
     private final List<TranscriptionParagraph> paragraphs = new ArrayList<>();
     private MediaPlayer mediaPlayer;
     private int currentlyPlayingPosition = -1;
+    private Persistency persistency;
+
+    public TranscriptionAdapter(Persistency persistency) {
+        this.persistency = persistency;
+    }
 
     /**
      * Updates the list of paragraphs displayed by the adapter using DiffUtil for efficient updates.
@@ -198,31 +203,38 @@ public class TranscriptionAdapter extends RecyclerView.Adapter<TranscriptionAdap
         void bind(TranscriptionParagraph paragraph, int position) {
             textView.setText(paragraph.getDisplayText());
 
+            boolean showPlayback = persistency == null || persistency.isShowPlaybackButton();
+            boolean showCopy = persistency == null || persistency.isShowCopyButton();
+
             // Play button handling
-            btnPlay.setVisibility(View.VISIBLE);
-            if (paragraph.getAudioFilePath() == null) {
-                btnPlay.setEnabled(false);
-                btnPlay.setIconResource(R.drawable.ic_play_arrow);
-                btnPlay.setAlpha(0.38f); // Standard disabled alpha
-            } else {
-                btnPlay.setEnabled(true);
-                btnPlay.setAlpha(1.0f);
-                boolean isCurrent = (currentlyPlayingPosition == position);
-                boolean isPlaying = isCurrent && mediaPlayer != null && mediaPlayer.isPlaying();
-                btnPlay.setIconResource(isPlaying ? R.drawable.ic_pause : R.drawable.ic_play_arrow);
-                btnPlay.setOnClickListener(v -> togglePlayback(position, btnPlay));
+            btnPlay.setVisibility(showPlayback ? View.VISIBLE : View.GONE);
+            if (showPlayback) {
+                if (paragraph.getAudioFilePath() == null) {
+                    btnPlay.setEnabled(false);
+                    btnPlay.setIconResource(R.drawable.ic_play_arrow);
+                    btnPlay.setAlpha(0.38f); // Standard disabled alpha
+                } else {
+                    btnPlay.setEnabled(true);
+                    btnPlay.setAlpha(1.0f);
+                    boolean isCurrent = (currentlyPlayingPosition == position);
+                    boolean isPlaying = isCurrent && mediaPlayer != null && mediaPlayer.isPlaying();
+                    btnPlay.setIconResource(isPlaying ? R.drawable.ic_pause : R.drawable.ic_play_arrow);
+                    btnPlay.setOnClickListener(v -> togglePlayback(position, btnPlay));
+                }
             }
 
             // Copy button handling
-            btnCopy.setVisibility(View.VISIBLE);
-            btnCopy.setOnClickListener(v -> {
-                ClipboardManager clipboard = (ClipboardManager) v.getContext().getSystemService(Context.CLIPBOARD_SERVICE);
-                ClipData clip = ClipData.newPlainText("Transcription", paragraph.getDisplayText());
-                if (clipboard != null) {
-                    clipboard.setPrimaryClip(clip);
-                    Toast.makeText(v.getContext(), R.string.message_copied_to_clipboard, Toast.LENGTH_SHORT).show();
-                }
-            });
+            btnCopy.setVisibility(showCopy ? View.VISIBLE : View.GONE);
+            if (showCopy) {
+                btnCopy.setOnClickListener(v -> {
+                    ClipboardManager clipboard = (ClipboardManager) v.getContext().getSystemService(Context.CLIPBOARD_SERVICE);
+                    ClipData clip = ClipData.newPlainText("Transcription", paragraph.getDisplayText());
+                    if (clipboard != null) {
+                        clipboard.setPrimaryClip(clip);
+                        Toast.makeText(v.getContext(), R.string.message_copied_to_clipboard, Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
 
             // Text toggle handling
             btnRaw.setVisibility(View.VISIBLE);

@@ -35,6 +35,8 @@ public class Persistency {
     private static final String KEY_LAST_PARAGRAPHS_JSON = "last_paragraphs_json";
     private static final String KEY_LAST_MODEL_INDEX = "last_model_index";
     private static final String KEY_LAST_MESSAGE = "last_message";
+    private static final String KEY_SHOW_PLAYBACK_BUTTON = "show_playback_button";
+    private static final String KEY_SHOW_COPY_BUTTON = "show_copy_button";
 
     private final Context context;
 
@@ -123,5 +125,29 @@ public class Persistency {
     public int loadLastModelIndex() {
         return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
                 .getInt(KEY_LAST_MODEL_INDEX, 0);
+    }
+
+    public boolean isShowPlaybackButton() {
+        return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+                .getBoolean(KEY_SHOW_PLAYBACK_BUTTON, true);
+    }
+
+    public void setShowPlaybackButton(boolean show) {
+        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+                .edit()
+                .putBoolean(KEY_SHOW_PLAYBACK_BUTTON, show)
+                .apply();
+    }
+
+    public boolean isShowCopyButton() {
+        return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+                .getBoolean(KEY_SHOW_COPY_BUTTON, true);
+    }
+
+    public void setShowCopyButton(boolean show) {
+        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+                .edit()
+                .putBoolean(KEY_SHOW_COPY_BUTTON, show)
+                .apply();
     }
 }

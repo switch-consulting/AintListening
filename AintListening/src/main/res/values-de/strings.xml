@@ -64,4 +64,7 @@
     <string name="cd_stop_audio">Wiedergabe stoppen</string>
     <string name="cd_copy_text">Text in Zwischenablage kopieren</string>
     <string name="message_copied_to_clipboard">In Zwischenablage kopiert</string>
+    <string name="label_ui_settings">Benutzeroberfläche</string>
+    <string name="label_show_playback">Abspiel-Button anzeigen</string>
+    <string name="label_show_copy">Kopieren-Button anzeigen</string>
 </resources>

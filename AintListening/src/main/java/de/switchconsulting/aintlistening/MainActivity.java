@@ -75,7 +75,7 @@ public class MainActivity extends AppCompatActivity {
         progressIndicator = findViewById(R.id.progressIndicator);
         statusTextView = findViewById(R.id.statusTextView);
         RecyclerView transcriptRecyclerView = findViewById(R.id.transcriptRecyclerView);
-        transcriptionAdapter = new TranscriptionAdapter();
+        transcriptionAdapter = new TranscriptionAdapter(persistency);
         transcriptRecyclerView.setAdapter(transcriptionAdapter);
 
         MaterialButton configureButton = findViewById(R.id.configureButton);
@@ -95,6 +95,9 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         updateAvailableLanguagesUI();
+        if (transcriptionAdapter != null) {
+            transcriptionAdapter.notifyDataSetChanged();
+        }
     }
 
     /**

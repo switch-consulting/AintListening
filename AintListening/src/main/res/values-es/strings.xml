@@ -64,4 +64,7 @@
     <string name="cd_stop_audio">Detener audio</string>
     <string name="cd_copy_text">Copiar texto al portapapeles</string>
     <string name="message_copied_to_clipboard">Copiado al portapapeles</string>
+    <string name="label_ui_settings">Interfaz de usuario</string>
+    <string name="label_show_playback">Mostrar botón de reproducción</string>
+    <string name="label_show_copy">Mostrar botón de copiar</string>
 </resources>

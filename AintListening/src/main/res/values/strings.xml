@@ -64,4 +64,7 @@
     <string name="cd_stop_audio">Stop audio</string>
     <string name="cd_copy_text">Copy text to clipboard</string>
     <string name="message_copied_to_clipboard">Copied to clipboard</string>
+    <string name="label_ui_settings">User Interface</string>
+    <string name="label_show_playback">Show Playback Button</string>
+    <string name="label_show_copy">Show Copy Button</string>
 </resources>

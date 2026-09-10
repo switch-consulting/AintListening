@@ -64,4 +64,7 @@
     <string name="cd_stop_audio">Arrêter l\'audio</string>
     <string name="cd_copy_text">Copier le texte dans le presse-papiers</string>
     <string name="message_copied_to_clipboard">Copié dans le presse-papiers</string>
+    <string name="label_ui_settings">Interface utilisateur</string>
+    <string name="label_show_playback">Afficher le bouton de lecture</string>
+    <string name="label_show_copy">Afficher le bouton de copie</string>
 </resources>

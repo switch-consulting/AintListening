@@ -64,4 +64,7 @@
     <string name="cd_stop_audio">Interrompi audio</string>
     <string name="cd_copy_text">Copia il testo negli appunti</string>
     <string name="message_copied_to_clipboard">Copiato negli appunti</string>
+    <string name="label_ui_settings">Interfaccia utente</string>
+    <string name="label_show_playback">Mostra pulsante di riproduzione</string>
+    <string name="label_show_copy">Mostra pulsante di copia</string>
 </resources>

@@ -29,6 +29,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.progressindicator.LinearProgressIndicator;
+import com.google.android.material.switchmaterial.SwitchMaterial;
 
 import java.util.Arrays;
 import java.util.List;
@@ -44,6 +45,7 @@ public class ModelManagementActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private ModelAdapter adapter;
     private ModelManagementViewModel viewModel;
+    private Persistency persistency;
 
     /**
      * Initializes the activity, sets up the ViewModel, and UI components.
@@ -65,9 +67,23 @@ public class ModelManagementActivity extends AppCompatActivity {
         progressIndicator = findViewById(R.id.progressIndicator);
         recyclerView = findViewById(R.id.modelRecyclerView);
 
+        persistency = new Persistency(this);
+        setupUISettings();
+
         setupRecyclerView();
 
         updateModelStatusUI();
+    }
+
+    private void setupUISettings() {
+        SwitchMaterial switchPlayback = findViewById(R.id.switchPlayback);
+        SwitchMaterial switchCopy = findViewById(R.id.switchCopy);
+
+        switchPlayback.setChecked(persistency.isShowPlaybackButton());
+        switchCopy.setChecked(persistency.isShowCopyButton());
+
+        switchPlayback.setOnCheckedChangeListener((buttonView, isChecked) -> persistency.setShowPlaybackButton(isChecked));
+        switchCopy.setOnCheckedChangeListener((buttonView, isChecked) -> persistency.setShowCopyButton(isChecked));
     }
 
     /**
