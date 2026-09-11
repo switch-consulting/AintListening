@@ -128,15 +128,15 @@ public class ModelManagementActivity extends AppCompatActivity {
         }
 
         if (!isFormattingAvailable) {
-            switchSmart.setChecked(false);
-            switchSmart.setEnabled(false);
-            persistency.setShowSmartText(false);
-            
-            // If we forced smart off, ensure raw is on
+            // If we are forcing smart off, ensure raw is on first to avoid listener conflicts
             if (!switchRaw.isChecked()) {
                 switchRaw.setChecked(true);
                 persistency.setShowRawText(true);
             }
+
+            switchSmart.setChecked(false);
+            switchSmart.setEnabled(false);
+            persistency.setShowSmartText(false);
         } else {
             switchSmart.setEnabled(true);
         }

@@ -37,12 +37,12 @@
             android:textIsSelectable="true"
             android:textColor="?attr/colorOnSurface"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/toggleGroup"
+            app:layout_constraintEnd_toStartOf="@+id/controlsContainer"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent" />
 
-        <com.google.android.material.button.MaterialButtonToggleGroup
-            android:id="@+id/toggleGroup"
+        <LinearLayout
+            android:id="@+id/controlsContainer"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
@@ -67,37 +67,47 @@
                 android:insetBottom="0dp"
                 android:contentDescription="@string/cd_play_audio" />
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnRaw"
-                style="@style/Widget.Material3.Button.OutlinedButton.Icon"
-                android:layout_width="44dp"
-                android:layout_height="44dp"
-                app:icon="@drawable/ic_check_circle"
-                app:iconSize="20dp"
-                app:iconPadding="0dp"
-                app:iconGravity="textStart"
-                app:cornerRadius="8dp"
-                android:insetLeft="0dp"
-                android:insetTop="0dp"
-                android:insetRight="0dp"
-                android:insetBottom="0dp"
-                android:contentDescription="@string/cd_raw_text" />
+            <com.google.android.material.button.MaterialButtonToggleGroup
+                android:id="@+id/toggleGroup"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:singleSelection="true"
+                app:selectionRequired="true">
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnSmart"
-                style="@style/Widget.Material3.Button.OutlinedButton.Icon"
-                android:layout_width="44dp"
-                android:layout_height="44dp"
-                app:icon="@drawable/ic_language"
-                app:iconSize="20dp"
-                app:iconPadding="0dp"
-                app:iconGravity="textStart"
-                app:cornerRadius="8dp"
-                android:insetLeft="0dp"
-                android:insetTop="0dp"
-                android:insetRight="0dp"
-                android:insetBottom="0dp"
-                android:contentDescription="@string/cd_smart_text" />
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnRaw"
+                    style="@style/Widget.Material3.Button.OutlinedButton.Icon"
+                    android:layout_width="44dp"
+                    android:layout_height="44dp"
+                    app:icon="@drawable/ic_check_circle"
+                    app:iconSize="20dp"
+                    app:iconPadding="0dp"
+                    app:iconGravity="textStart"
+                    app:cornerRadius="8dp"
+                    android:insetLeft="0dp"
+                    android:insetTop="0dp"
+                    android:insetRight="0dp"
+                    android:insetBottom="0dp"
+                    android:contentDescription="@string/cd_raw_text" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnSmart"
+                    style="@style/Widget.Material3.Button.OutlinedButton.Icon"
+                    android:layout_width="44dp"
+                    android:layout_height="44dp"
+                    app:icon="@drawable/ic_language"
+                    app:iconSize="20dp"
+                    app:iconPadding="0dp"
+                    app:iconGravity="textStart"
+                    app:cornerRadius="8dp"
+                    android:insetLeft="0dp"
+                    android:insetTop="0dp"
+                    android:insetRight="0dp"
+                    android:insetBottom="0dp"
+                    android:contentDescription="@string/cd_smart_text" />
+
+            </com.google.android.material.button.MaterialButtonToggleGroup>
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnCopy"
@@ -115,7 +125,7 @@
                 android:insetBottom="0dp"
                 android:contentDescription="@string/cd_copy_text" />
 
-        </com.google.android.material.button.MaterialButtonToggleGroup>
+        </LinearLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </com.google.android.material.card.MaterialCardView>

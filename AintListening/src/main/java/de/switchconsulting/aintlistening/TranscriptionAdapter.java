@@ -263,43 +263,17 @@ public class TranscriptionAdapter extends RecyclerView.Adapter<TranscriptionAdap
 
             toggleGroup.addOnButtonCheckedListener((group, checkedId, isChecked) -> {
                 if (isChecked) {
-                    if (checkedId == R.id.btnPlay) {
-                        group.uncheck(R.id.btnPlay);
-                        return;
-                    }
-                    if (checkedId == R.id.btnCopy) {
-                        group.uncheck(R.id.btnCopy);
-                        return;
-                    }
-
                     boolean showFormatted = (checkedId == R.id.btnSmart);
 
                     // Only allow toggling to Smart if it's available
                     if (showFormatted && !hasFormattedText) {
-                        group.uncheck(R.id.btnSmart);
                         group.check(R.id.btnRaw);
                         return;
-                    }
-
-                    if (showFormatted) {
-                        group.uncheck(R.id.btnRaw);
-                    } else {
-                        group.uncheck(R.id.btnSmart);
                     }
 
                     if (paragraph.isShowFormatted() != showFormatted) {
                         paragraph.setShowFormatted(showFormatted);
                         textView.setText(paragraph.getDisplayText());
-                    }
-                } else {
-                    // Prevent unchecking the currently selected text mode
-                    if (checkedId == R.id.btnRaw && !paragraph.isShowFormatted()) {
-                        group.check(R.id.btnRaw);
-                    } else if (checkedId == R.id.btnSmart && (paragraph.isShowFormatted() || !hasFormattedText)) {
-                        // If smart is checked but we are unchecking it, or if smart isn't even valid
-                        if (paragraph.isShowFormatted()) {
-                             group.check(R.id.btnSmart);
-                        }
                     }
                 }
             });
