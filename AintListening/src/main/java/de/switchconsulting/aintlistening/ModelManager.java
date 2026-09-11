@@ -26,12 +26,12 @@ import java.util.Locale;
  * Utility class for managing speech models. Provides metadata for supported models
  * and helper methods to check their installation status and perform file operations.
  */
-class ModelManager {
+public class ModelManager {
     /** The singleton instance of the manager. */
     static final ModelManager INSTANCE = new ModelManager();
 
     /** The list of languages and their associated models supported by the application. */
-    static final LanguageSupport[] SUPPORTED_LANGUAGES;
+    public static final LanguageSupport[] SUPPORTED_LANGUAGES;
 
     private static final String SHARED_PUNC_MODEL_NAME = "ONNXModel_multilingual";
     private static final String SHARED_PUNC_MODEL_URL = "https://github.com/switch-consulting/AintListening/raw/main/models/ONNXModel_multilingual.zip";

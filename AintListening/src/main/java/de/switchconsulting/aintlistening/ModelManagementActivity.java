@@ -34,10 +34,16 @@ import com.google.android.material.switchmaterial.SwitchMaterial;
 import java.util.Arrays;
 import java.util.List;
 
+import javax.inject.Inject;
+
+import dagger.hilt.android.AndroidEntryPoint;
+import de.switchconsulting.aintlistening.ui.ModelManagementViewModel;
+
 /**
  * Activity for managing speech models. Allows users to view available models,
  * download new ones, and delete installed ones.
  */
+@AndroidEntryPoint
 public class ModelManagementActivity extends AppCompatActivity {
 
     private static final String TAG = "ModelManagement";
@@ -45,15 +51,13 @@ public class ModelManagementActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private ModelAdapter adapter;
     private ModelManagementViewModel viewModel;
-    private Persistency persistency;
+
+    @Inject
+    Persistency persistency;
+
     private SwitchMaterial switchRaw;
     private SwitchMaterial switchSmart;
 
-    /**
-     * Initializes the activity, sets up the ViewModel, and UI components.
-     *
-     * @param savedInstanceState The saved instance state.
-     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -69,17 +73,11 @@ public class ModelManagementActivity extends AppCompatActivity {
         progressIndicator = findViewById(R.id.progressIndicator);
         recyclerView = findViewById(R.id.modelRecyclerView);
 
-        persistency = new Persistency(this);
         setupUISettings();
-
         setupRecyclerView();
-
         updateModelStatusUI();
     }
 
-    /**
-     * Configures the UI settings for transcription options (raw text and smart formatting).
-     */
     private void setupUISettings() {
         SwitchMaterial switchPlayback = findViewById(R.id.switchPlayback);
         SwitchMaterial switchCopy = findViewById(R.id.switchCopy);
@@ -115,9 +113,6 @@ public class ModelManagementActivity extends AppCompatActivity {
         updateSmartFormattingSwitchState();
     }
 
-    /**
-     * Updates the enabled state of the smart formatting switch based on the availability of the model.
-     */
     private void updateSmartFormattingSwitchState() {
         boolean isFormattingAvailable = false;
         for (LanguageSupport lang : ModelManager.SUPPORTED_LANGUAGES) {
@@ -128,7 +123,6 @@ public class ModelManagementActivity extends AppCompatActivity {
         }
 
         if (!isFormattingAvailable) {
-            // If we are forcing smart off, ensure raw is on first to avoid listener conflicts
             if (!switchRaw.isChecked()) {
                 switchRaw.setChecked(true);
                 persistency.setShowRawText(true);
@@ -142,9 +136,6 @@ public class ModelManagementActivity extends AppCompatActivity {
         }
     }
 
-    /**
-     * Sets up the RecyclerView to display the list of supported language models.
-     */
     private void setupRecyclerView() {
         List<LanguageSupport> languages = Arrays.asList(ModelManager.SUPPORTED_LANGUAGES);
 
@@ -164,11 +155,6 @@ public class ModelManagementActivity extends AppCompatActivity {
         recyclerView.setAdapter(adapter);
     }
 
-    /**
-     * Handles updates to the download state and reflects them in the UI.
-     *
-     * @param state The current download state.
-     */
     private void handleDownloadState(DownloadState state) {
         if (state == null) return;
         switch (state.status) {
@@ -198,11 +184,6 @@ public class ModelManagementActivity extends AppCompatActivity {
         updateModelStatusUI();
     }
 
-    /**
-     * Initiates the download of a specified model.
-     *
-     * @param info The model information.
-     */
     private void startDownload(ModelInfo info) {
         if (!NetworkUtils.isOnline(this)) {
             Toast.makeText(this, R.string.error_no_internet, Toast.LENGTH_LONG).show();
@@ -212,9 +193,6 @@ public class ModelManagementActivity extends AppCompatActivity {
         viewModel.startDownload(info);
     }
 
-    /**
-     * Updates the UI list to reflect changes in model installation status.
-     */
     private void updateModelStatusUI() {
         DownloadState currentState = viewModel.downloadState.getValue();
         boolean isBusy = currentState != null && currentState.status != DownloadState.Status.IDLE;
@@ -226,11 +204,6 @@ public class ModelManagementActivity extends AppCompatActivity {
         updateSmartFormattingSwitchState();
     }
 
-    /**
-     * Shows a confirmation dialog before deleting a model.
-     *
-     * @param info The model information to delete.
-     */
     private void confirmDelete(ModelInfo info) {
         new MaterialAlertDialogBuilder(this)
                 .setTitle(R.string.dialog_confirm_delete_title)

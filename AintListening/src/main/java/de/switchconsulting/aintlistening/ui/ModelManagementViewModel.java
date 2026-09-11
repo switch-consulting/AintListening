@@ -14,19 +14,28 @@
  * limitations under the License.
  */
 
-package de.switchconsulting.aintlistening;
+package de.switchconsulting.aintlistening.ui;
 
 import android.app.Application;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
+
 import java.io.File;
+
+import javax.inject.Inject;
+
+import dagger.hilt.android.lifecycle.HiltViewModel;
+import de.switchconsulting.aintlistening.DownloadState;
+import de.switchconsulting.aintlistening.ModelDownloader;
+import de.switchconsulting.aintlistening.ModelInfo;
 
 /**
  * ViewModel for managing the download and extraction of speech models.
  * Maintains the current download state and handles background operations.
  */
+@HiltViewModel
 public class ModelManagementViewModel extends AndroidViewModel {
 
     private final ModelDownloader modelDownloader = new ModelDownloader();
@@ -39,6 +48,7 @@ public class ModelManagementViewModel extends AndroidViewModel {
      *
      * @param application The application context.
      */
+    @Inject
     public ModelManagementViewModel(@NonNull Application application) {
         super(application);
     }

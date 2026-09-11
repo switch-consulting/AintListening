@@ -23,13 +23,13 @@ import java.util.Locale;
  */
 public class ModelInfo {
     /** The internal name/directory name of the model. */
-    final String name;
+    public final String name;
     /** The URL where the model zip file can be downloaded. */
-    final String url;
+    public final String url;
     /** The locale of the language. */
-    final Locale locale;
+    public final Locale locale;
     /** The approximate download size of the model (e.g., "45MB"). */
-    final String size;
+    public final String size;
 
     /**
      * Constructs a new ModelInfo.
