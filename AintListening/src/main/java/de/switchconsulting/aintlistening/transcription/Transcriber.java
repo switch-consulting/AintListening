@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package de.switchconsulting.aintlistening;
+package de.switchconsulting.aintlistening.transcription;
 
 import android.content.Context;
 import java.io.File;

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package de.switchconsulting.aintlistening;
+package de.switchconsulting.aintlistening.util;
 
 import java.io.File;
 import java.io.FileOutputStream;

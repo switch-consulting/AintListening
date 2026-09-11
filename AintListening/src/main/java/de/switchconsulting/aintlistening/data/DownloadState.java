@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package de.switchconsulting.aintlistening;
+package de.switchconsulting.aintlistening.data;
 
 /**
  * Represents the current state of a model download and extraction process.

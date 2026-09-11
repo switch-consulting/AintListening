@@ -6,9 +6,9 @@ import dagger.Provides;
 import dagger.hilt.InstallIn;
 import dagger.hilt.android.qualifiers.ApplicationContext;
 import dagger.hilt.components.SingletonComponent;
-import de.switchconsulting.aintlistening.Persistency;
-import de.switchconsulting.aintlistening.Transcriber;
-import de.switchconsulting.aintlistening.VoskTranscriber;
+import de.switchconsulting.aintlistening.data.Persistency;
+import de.switchconsulting.aintlistening.transcription.Transcriber;
+import de.switchconsulting.aintlistening.transcription.VoskTranscriber;
 import javax.inject.Singleton;
 
 @Module

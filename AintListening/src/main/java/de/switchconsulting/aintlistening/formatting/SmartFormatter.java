@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
-package de.switchconsulting.aintlistening;
+package de.switchconsulting.aintlistening.formatting;
+
+import de.switchconsulting.aintlistening.data.ModelInfo;
 
 /**
  * Interface for post-processing transcribed text to apply formatting like punctuation and casing.

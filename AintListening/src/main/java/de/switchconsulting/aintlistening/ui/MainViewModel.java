@@ -5,8 +5,8 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 import dagger.hilt.android.lifecycle.HiltViewModel;
-import de.switchconsulting.aintlistening.TranscriptionParagraph;
 import de.switchconsulting.aintlistening.data.TranscriptionRepository;
+import de.switchconsulting.aintlistening.transcription.TranscriptionParagraph;
 import java.util.ArrayList;
 import java.util.List;
 import javax.inject.Inject;
@@ -100,7 +100,6 @@ public class MainViewModel extends ViewModel {
 
     @Override
     protected void onCleared() {
-        super.onCleared();
         repository.release();
     }
 }

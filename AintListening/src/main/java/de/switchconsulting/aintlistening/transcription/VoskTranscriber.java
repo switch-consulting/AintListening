@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package de.switchconsulting.aintlistening;
+package de.switchconsulting.aintlistening.transcription;
 
 import android.content.Context;
 import android.text.TextUtils;
@@ -31,6 +31,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.List;
+
+import de.switchconsulting.aintlistening.data.LanguageSupport;
+import de.switchconsulting.aintlistening.data.ModelManager;
 
 /**
  * Handles the speech-to-text transcription process using the Vosk library.

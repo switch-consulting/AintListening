@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package de.switchconsulting.aintlistening;
+package de.switchconsulting.aintlistening.data;
 
 import android.content.Context;
 import androidx.annotation.NonNull;
@@ -45,7 +45,7 @@ public class LanguageSupport {
      * @param formattingModel    The formatting model information, or null if not supported.
      * @param modelManager       The manager to delegate model checks to.
      */
-    LanguageSupport(@NonNull Locale locale,
+    public LanguageSupport(@NonNull Locale locale,
                     @NonNull ModelInfo transcriptionModel,
                     @Nullable ModelInfo formattingModel,
                     @NonNull ModelManager modelManager) {

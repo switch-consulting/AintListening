@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package de.switchconsulting.aintlistening;
+package de.switchconsulting.aintlistening.util;
 
 import android.content.Context;
 import android.net.ConnectivityManager;

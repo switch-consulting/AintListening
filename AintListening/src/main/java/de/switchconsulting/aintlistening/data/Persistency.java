@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package de.switchconsulting.aintlistening;
+package de.switchconsulting.aintlistening.data;
 
 import android.content.Context;
 import android.util.Log;
@@ -27,6 +27,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import de.switchconsulting.aintlistening.transcription.TranscriptionParagraph;
+import de.switchconsulting.aintlistening.util.WavUtils;
+
 /**
  * Handles persistence of transcription data.
  */
@@ -36,7 +39,6 @@ public class Persistency {
     private static final String PREFS_NAME = "AintListeningPrefs";
     private static final String KEY_LAST_PARAGRAPHS_JSON = "last_paragraphs_json";
     private static final String KEY_LAST_MODEL_INDEX = "last_model_index";
-    private static final String KEY_LAST_MESSAGE = "last_message";
     private static final String KEY_SHOW_PLAYBACK_BUTTON = "show_playback_button";
     private static final String KEY_SHOW_COPY_BUTTON = "show_copy_button";
     private static final String KEY_SHOW_RAW_TEXT = "show_raw_text";
@@ -109,26 +111,6 @@ public class Persistency {
             }
         }
         return null;
-    }
-
-    /**
-     * Loads the last raw message in case the new JSON format is not available.
-     *
-     * @return The last saved raw message, or null if none exists.
-     */
-    public String loadLegacyLastMessage() {
-        return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-                .getString(KEY_LAST_MESSAGE, null);
-    }
-
-    /**
-     * Loads the last model index used.
-     *
-     * @return The last saved model index.
-     */
-    public int loadLastModelIndex() {
-        return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-                .getInt(KEY_LAST_MODEL_INDEX, 0);
     }
 
     /**

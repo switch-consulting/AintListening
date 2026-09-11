@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package de.switchconsulting.aintlistening;
+package de.switchconsulting.aintlistening.ui;
 
 import android.content.Intent;
 import android.net.Uri;
@@ -38,7 +38,10 @@ import java.util.List;
 import javax.inject.Inject;
 
 import dagger.hilt.android.AndroidEntryPoint;
-import de.switchconsulting.aintlistening.ui.MainViewModel;
+import de.switchconsulting.aintlistening.R;
+import de.switchconsulting.aintlistening.data.LanguageSupport;
+import de.switchconsulting.aintlistening.data.ModelManager;
+import de.switchconsulting.aintlistening.data.Persistency;
 
 /**
  * The main activity of the application that handles audio transcription using Vosk.
@@ -81,6 +84,14 @@ public class MainActivity extends AppCompatActivity {
 
         updateAvailableLanguagesUI();
         handleIncomingIntent(getIntent());
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (transcriptionAdapter != null) {
+            transcriptionAdapter.release();
+        }
     }
 
     private void handleUiState(MainViewModel.UiState state) {
@@ -192,9 +203,7 @@ public class MainActivity extends AppCompatActivity {
 
         new MaterialAlertDialogBuilder(this)
                 .setTitle(R.string.dialog_select_transcription_language)
-                .setItems(languages, (dialog, which) -> {
-                    viewModel.startTranscription(audioUri, availableIndices.get(which));
-                })
+                .setItems(languages, (dialog, which) -> viewModel.startTranscription(audioUri, availableIndices.get(which)))
                 .setNegativeButton(R.string.button_cancel, (dialog, which) -> {
                     statusTextView.setText(R.string.intro_instruction);
                     statusTextView.setVisibility(View.VISIBLE);

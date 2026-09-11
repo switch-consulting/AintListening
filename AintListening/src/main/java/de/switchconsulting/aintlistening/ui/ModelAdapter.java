@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package de.switchconsulting.aintlistening;
+package de.switchconsulting.aintlistening.ui;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -30,6 +30,11 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.button.MaterialButton;
 
 import java.util.List;
+
+import de.switchconsulting.aintlistening.R;
+import de.switchconsulting.aintlistening.data.LanguageSupport;
+import de.switchconsulting.aintlistening.data.ModelInfo;
+import de.switchconsulting.aintlistening.data.ModelManager;
 
 /**
  * A RecyclerView adapter for displaying language-grouped speech models and their current status.

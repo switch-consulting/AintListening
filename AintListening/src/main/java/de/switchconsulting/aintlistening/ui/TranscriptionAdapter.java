@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package de.switchconsulting.aintlistening;
+package de.switchconsulting.aintlistening.ui;
 
 import android.content.ClipData;
 import android.content.ClipboardManager;
@@ -37,6 +37,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+
+import de.switchconsulting.aintlistening.R;
+import de.switchconsulting.aintlistening.data.Persistency;
+import de.switchconsulting.aintlistening.transcription.TranscriptionParagraph;
 
 /**
  * Adapter for displaying transcription paragraphs in a RecyclerView.

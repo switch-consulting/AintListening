@@ -27,9 +27,9 @@ import java.io.File;
 import javax.inject.Inject;
 
 import dagger.hilt.android.lifecycle.HiltViewModel;
-import de.switchconsulting.aintlistening.DownloadState;
-import de.switchconsulting.aintlistening.ModelDownloader;
-import de.switchconsulting.aintlistening.ModelInfo;
+import de.switchconsulting.aintlistening.data.DownloadState;
+import de.switchconsulting.aintlistening.data.ModelDownloader;
+import de.switchconsulting.aintlistening.data.ModelInfo;
 
 /**
  * ViewModel for managing the download and extraction of speech models.
@@ -103,7 +103,6 @@ public class ModelManagementViewModel extends AndroidViewModel {
      */
     @Override
     protected void onCleared() {
-        super.onCleared();
         modelDownloader.cancel();
     }
 

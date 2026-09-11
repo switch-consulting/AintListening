@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package de.switchconsulting.aintlistening;
+package de.switchconsulting.aintlistening.data;
 
 import android.content.Context;
 import java.io.File;
@@ -28,7 +28,7 @@ import java.util.Locale;
  */
 public class ModelManager {
     /** The singleton instance of the manager. */
-    static final ModelManager INSTANCE = new ModelManager();
+    public static final ModelManager INSTANCE = new ModelManager();
 
     /** The list of languages and their associated models supported by the application. */
     public static final LanguageSupport[] SUPPORTED_LANGUAGES;
@@ -69,7 +69,7 @@ public class ModelManager {
      * @param info    The model information.
      * @return True if the model directory exists and is a directory, false otherwise.
      */
-    boolean isModelDownloaded(Context context, ModelInfo info) {
+    public boolean isModelDownloaded(Context context, ModelInfo info) {
         if (info == null) return false;
         File modelDir = new File(context.getFilesDir(), info.name);
         return modelDir.exists() && modelDir.isDirectory();
@@ -81,7 +81,7 @@ public class ModelManager {
      * @param context The context.
      * @return A list of available language display names.
      */
-    static List<String> getAvailableLanguageNames(Context context) {
+    public static List<String> getAvailableLanguageNames(Context context) {
         List<String> available = new ArrayList<>();
         for (LanguageSupport language : SUPPORTED_LANGUAGES) {
             if (language.isTranscriptionDownloaded(context)) {
@@ -98,7 +98,7 @@ public class ModelManager {
      * @param info    The model information to delete.
      * @return True if the model was successfully deleted, false otherwise.
      */
-    static boolean deleteModel(Context context, ModelInfo info) {
+    public static boolean deleteModel(Context context, ModelInfo info) {
         if (info == null) return false;
         File modelDir = new File(context.getFilesDir(), info.name);
         return deleteRecursive(modelDir);

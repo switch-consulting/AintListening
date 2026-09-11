@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package de.switchconsulting.aintlistening;
+package de.switchconsulting.aintlistening.transcription;
 
 /**
  * Represents a single paragraph of transcription, which can be toggled between

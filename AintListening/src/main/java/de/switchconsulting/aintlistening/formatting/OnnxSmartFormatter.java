@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package de.switchconsulting.aintlistening;
+package de.switchconsulting.aintlistening.formatting;
 
 import android.content.Context;
 import android.text.TextUtils;
@@ -34,6 +34,7 @@ import ai.djl.huggingface.tokenizers.HuggingFaceTokenizer;
 import ai.onnxruntime.OnnxTensor;
 import ai.onnxruntime.OrtEnvironment;
 import ai.onnxruntime.OrtSession;
+import de.switchconsulting.aintlistening.data.ModelInfo;
 
 /**
  * Handles post-processing of transcribed text to add punctuation and capitalization
@@ -50,7 +51,7 @@ public class OnnxSmartFormatter implements SmartFormatter {
     // 1-800-BAD-CODE XLM-RoBERTa multi-head mappings
     static final String[] PRE_PUNC_LABELS = {"", "¿", "¡"};
     static final String[] POST_PUNC_LABELS = {
-            "", "", ".", ",", "?", "？", "，", "。", "、", "・", "।", "؟", "،", ";", "።", "፣", "፧"
+            "", "", ".", ",", "?", "？", "，", "。", "、", "・", "।", "؟", "፣", ";", "።", "፣", "፧"
     };
     static final int POST_PUNC_ACRONYM_INDEX = 1;
 

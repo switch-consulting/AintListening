@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package de.switchconsulting.aintlistening;
+package de.switchconsulting.aintlistening.ui;
 
 import android.os.Bundle;
 import android.util.Log;
@@ -37,7 +37,13 @@ import java.util.List;
 import javax.inject.Inject;
 
 import dagger.hilt.android.AndroidEntryPoint;
-import de.switchconsulting.aintlistening.ui.ModelManagementViewModel;
+import de.switchconsulting.aintlistening.data.DownloadState;
+import de.switchconsulting.aintlistening.R;
+import de.switchconsulting.aintlistening.data.LanguageSupport;
+import de.switchconsulting.aintlistening.data.ModelInfo;
+import de.switchconsulting.aintlistening.data.ModelManager;
+import de.switchconsulting.aintlistening.data.Persistency;
+import de.switchconsulting.aintlistening.util.NetworkUtils;
 
 /**
  * Activity for managing speech models. Allows users to view available models,

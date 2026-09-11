@@ -4,8 +4,6 @@ import android.content.Context;
 import android.net.Uri;
 import android.util.Log;
 
-import androidx.annotation.NonNull;
-
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -16,16 +14,12 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import dagger.hilt.android.qualifiers.ApplicationContext;
-import de.switchconsulting.aintlistening.LanguageSupport;
-import de.switchconsulting.aintlistening.ModelInfo;
-import de.switchconsulting.aintlistening.ModelManager;
-import de.switchconsulting.aintlistening.OnnxSmartFormatter;
-import de.switchconsulting.aintlistening.OpusToWavDecoder;
-import de.switchconsulting.aintlistening.Persistency;
-import de.switchconsulting.aintlistening.SmartFormatter;
-import de.switchconsulting.aintlistening.Transcriber;
-import de.switchconsulting.aintlistening.TranscriptionListener;
-import de.switchconsulting.aintlistening.TranscriptionParagraph;
+import de.switchconsulting.aintlistening.formatting.OnnxSmartFormatter;
+import de.switchconsulting.aintlistening.formatting.SmartFormatter;
+import de.switchconsulting.aintlistening.transcription.Transcriber;
+import de.switchconsulting.aintlistening.transcription.TranscriptionListener;
+import de.switchconsulting.aintlistening.transcription.TranscriptionParagraph;
+import de.switchconsulting.aintlistening.util.OpusToWavDecoder;
 
 @Singleton
 public class TranscriptionRepository {
