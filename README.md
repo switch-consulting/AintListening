@@ -17,11 +17,11 @@ Offline-first Android app to transcribe shared WhatsApp voice messages (`.opus`)
 3. Build and run on device/emulator.
 
 ## Vosk Model Setup
-The app requires the German speech model for offline transcription.
+The app requires a speech model for offline transcription. Several languages are supported, including German, English, Spanish, French, and Italian.
 
-- **Automatic**: Upon first launch (or if the model is missing), the app shows a status indicator on the main screen. Simply click the **Download** button to automatically fetch and extract the model (~45MB) from alphacephei.com.
-- **Manual**: Alternatively, you can download `vosk-model-small-de-0.15.zip` from [alphacephei.com](https://alphacephei.com/vosk/models), unzip it, and place the folder at:
-  `/data/data/de.switchconsulting.aintlistening/files/vosk-model-small-de-0.15`
+- **Automatic**: Use the **Model Management** screen to download the models you need. The app will fetch and extract them (~40-50MB per language) from alphacephei.com.
+- **Manual**: Alternatively, you can download models from [alphacephei.com](https://alphacephei.com/vosk/models), unzip them, and place the folder in the app's internal storage directory:
+  `/data/data/de.switchconsulting.aintlistening/files/<model-name>`
 
 ## Usage
 1. In WhatsApp, share a voice message via **Share**.
@@ -32,7 +32,7 @@ The app requires the German speech model for offline transcription.
 ## Testing & Sideloading (Beta)
 To test the app on your Android device without building from source:
 
-1. **Download the APK**: Go to the [Releases](https://github.com/switchconsulting/AintListening/releases) section and download the latest `AintListening-debug.apk`.
+1. **Download the APK**: Go to the [Releases](https://github.com/switch-consulting/AintListening/releases) section and download the latest `AintListening-debug.apk`.
 2. **Transfer (if needed)**: Move the file to your Android device.
 3. **Enable Unknown Sources**: 
    - Open the APK on the phone. 
