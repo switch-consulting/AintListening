@@ -42,3 +42,4 @@ tokenizers-*.pom
 /core_metadata.xml
 /tn_metadata.xml
 /tokenizers-0.36.0.pom
+/buildSrc/build/
