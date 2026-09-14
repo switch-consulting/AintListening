@@ -38,6 +38,7 @@ import javax.inject.Inject;
 
 import dagger.hilt.android.AndroidEntryPoint;
 import de.switchconsulting.aintlistening.data.DownloadState;
+import de.switchconsulting.aintlistening.data.DownloadStatus;
 import de.switchconsulting.aintlistening.R;
 import de.switchconsulting.aintlistening.data.LanguageSupport;
 import de.switchconsulting.aintlistening.data.ModelInfo;
@@ -146,7 +147,7 @@ public class ModelManagementActivity extends AppCompatActivity {
         List<LanguageSupport> languages = Arrays.asList(ModelManager.SUPPORTED_LANGUAGES);
 
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        adapter = new ModelAdapter(languages, new ModelAdapter.InteractionListener() {
+        adapter = new ModelAdapter(languages, new ModelInteractionListener() {
             @Override
             public void onDownloadClicked(ModelInfo info) {
                 Toast.makeText(ModelManagementActivity.this, getString(R.string.message_starting_download, info.locale.getDisplayName()), Toast.LENGTH_SHORT).show();
@@ -201,7 +202,7 @@ public class ModelManagementActivity extends AppCompatActivity {
 
     private void updateModelStatusUI() {
         DownloadState currentState = viewModel.downloadState.getValue();
-        boolean isBusy = currentState != null && currentState.status != DownloadState.Status.IDLE;
+        boolean isBusy = currentState != null && currentState.status != DownloadStatus.IDLE;
 
         if (adapter != null) {
             adapter.setBusy(isBusy);

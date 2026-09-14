@@ -49,47 +49,13 @@ public class ModelDownloader {
     private volatile boolean isCancelled = false;
 
     /**
-     * Callback interface for monitoring the download and extraction process.
-     */
-    public interface Callback {
-        /**
-         * Called when download progress is updated.
-         *
-         * @param percentage The current download percentage (0-100).
-         */
-        void onProgress(int percentage);
-
-        /**
-         * Called when the download is complete and extraction has started.
-         */
-        void onExtracting();
-
-        /**
-         * Called when the model has been successfully downloaded and extracted.
-         */
-        void onSuccess();
-
-        /**
-         * Called when an error occurs during download or extraction.
-         *
-         * @param e The exception that occurred.
-         */
-        void onError(Exception e);
-
-        /**
-         * Called if the operation was cancelled.
-         */
-        void onCancelled();
-    }
-
-    /**
      * Downloads a zip file from the specified URL and extracts it into the target directory.
      *
      * @param downloadUrl   The URL to download the model from.
      * @param targetBaseDir The directory where the model should be extracted.
      * @param callback      The callback to receive status updates.
      */
-    public void downloadAndExtract(@NonNull String downloadUrl, @NonNull File targetBaseDir, @NonNull Callback callback) {
+    public void downloadAndExtract(@NonNull String downloadUrl, @NonNull File targetBaseDir, @NonNull ModelDownloadCallback callback) {
         isCancelled = false;
         Handler handler = new Handler(Looper.getMainLooper());
 

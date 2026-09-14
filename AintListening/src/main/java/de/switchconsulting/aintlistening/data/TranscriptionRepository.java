@@ -31,14 +31,6 @@ public class TranscriptionRepository {
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
     private SmartFormatter smartFormatter;
 
-    public interface TranscriptionCallback {
-        void onStatusUpdate(String message);
-        void onPartialResult(List<TranscriptionParagraph> paragraphs);
-        void onSmartFormattingProgress(int progress, int total, List<TranscriptionParagraph> paragraphs);
-        void onComplete(List<TranscriptionParagraph> paragraphs);
-        void onError(String message);
-    }
-
     @Inject
     public TranscriptionRepository(@ApplicationContext Context context, Persistency persistency, Transcriber transcriber) {
         this.context = context;

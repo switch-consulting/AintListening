@@ -94,7 +94,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void handleUiState(MainViewModel.UiState state) {
+    private void handleUiState(MainUiState state) {
         if (state == null) return;
 
         progressIndicator.setVisibility(state.isLoading ? View.VISIBLE : View.GONE);

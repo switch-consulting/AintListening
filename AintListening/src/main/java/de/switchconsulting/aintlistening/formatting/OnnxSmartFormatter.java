@@ -281,7 +281,7 @@ public class OnnxSmartFormatter implements SmartFormatter {
      * @param sbdPreds   Predicted sentence boundary labels.
      * @return The reconstructed and formatted text.
      */
-    static String reconstructTextBadCode(String[] tokens, long[] prePreds, long[] postPreds, long[][] capPreds, long[] sbdPreds) {
+    public static String reconstructTextBadCode(String[] tokens, long[] prePreds, long[] postPreds, long[][] capPreds, long[] sbdPreds) {
         StringBuilder result = new StringBuilder();
         boolean forceCapitalizeNext = true;
 

@@ -28,6 +28,8 @@ import javax.inject.Inject;
 
 import dagger.hilt.android.lifecycle.HiltViewModel;
 import de.switchconsulting.aintlistening.data.DownloadState;
+import de.switchconsulting.aintlistening.data.DownloadStatus;
+import de.switchconsulting.aintlistening.data.ModelDownloadCallback;
 import de.switchconsulting.aintlistening.data.ModelDownloader;
 import de.switchconsulting.aintlistening.data.ModelInfo;
 
@@ -60,8 +62,8 @@ public class ModelManagementViewModel extends AndroidViewModel {
      */
     public void startDownload(ModelInfo info) {
         if (_downloadState.getValue() != null && 
-            (_downloadState.getValue().status == DownloadState.Status.DOWNLOADING || 
-             _downloadState.getValue().status == DownloadState.Status.EXTRACTING)) {
+            (_downloadState.getValue().status == DownloadStatus.DOWNLOADING || 
+             _downloadState.getValue().status == DownloadStatus.EXTRACTING)) {
             return;
         }
 
@@ -70,7 +72,7 @@ public class ModelManagementViewModel extends AndroidViewModel {
         _downloadState.setValue(DownloadState.downloading(0));
 
         File filesDir = getApplication().getFilesDir();
-        modelDownloader.downloadAndExtract(info.url, filesDir, new ModelDownloader.Callback() {
+        modelDownloader.downloadAndExtract(info.url, filesDir, new ModelDownloadCallback() {
             @Override
             public void onProgress(int percentage) {
                 _downloadState.postValue(DownloadState.downloading(percentage));

@@ -27,6 +27,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.MockedStatic;
 
+import de.switchconsulting.aintlistening.formatting.OnnxSmartFormatter;
+import de.switchconsulting.aintlistening.formatting.SmartFormatter;
+
 /**
  * Unit tests for {@link SmartFormatter}.
  */

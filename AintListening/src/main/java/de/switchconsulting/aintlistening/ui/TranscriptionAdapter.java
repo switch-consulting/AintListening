@@ -16,14 +16,10 @@
 
 package de.switchconsulting.aintlistening.ui;
 
-import android.content.ClipData;
-import android.content.ClipboardManager;
-import android.content.Context;
 import android.media.MediaPlayer;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -31,7 +27,6 @@ import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.button.MaterialButton;
-import com.google.android.material.button.MaterialButtonToggleGroup;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -46,12 +41,12 @@ import de.switchconsulting.aintlistening.transcription.TranscriptionParagraph;
  * Adapter for displaying transcription paragraphs in a RecyclerView.
  * Allows toggling each paragraph between raw and smart formatted text.
  */
-public class TranscriptionAdapter extends RecyclerView.Adapter<TranscriptionAdapter.ViewHolder> {
+public class TranscriptionAdapter extends RecyclerView.Adapter<TranscriptionViewHolder> {
 
-    private final List<TranscriptionParagraph> paragraphs = new ArrayList<>();
-    private MediaPlayer mediaPlayer;
-    private int currentlyPlayingPosition = -1;
-    private final Persistency persistency;
+    final List<TranscriptionParagraph> paragraphs = new ArrayList<>();
+    MediaPlayer mediaPlayer;
+    int currentlyPlayingPosition = -1;
+    final Persistency persistency;
 
     public TranscriptionAdapter(Persistency persistency) {
         this.persistency = persistency;
@@ -108,14 +103,14 @@ public class TranscriptionAdapter extends RecyclerView.Adapter<TranscriptionAdap
 
     @NonNull
     @Override
-    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public TranscriptionViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.item_transcription_paragraph, parent, false);
-        return new ViewHolder(view);
+        return new TranscriptionViewHolder(view, this);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull TranscriptionViewHolder holder, int position) {
         TranscriptionParagraph paragraph = paragraphs.get(position);
         holder.bind(paragraph, position);
     }
@@ -131,7 +126,7 @@ public class TranscriptionAdapter extends RecyclerView.Adapter<TranscriptionAdap
      * @param position   The position of the paragraph in the list.
      * @param playButton The button that triggered the playback toggle.
      */
-    private void togglePlayback(int position, MaterialButton playButton) {
+    void togglePlayback(int position, MaterialButton playButton) {
         if (currentlyPlayingPosition == position) {
             if (mediaPlayer != null && mediaPlayer.isPlaying()) {
                 mediaPlayer.pause();
@@ -151,7 +146,7 @@ public class TranscriptionAdapter extends RecyclerView.Adapter<TranscriptionAdap
      * @param position   The position of the paragraph in the list.
      * @param playButton The button that triggered the playback.
      */
-    private void startPlayback(int position, MaterialButton playButton) {
+    void startPlayback(int position, MaterialButton playButton) {
         stopPlayback();
 
         TranscriptionParagraph paragraph = paragraphs.get(position);
@@ -173,7 +168,7 @@ public class TranscriptionAdapter extends RecyclerView.Adapter<TranscriptionAdap
     /**
      * Stops current audio playback and resets the playback state.
      */
-    private void stopPlayback() {
+    void stopPlayback() {
         if (mediaPlayer != null) {
             mediaPlayer.stop();
             mediaPlayer.release();
@@ -183,104 +178,6 @@ public class TranscriptionAdapter extends RecyclerView.Adapter<TranscriptionAdap
         currentlyPlayingPosition = -1;
         if (oldPos != -1) {
             notifyItemChanged(oldPos);
-        }
-    }
-
-    public class ViewHolder extends RecyclerView.ViewHolder {
-        private final TextView textView;
-        private final MaterialButton btnPlay;
-        private final MaterialButton btnRaw;
-        private final MaterialButton btnSmart;
-        private final MaterialButton btnCopy;
-        private final MaterialButtonToggleGroup toggleGroup;
-
-        public ViewHolder(View view) {
-            super(view);
-            textView = view.findViewById(R.id.paragraphText);
-            btnPlay = view.findViewById(R.id.btnPlay);
-            btnRaw = view.findViewById(R.id.btnRaw);
-            btnSmart = view.findViewById(R.id.btnSmart);
-            btnCopy = view.findViewById(R.id.btnCopy);
-            toggleGroup = view.findViewById(R.id.toggleGroup);
-        }
-
-        void bind(TranscriptionParagraph paragraph, int position) {
-            textView.setText(paragraph.getDisplayText());
-
-            boolean showPlayback = persistency == null || persistency.isShowPlaybackButton();
-            boolean showCopy = persistency == null || persistency.isShowCopyButton();
-
-            // Play button handling
-            btnPlay.setVisibility(showPlayback ? View.VISIBLE : View.GONE);
-            if (showPlayback) {
-                if (paragraph.getAudioFilePath() == null) {
-                    btnPlay.setEnabled(false);
-                    btnPlay.setIconResource(R.drawable.ic_play_arrow);
-                    btnPlay.setAlpha(0.38f); // Standard disabled alpha
-                } else {
-                    btnPlay.setEnabled(true);
-                    btnPlay.setAlpha(1.0f);
-                    boolean isCurrent = (currentlyPlayingPosition == position);
-                    boolean isPlaying = isCurrent && mediaPlayer != null && mediaPlayer.isPlaying();
-                    btnPlay.setIconResource(isPlaying ? R.drawable.ic_pause : R.drawable.ic_play_arrow);
-                    btnPlay.setOnClickListener(v -> togglePlayback(position, btnPlay));
-                }
-            }
-
-            // Copy button handling
-            btnCopy.setVisibility(showCopy ? View.VISIBLE : View.GONE);
-            if (showCopy) {
-                btnCopy.setOnClickListener(v -> {
-                    ClipboardManager clipboard = (ClipboardManager) v.getContext().getSystemService(Context.CLIPBOARD_SERVICE);
-                    ClipData clip = ClipData.newPlainText("Transcription", paragraph.getDisplayText());
-                    if (clipboard != null) {
-                        clipboard.setPrimaryClip(clip);
-                        Toast.makeText(v.getContext(), R.string.message_copied_to_clipboard, Toast.LENGTH_SHORT).show();
-                    }
-                });
-            }
-
-            // Text toggle handling
-            boolean showRaw = persistency == null || persistency.isShowRawText();
-            boolean showSmart = persistency == null || persistency.isShowSmartText();
-
-            boolean hasFormattedText = paragraph.getFormattedText() != null && !paragraph.getFormattedText().isEmpty();
-
-            // Force state if one is hidden
-            if (!showRaw) {
-                paragraph.setShowFormatted(true);
-            } else if (!showSmart || !hasFormattedText) {
-                paragraph.setShowFormatted(false);
-            }
-
-            textView.setText(paragraph.getDisplayText());
-
-            btnRaw.setVisibility(showRaw ? View.VISIBLE : View.GONE);
-            btnSmart.setVisibility(showSmart ? View.VISIBLE : View.GONE);
-
-            btnRaw.setEnabled(true); // Raw is always available
-            btnSmart.setEnabled(hasFormattedText);
-            btnSmart.setAlpha(hasFormattedText ? 1.0f : 0.38f);
-
-            toggleGroup.clearOnButtonCheckedListeners();
-            toggleGroup.check(paragraph.isShowFormatted() && hasFormattedText ? R.id.btnSmart : R.id.btnRaw);
-
-            toggleGroup.addOnButtonCheckedListener((group, checkedId, isChecked) -> {
-                if (isChecked) {
-                    boolean showFormatted = (checkedId == R.id.btnSmart);
-
-                    // Only allow toggling to Smart if it's available
-                    if (showFormatted && !hasFormattedText) {
-                        group.check(R.id.btnRaw);
-                        return;
-                    }
-
-                    if (paragraph.isShowFormatted() != showFormatted) {
-                        paragraph.setShowFormatted(showFormatted);
-                        textView.setText(paragraph.getDisplayText());
-                    }
-                }
-            });
         }
     }
 }
