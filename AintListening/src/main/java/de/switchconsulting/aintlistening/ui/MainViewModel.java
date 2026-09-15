@@ -1,3 +1,19 @@
+/*
+ * Copyright 2026 Switch Consulting (https://switch-consulting.de/)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package de.switchconsulting.aintlistening.ui;
 
 import android.net.Uri;
@@ -6,28 +22,43 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 import dagger.hilt.android.lifecycle.HiltViewModel;
 import de.switchconsulting.aintlistening.data.TranscriptionCallback;
-import de.switchconsulting.aintlistening.data.TranscriptionRepository;
+import de.switchconsulting.aintlistening.data.TranscriptionProcessor;
 import de.switchconsulting.aintlistening.transcription.TranscriptionParagraph;
 import java.util.ArrayList;
 import java.util.List;
 import javax.inject.Inject;
 
+/**
+ * ViewModel for the main transcription screen, handling UI state and interacting
+ * with the TranscriptionProcessor.
+ */
 @HiltViewModel
 public class MainViewModel extends ViewModel {
 
-    private final TranscriptionRepository repository;
+    private final TranscriptionProcessor processor;
     private final MutableLiveData<MainUiState> _uiState = new MutableLiveData<>();
     public final LiveData<MainUiState> uiState = _uiState;
 
+    /**
+     * Constructs a new MainViewModel.
+     *
+     * @param processor The processor responsible for the transcription logic.
+     */
     @Inject
-    public MainViewModel(TranscriptionRepository repository) {
-        this.repository = repository;
-        _uiState.setValue(MainUiState.idle(repository.loadLastMessage()));
+    public MainViewModel(TranscriptionProcessor processor) {
+        this.processor = processor;
+        _uiState.setValue(MainUiState.idle(processor.loadLastMessage()));
     }
 
+    /**
+     * Starts the transcription process for the given audio URI.
+     *
+     * @param audioUri   The URI of the audio file to transcribe.
+     * @param modelIndex The index of the language model to use.
+     */
     public void startTranscription(Uri audioUri, int modelIndex) {
         _uiState.setValue(MainUiState.loading("Preparing...", new ArrayList<>()));
-        repository.startTranscription(audioUri, modelIndex, new TranscriptionCallback() {
+        processor.startTranscription(audioUri, modelIndex, new TranscriptionCallback() {
             @Override
             public void onStatusUpdate(String message) {
                 MainUiState current = _uiState.getValue();
@@ -58,12 +89,18 @@ public class MainViewModel extends ViewModel {
         });
     }
 
+    /**
+     * Loads the last transcription result and updates the UI state.
+     */
     public void loadLastMessage() {
-        _uiState.setValue(MainUiState.idle(repository.loadLastMessage()));
+        _uiState.setValue(MainUiState.idle(processor.loadLastMessage()));
     }
 
+    /**
+     * Called when the ViewModel is cleared, ensuring resources in the processor are released.
+     */
     @Override
     protected void onCleared() {
-        repository.release();
+        processor.release();
     }
 }

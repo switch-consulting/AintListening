@@ -58,6 +58,13 @@ public class MainActivity extends AppCompatActivity {
     @Inject
     Persistency persistency;
 
+    /**
+     * Called when the activity is first created. Initializes the UI and ViewModel.
+     *
+     * @param savedInstanceState If the activity is being re-initialized after
+     *                           previously being shut down then this Bundle contains the data it most
+     *                           recently supplied in onSaveInstanceState(Bundle).
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -86,6 +93,9 @@ public class MainActivity extends AppCompatActivity {
         handleIncomingIntent(getIntent());
     }
 
+    /**
+     * Called when the activity is being destroyed. Releases adapter resources.
+     */
     @Override
     protected void onDestroy() {
         super.onDestroy();
@@ -94,6 +104,11 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Processes changes in the MainUiState and updates the UI accordingly.
+     *
+     * @param state The new state to display.
+     */
     private void handleUiState(MainUiState state) {
         if (state == null) return;
 
@@ -120,6 +135,9 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Called when the activity is resumed. Refreshes the available languages and UI toggle states.
+     */
     @Override
     protected void onResume() {
         super.onResume();
@@ -129,6 +147,9 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Updates the text view displaying the currently installed language models.
+     */
     private void updateAvailableLanguagesUI() {
         TextView supportedLanguagesText = findViewById(R.id.supportedLanguagesText);
         List<String> available = ModelManager.getAvailableLanguageNames(this);
@@ -147,6 +168,11 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Handle incoming intents, for instance when the application is already running.
+     *
+     * @param intent The incoming intent.
+     */
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
@@ -154,6 +180,11 @@ public class MainActivity extends AppCompatActivity {
         handleIncomingIntent(intent);
     }
 
+    /**
+     * Parses the incoming intent and triggers transcription if an audio stream is found.
+     *
+     * @param intent The intent to handle.
+     */
     private void handleIncomingIntent(Intent intent) {
         String action = intent.getAction();
         String type = intent.getType();
@@ -172,6 +203,11 @@ public class MainActivity extends AppCompatActivity {
         checkModelsAndProceed(audioUri);
     }
 
+    /**
+     * Checks which models are installed and either starts transcription or prompts the user for language selection.
+     *
+     * @param audioUri The URI of the audio to transcribe.
+     */
     private void checkModelsAndProceed(Uri audioUri) {
         List<Integer> availableIndices = new ArrayList<>();
         int index = 0;
@@ -194,6 +230,12 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Displays a dialog for the user to select the language for transcription.
+     *
+     * @param availableIndices The indices of the available language models.
+     * @param audioUri         The URI of the audio to transcribe.
+     */
     private void showLanguageSelectionDialog(List<Integer> availableIndices, Uri audioUri) {
         String[] languages = new String[availableIndices.size()];
         int idx = 0;
