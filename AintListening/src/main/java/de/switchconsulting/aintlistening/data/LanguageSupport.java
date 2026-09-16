@@ -30,8 +30,10 @@ import java.util.Objects;
 public class LanguageSupport {
     /** The locale of the language, serving as the primary key. */
     private final Locale locale;
-    /** The metadata for the speech-to-text transcription model. */
-    private final ModelInfo transcriptionModel;
+    /** The metadata for the Vosk speech-to-text transcription model. */
+    private final ModelInfo voskModel;
+    /** The metadata for the Whisper speech-to-text transcription model. */
+    private final ModelInfo whisperModel;
     /** The metadata for the smart formatting (punctuation) model. */
     private final ModelInfo formattingModel;
     /** The manager used to check for model presence. */
@@ -40,17 +42,20 @@ public class LanguageSupport {
     /**
      * Constructs a new LanguageSupport instance.
      *
-     * @param locale             The locale of the language (primary key).
-     * @param transcriptionModel The transcription model information.
-     * @param formattingModel    The formatting model information, or null if not supported.
-     * @param modelManager       The manager to delegate model checks to.
+     * @param locale          The locale of the language (primary key).
+     * @param voskModel       The Vosk transcription model information.
+     * @param whisperModel    The Whisper transcription model information, or null if not supported.
+     * @param formattingModel The formatting model information, or null if not supported.
+     * @param modelManager    The manager to delegate model checks to.
      */
     public LanguageSupport(@NonNull Locale locale,
-                    @NonNull ModelInfo transcriptionModel,
+                    @NonNull ModelInfo voskModel,
+                    @Nullable ModelInfo whisperModel,
                     @Nullable ModelInfo formattingModel,
                     @NonNull ModelManager modelManager) {
         this.locale = locale;
-        this.transcriptionModel = transcriptionModel;
+        this.voskModel = voskModel;
+        this.whisperModel = whisperModel;
         this.formattingModel = formattingModel;
         this.modelManager = modelManager;
     }
@@ -64,11 +69,19 @@ public class LanguageSupport {
     }
 
     /**
-     * @return The transcription model information.
+     * @return The Vosk transcription model information.
      */
     @NonNull
-    public ModelInfo getTranscriptionModel() {
-        return transcriptionModel;
+    public ModelInfo getVoskModel() {
+        return voskModel;
+    }
+
+    /**
+     * @return The Whisper transcription model information, or null if not supported.
+     */
+    @Nullable
+    public ModelInfo getWhisperModel() {
+        return whisperModel;
     }
 
     /**
@@ -80,13 +93,23 @@ public class LanguageSupport {
     }
 
     /**
-     * Checks if the transcription model for this language is downloaded.
+     * Checks if the Vosk model for this language is downloaded.
      *
      * @param context The context.
      * @return True if downloaded, false otherwise.
      */
-    public boolean isTranscriptionDownloaded(@NonNull Context context) {
-        return modelManager.isModelDownloaded(context, transcriptionModel);
+    public boolean isVoskDownloaded(@NonNull Context context) {
+        return modelManager.isModelDownloaded(context, voskModel);
+    }
+
+    /**
+     * Checks if the Whisper model for this language is downloaded.
+     *
+     * @param context The context.
+     * @return True if downloaded, false otherwise.
+     */
+    public boolean isWhisperDownloaded(@NonNull Context context) {
+        return whisperModel != null && modelManager.isModelDownloaded(context, whisperModel);
     }
 
     /**

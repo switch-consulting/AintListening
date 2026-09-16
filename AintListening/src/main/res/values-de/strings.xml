@@ -45,7 +45,9 @@
     <string name="error_no_internet">Keine Internetverbindung. Bitte verbinden und erneut versuchen.</string>
     <string name="error_model_setup_cancelled">Einrichtung abgebrochen. Die App kann ohne das Sprachmodell nicht funktionieren.</string>
 
-    <string name="label_speech_model">Sprachmodell</string>
+    <string name="label_speech_model">Transcription-Engine</string>
+    <string name="engine_vosk">Vosk (Schnell)</string>
+    <string name="engine_whisper">Whisper (Hohe Genauigkeit)</string>
     <string name="label_supported_languages">Aktuell verfügbare Sprachen</string>
     <string name="status_no_models_installed">Noch keine Sprachmodelle heruntergeladen. Tippe auf Konfigurieren.</string>
     <string name="button_configure">Konfigurieren</string>

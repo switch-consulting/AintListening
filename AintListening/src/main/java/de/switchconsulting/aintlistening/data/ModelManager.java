@@ -16,6 +16,7 @@
 
 package de.switchconsulting.aintlistening.data;
 
+import de.switchconsulting.aintlistening.transcription.TranscriberType;
 import android.content.Context;
 import java.io.File;
 import java.util.ArrayList;
@@ -37,26 +38,35 @@ public class ModelManager {
     private static final String SHARED_PUNC_MODEL_URL = "https://github.com/switch-consulting/AintListening/raw/main/models/ONNXModel_multilingual.zip";
     private static final String SHARED_PUNC_MODEL_SIZE = "280MB";
 
+    private static final String WHISPER_TINY_NAME = "ggml-tiny.bin";
+    private static final String WHISPER_TINY_URL = "https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-tiny.bin";
+    private static final String WHISPER_TINY_SIZE = "75MB";
+
     static {
         SUPPORTED_LANGUAGES = new LanguageSupport[]{
                 new LanguageSupport(Locale.GERMAN,
                         new ModelInfo("vosk-model-small-de-0.15", "https://alphacephei.com/vosk/models/vosk-model-small-de-0.15.zip", Locale.GERMAN, "45MB"),
+                        new ModelInfo(WHISPER_TINY_NAME, WHISPER_TINY_URL, Locale.GERMAN, WHISPER_TINY_SIZE, TranscriberType.WHISPER, false),
                         new ModelInfo(SHARED_PUNC_MODEL_NAME, SHARED_PUNC_MODEL_URL, Locale.GERMAN, SHARED_PUNC_MODEL_SIZE),
                         INSTANCE),
                 new LanguageSupport(Locale.ENGLISH,
                         new ModelInfo("vosk-model-small-en-us-0.15", "https://alphacephei.com/vosk/models/vosk-model-small-en-us-0.15.zip", Locale.ENGLISH, "40MB"),
+                        new ModelInfo(WHISPER_TINY_NAME, WHISPER_TINY_URL, Locale.ENGLISH, WHISPER_TINY_SIZE, TranscriberType.WHISPER, false),
                         new ModelInfo(SHARED_PUNC_MODEL_NAME, SHARED_PUNC_MODEL_URL, Locale.ENGLISH, SHARED_PUNC_MODEL_SIZE),
                         INSTANCE),
                 new LanguageSupport(Locale.forLanguageTag("es"),
                         new ModelInfo("vosk-model-small-es-0.42", "https://alphacephei.com/vosk/models/vosk-model-small-es-0.42.zip", Locale.forLanguageTag("es"), "39MB"),
+                        new ModelInfo(WHISPER_TINY_NAME, WHISPER_TINY_URL, Locale.forLanguageTag("es"), WHISPER_TINY_SIZE, TranscriberType.WHISPER, false),
                         new ModelInfo(SHARED_PUNC_MODEL_NAME, SHARED_PUNC_MODEL_URL, Locale.forLanguageTag("es"), SHARED_PUNC_MODEL_SIZE),
                         INSTANCE),
                 new LanguageSupport(Locale.FRENCH,
                         new ModelInfo("vosk-model-small-fr-0.22", "https://alphacephei.com/vosk/models/vosk-model-small-fr-0.22.zip", Locale.FRENCH, "41MB"),
+                        new ModelInfo(WHISPER_TINY_NAME, WHISPER_TINY_URL, Locale.FRENCH, WHISPER_TINY_SIZE, TranscriberType.WHISPER, false),
                         new ModelInfo(SHARED_PUNC_MODEL_NAME, SHARED_PUNC_MODEL_URL, Locale.FRENCH, SHARED_PUNC_MODEL_SIZE),
                         INSTANCE),
                 new LanguageSupport(Locale.ITALIAN,
                         new ModelInfo("vosk-model-small-it-0.22", "https://alphacephei.com/vosk/models/vosk-model-small-it-0.22.zip", Locale.ITALIAN, "48MB"),
+                        new ModelInfo(WHISPER_TINY_NAME, WHISPER_TINY_URL, Locale.ITALIAN, WHISPER_TINY_SIZE, TranscriberType.WHISPER, false),
                         new ModelInfo(SHARED_PUNC_MODEL_NAME, SHARED_PUNC_MODEL_URL, Locale.ITALIAN, SHARED_PUNC_MODEL_SIZE),
                         INSTANCE)
         };
@@ -71,8 +81,12 @@ public class ModelManager {
      */
     public boolean isModelDownloaded(Context context, ModelInfo info) {
         if (info == null) return false;
-        File modelDir = new File(context.getFilesDir(), info.name);
-        return modelDir.exists() && modelDir.isDirectory();
+        File modelFile = new File(context.getFilesDir(), info.name);
+        if (info.isZip) {
+            return modelFile.exists() && modelFile.isDirectory();
+        } else {
+            return modelFile.exists() && modelFile.isFile();
+        }
     }
 
     /**
@@ -84,7 +98,7 @@ public class ModelManager {
     public static List<String> getAvailableLanguageNames(Context context) {
         List<String> available = new ArrayList<>();
         for (LanguageSupport language : SUPPORTED_LANGUAGES) {
-            if (language.isTranscriptionDownloaded(context)) {
+            if (language.isVoskDownloaded(context) || language.isWhisperDownloaded(context)) {
                 available.add(language.getLocale().getDisplayName());
             }
         }

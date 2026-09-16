@@ -14,25 +14,12 @@
  * limitations under the License.
  */
 
-pluginManagement {
-    repositories {
-        google()
-        mavenCentral()
-        gradlePluginPortal()
-    }
-}
-plugins {
-    id 'org.gradle.toolchains.foojay-resolver-convention' version '1.0.0'
-}
+package de.switchconsulting.aintlistening.transcription;
 
-dependencyResolutionManagement {
-    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
-    repositories {
-        google()
-        mavenCentral()
-        maven { url 'https://jitpack.io' }
-    }
+/**
+ * Supported transcription engines.
+ */
+public enum TranscriberType {
+    VOSK,
+    WHISPER
 }
-
-rootProject.name = "AintListening"
-include(":AintListening")

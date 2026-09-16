@@ -23,8 +23,8 @@ import dagger.hilt.InstallIn;
 import dagger.hilt.android.qualifiers.ApplicationContext;
 import dagger.hilt.components.SingletonComponent;
 import de.switchconsulting.aintlistening.data.Persistency;
+import de.switchconsulting.aintlistening.transcription.DelegatingTranscriber;
 import de.switchconsulting.aintlistening.transcription.Transcriber;
-import de.switchconsulting.aintlistening.transcription.VoskTranscriber;
 import javax.inject.Singleton;
 
 /**
@@ -49,11 +49,12 @@ public class AppModule {
     /**
      * Provides the singleton instance of the Transcriber engine.
      *
+     * @param delegatingTranscriber The delegating transcriber implementation.
      * @return The Transcriber instance.
      */
     @Provides
     @Singleton
-    public static Transcriber provideTranscriber() {
-        return new VoskTranscriber();
+    public static Transcriber provideTranscriber(DelegatingTranscriber delegatingTranscriber) {
+        return delegatingTranscriber;
     }
 }

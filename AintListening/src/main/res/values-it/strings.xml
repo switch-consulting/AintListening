@@ -45,7 +45,9 @@
     <string name="error_no_internet">Nessuna connessione internet. Per favore, connettiti e riprova.</string>
     <string name="error_model_setup_cancelled">Configurazione annullata. L\'app non può funzionare senza il modello vocale.</string>
 
-    <string name="label_speech_model">Modello vocale</string>
+    <string name="label_speech_model">Motore di trascrizione</string>
+    <string name="engine_vosk">Vosk (Veloce)</string>
+    <string name="engine_whisper">Whisper (Alta precisione)</string>
     <string name="label_supported_languages">Lingue attualmente disponibili</string>
     <string name="status_no_models_installed">Nessun modello vocale scaricato. Tocca Configura per aggiungerne uno.</string>
     <string name="button_configure">Configura</string>

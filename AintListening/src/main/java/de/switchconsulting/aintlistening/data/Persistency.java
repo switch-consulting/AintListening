@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import de.switchconsulting.aintlistening.transcription.TranscriberType;
 import de.switchconsulting.aintlistening.transcription.TranscriptionParagraph;
 import de.switchconsulting.aintlistening.util.WavUtils;
 
@@ -43,6 +44,7 @@ public class Persistency {
     private static final String KEY_SHOW_COPY_BUTTON = "show_copy_button";
     private static final String KEY_SHOW_RAW_TEXT = "show_raw_text";
     private static final String KEY_SHOW_SMART_TEXT = "show_smart_text";
+    private static final String KEY_TRANSCRIBER_TYPE = "transcriber_type";
 
     private final Context context;
 
@@ -182,6 +184,29 @@ public class Persistency {
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
                 .edit()
                 .putBoolean(KEY_SHOW_SMART_TEXT, show)
+                .apply();
+    }
+
+    /**
+     * @return The selected transcription engine type.
+     */
+    public TranscriberType getTranscriberType() {
+        String typeName = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+                .getString(KEY_TRANSCRIBER_TYPE, TranscriberType.VOSK.name());
+        try {
+            return TranscriberType.valueOf(typeName);
+        } catch (Exception e) {
+            return TranscriberType.VOSK;
+        }
+    }
+
+    /**
+     * @param type The transcription engine type to use.
+     */
+    public void setTranscriberType(TranscriberType type) {
+        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+                .edit()
+                .putString(KEY_TRANSCRIBER_TYPE, type.name())
                 .apply();
     }
 

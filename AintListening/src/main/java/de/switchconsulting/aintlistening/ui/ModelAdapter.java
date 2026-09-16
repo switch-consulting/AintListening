@@ -16,6 +16,7 @@
 
 package de.switchconsulting.aintlistening.ui;
 
+import de.switchconsulting.aintlistening.transcription.TranscriberType;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -37,6 +38,7 @@ public class ModelAdapter extends RecyclerView.Adapter<ModelViewHolder> {
     private final List<LanguageSupport> languages;
     private final ModelInteractionListener listener;
     private boolean isBusy = false;
+    private TranscriberType activeType = TranscriberType.VOSK;
 
     /**
      * Constructs a new ModelAdapter.
@@ -47,6 +49,18 @@ public class ModelAdapter extends RecyclerView.Adapter<ModelViewHolder> {
     public ModelAdapter(List<LanguageSupport> languages, ModelInteractionListener listener) {
         this.languages = languages;
         this.listener = listener;
+    }
+
+    /**
+     * Sets the active transcriber type to filter displayed models.
+     *
+     * @param type The active transcriber type.
+     */
+    public void setActiveType(TranscriberType type) {
+        if (this.activeType != type) {
+            this.activeType = type;
+            notifyItemRangeChanged(0, getItemCount());
+        }
     }
 
     /**
@@ -79,7 +93,7 @@ public class ModelAdapter extends RecyclerView.Adapter<ModelViewHolder> {
     @Override
     public void onBindViewHolder(@NonNull ModelViewHolder holder, int position) {
         LanguageSupport language = languages.get(position);
-        holder.bind(language, isBusy, listener);
+        holder.bind(language, activeType, isBusy, listener);
     }
 
     @Override

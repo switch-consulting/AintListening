@@ -45,7 +45,9 @@
     <string name="error_no_internet">No internet connection. Please connect and try again.</string>
     <string name="error_model_setup_cancelled">Setup cancelled. The app cannot function without the speech model.</string>
 
-    <string name="label_speech_model">Speech Model</string>
+    <string name="label_speech_model">Transcription Engine</string>
+    <string name="engine_vosk">Vosk (Fast)</string>
+    <string name="engine_whisper">Whisper (High Accuracy)</string>
     <string name="label_supported_languages">Currently Available Languages</string>
     <string name="status_no_models_installed">No speech models downloaded yet. Tap Configure to add one.</string>
     <string name="button_configure">Configure</string>

@@ -26,6 +26,7 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.button.MaterialButtonToggleGroup;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.progressindicator.LinearProgressIndicator;
@@ -44,6 +45,7 @@ import de.switchconsulting.aintlistening.data.LanguageSupport;
 import de.switchconsulting.aintlistening.data.ModelInfo;
 import de.switchconsulting.aintlistening.data.ModelManager;
 import de.switchconsulting.aintlistening.data.Persistency;
+import de.switchconsulting.aintlistening.transcription.TranscriberType;
 import de.switchconsulting.aintlistening.util.NetworkUtils;
 
 /**
@@ -81,8 +83,30 @@ public class ModelManagementActivity extends AppCompatActivity {
         recyclerView = findViewById(R.id.modelRecyclerView);
 
         setupUISettings();
+        setupEngineToggle();
         setupRecyclerView();
         updateModelStatusUI();
+    }
+
+    private void setupEngineToggle() {
+        MaterialButtonToggleGroup engineToggleGroup = findViewById(R.id.engineToggleGroup);
+        TranscriberType currentType = persistency.getTranscriberType();
+        
+        if (currentType == TranscriberType.WHISPER) {
+            engineToggleGroup.check(R.id.buttonWhisper);
+        } else {
+            engineToggleGroup.check(R.id.buttonVosk);
+        }
+
+        engineToggleGroup.addOnButtonCheckedListener((group, checkedId, isChecked) -> {
+            if (isChecked) {
+                TranscriberType newType = (checkedId == R.id.buttonWhisper) ? TranscriberType.WHISPER : TranscriberType.VOSK;
+                persistency.setTranscriberType(newType);
+                if (adapter != null) {
+                    adapter.setActiveType(newType);
+                }
+            }
+        });
     }
 
     private void setupUISettings() {
@@ -159,6 +183,7 @@ public class ModelManagementActivity extends AppCompatActivity {
                 confirmDelete(info);
             }
         });
+        adapter.setActiveType(persistency.getTranscriberType());
         recyclerView.setAdapter(adapter);
     }
 

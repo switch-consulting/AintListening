@@ -2,7 +2,9 @@ package de.switchconsulting.patcher
 
 import org.gradle.api.DefaultTask
 import org.gradle.api.artifacts.Configuration
+import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.InputFiles
+import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
 import java.io.RandomAccessFile
@@ -17,6 +19,7 @@ class ElfPatcherTask extends DefaultTask {
     @InputFiles
     Object classpathFiles
 
+    @Internal
     Object runtimeConfiguration
 
     @TaskAction
@@ -25,24 +28,24 @@ class ElfPatcherTask extends DefaultTask {
             outputDir.mkdirs()
         }
 
-        def config = runtimeConfiguration instanceof org.gradle.api.provider.Provider ? runtimeConfiguration.get() : runtimeConfiguration
+        def config = runtimeConfiguration instanceof Provider ? runtimeConfiguration.get() : runtimeConfiguration
         Configuration classpath = (Configuration) config
-        classpath.incoming.artifacts.artifacts.each { artifact ->
-            if (artifact.id.componentIdentifier.hasProperty('group') && artifact.id.componentIdentifier.group == 'ai.djl.android') {
+        for (def artifact : classpath.incoming.artifacts.artifacts) {
+            def id = artifact.id.componentIdentifier
+            boolean matches = false
+            if (id.hasProperty('group')) {
+                String group = id.group
+                if (group == 'ai.djl.android' || group == 'com.github.EberronBruce') {
+                    matches = true
+                }
+            } else if (id.toString().contains('ai.djl.android') || id.toString().contains('WhisperCore_Android')) {
+                matches = true
+            }
+
+            if (matches) {
                 def jarFile = artifact.file
                 if (jarFile.exists()) {
-                    project.zipTree(jarFile).each { file ->
-                        if (file.name.endsWith('.so') && file.path.contains('arm64-v8a')) {
-                            def destFile = new File(outputDir, file.name)
-                            Files.copy(file.toPath(), destFile.toPath(), StandardCopyOption.REPLACE_EXISTING)
-                            patchElf64File(destFile)
-                        }
-                    }
-                }
-            } else if (artifact.id.componentIdentifier.toString().contains('ai.djl.android')) {
-                def jarFile = artifact.file
-                if (jarFile.exists() && jarFile.name.endsWith('.jar')) {
-                    project.zipTree(jarFile).each { file ->
+                    for (File file : project.zipTree(jarFile)) {
                         if (file.name.endsWith('.so') && file.path.contains('arm64-v8a')) {
                             def destFile = new File(outputDir, file.name)
                             Files.copy(file.toPath(), destFile.toPath(), StandardCopyOption.REPLACE_EXISTING)

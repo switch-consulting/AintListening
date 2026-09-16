@@ -62,11 +62,11 @@ public class VoskTranscriber implements Transcriber {
         }
 
         LanguageSupport language = ModelManager.SUPPORTED_LANGUAGES[modelIndex];
-        if (!language.isTranscriptionDownloaded(context)) {
+        if (!language.isVoskDownloaded(context)) {
             throw new IllegalStateException("Vosk model not found for language: " + language.getLocale().getDisplayName());
         }
 
-        File modelDir = new File(context.getFilesDir(), language.getTranscriptionModel().name);
+        File modelDir = new File(context.getFilesDir(), language.getVoskModel().name);
         Log.i(TAG, "Loading Vosk model from: " + modelDir.getAbsolutePath());
         model = new Model(modelDir.getAbsolutePath());
         loadedModelIndex = modelIndex;

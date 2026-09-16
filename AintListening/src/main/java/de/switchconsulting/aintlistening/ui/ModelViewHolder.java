@@ -16,6 +16,7 @@
 
 package de.switchconsulting.aintlistening.ui;
 
+import de.switchconsulting.aintlistening.transcription.TranscriberType;
 import android.content.Context;
 import android.view.View;
 import android.widget.ImageView;
@@ -57,14 +58,22 @@ public class ModelViewHolder extends RecyclerView.ViewHolder {
     /**
      * Binds language support data to the view.
      *
-     * @param language The language support information.
-     * @param isBusy   Whether the adapter is currently busy.
-     * @param listener The listener for interaction events.
+     * @param language   The language support information.
+     * @param activeType The currently active transcriber type.
+     * @param isBusy     Whether the adapter is currently busy.
+     * @param listener   The listener for interaction events.
      */
-    public void bind(LanguageSupport language, boolean isBusy, ModelInteractionListener listener) {
+    public void bind(LanguageSupport language, TranscriberType activeType, boolean isBusy, ModelInteractionListener listener) {
         languageNameText.setText(language.getLocale().getDisplayName());
 
-        bindModelRow(transcriberRow, language.getTranscriptionModel(), isBusy, listener);
+        ModelInfo transcriptionInfo = (activeType == TranscriberType.VOSK) ? language.getVoskModel() : language.getWhisperModel();
+
+        if (transcriptionInfo != null) {
+            transcriberRow.setVisibility(View.VISIBLE);
+            bindModelRow(transcriberRow, transcriptionInfo, isBusy, listener);
+        } else {
+            transcriberRow.setVisibility(View.GONE);
+        }
 
         if (language.getFormattingModel() != null) {
             formattingRow.setVisibility(View.VISIBLE);

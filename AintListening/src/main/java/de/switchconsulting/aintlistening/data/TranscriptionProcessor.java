@@ -210,6 +210,5 @@ public class TranscriptionProcessor {
         if (smartFormatter != null) {
             smartFormatter.close();
         }
-        executorService.shutdownNow();
     }
 }

@@ -72,7 +72,7 @@ public class ModelManagementViewModel extends AndroidViewModel {
         _downloadState.setValue(DownloadState.downloading(0));
 
         File filesDir = getApplication().getFilesDir();
-        modelDownloader.downloadAndExtract(info.url, filesDir, new ModelDownloadCallback() {
+        modelDownloader.downloadAndExtract(info, filesDir, new ModelDownloadCallback() {
             @Override
             public void onProgress(int percentage) {
                 _downloadState.postValue(DownloadState.downloading(percentage));

@@ -49,22 +49,22 @@ public class ModelDownloader {
     private volatile boolean isCancelled = false;
 
     /**
-     * Downloads a zip file from the specified URL and extracts it into the target directory.
+     * Downloads a model file from the specified URL and optionally extracts it.
      *
-     * @param downloadUrl   The URL to download the model from.
-     * @param targetBaseDir The directory where the model should be extracted.
+     * @param info          The model information.
+     * @param targetBaseDir The directory where the model should be saved/extracted.
      * @param callback      The callback to receive status updates.
      */
-    public void downloadAndExtract(@NonNull String downloadUrl, @NonNull File targetBaseDir, @NonNull ModelDownloadCallback callback) {
+    public void downloadAndExtract(@NonNull ModelInfo info, @NonNull File targetBaseDir, @NonNull ModelDownloadCallback callback) {
         isCancelled = false;
         Handler handler = new Handler(Looper.getMainLooper());
 
         currentFuture = executor.submit(() -> {
-            Log.d(TAG, "Starting download task for: " + downloadUrl);
+            Log.d(TAG, "Starting download task for: " + info.url);
             HttpURLConnection connection = null;
-            File tempZip = new File(targetBaseDir, "model_temp.zip");
+            File targetFile = new File(targetBaseDir, info.isZip ? "model_temp.zip" : info.name);
             try {
-                String currentUrl = downloadUrl;
+                String currentUrl = info.url;
                 int redirectCount = 0;
                 while (redirectCount < 5) {
                     if (isCancelled) throw new InterruptedException();
@@ -101,7 +101,7 @@ public class ModelDownloader {
                 Log.d(TAG, "File size: " + fileLength);
 
                 try (InputStream input = new BufferedInputStream(connection.getInputStream());
-                     OutputStream output = new FileOutputStream(tempZip)) {
+                     OutputStream output = new FileOutputStream(targetFile)) {
 
                     byte[] data = new byte[8192];
                     long total = 0;
@@ -125,20 +125,22 @@ public class ModelDownloader {
 
                 if (isCancelled) throw new InterruptedException();
 
-                // Check if it's a Git LFS pointer instead of a zip
-                if (tempZip.length() < 500) {
-                    try (Scanner scanner = new Scanner(tempZip)) {
+                // Check if it's a Git LFS pointer
+                if (targetFile.length() < 500) {
+                    try (Scanner scanner = new Scanner(targetFile)) {
                         if (scanner.hasNextLine() && scanner.nextLine().startsWith("version https://git-lfs")) {
                             throw new Exception("Downloaded file is a Git LFS pointer. Check LFS quota or URL.");
                         }
                     }
                 }
 
-                handler.post(callback::onExtracting);
-                extractZip(tempZip, targetBaseDir);
-                
-                if (!tempZip.delete()) {
-                    Log.w(TAG, "Failed to delete temporary zip file: " + tempZip.getAbsolutePath());
+                if (info.isZip) {
+                    handler.post(callback::onExtracting);
+                    extractZip(targetFile, targetBaseDir);
+                    
+                    if (!targetFile.delete()) {
+                        Log.w(TAG, "Failed to delete temporary zip file: " + targetFile.getAbsolutePath());
+                    }
                 }
 
                 if (isCancelled) throw new InterruptedException();
@@ -146,13 +148,13 @@ public class ModelDownloader {
 
             } catch (InterruptedException e) {
                 Log.d(TAG, "Download cancelled.");
-                if (tempZip.exists() && !tempZip.delete()) {
+                if (targetFile.exists() && !targetFile.delete()) {
                     Log.w(TAG, "Failed to delete temp file after cancellation.");
                 }
                 handler.post(callback::onCancelled);
             } catch (Exception e) {
                 Log.e(TAG, "Download error", e);
-                if (tempZip.exists() && !tempZip.delete()) {
+                if (targetFile.exists() && !targetFile.delete()) {
                     Log.w(TAG, "Failed to delete temp file after error.");
                 }
                 handler.post(() -> callback.onError(e));
