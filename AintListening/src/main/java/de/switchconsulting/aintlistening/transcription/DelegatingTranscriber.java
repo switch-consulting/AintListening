@@ -19,7 +19,9 @@ package de.switchconsulting.aintlistening.transcription;
 import android.content.Context;
 
 import java.io.File;
+import java.util.EnumMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -34,22 +36,23 @@ import de.switchconsulting.aintlistening.data.Persistency;
 public class DelegatingTranscriber implements Transcriber {
 
     private final Persistency persistency;
-    private final VoskTranscriber voskTranscriber;
-    private final WhisperTranscriber whisperTranscriber;
+    private final Map<TranscriberType, Transcriber> transcribers = new EnumMap<>(TranscriberType.class);
 
     @Inject
     public DelegatingTranscriber(Persistency persistency) {
         this.persistency = persistency;
-        this.voskTranscriber = new VoskTranscriber();
-        this.whisperTranscriber = new WhisperTranscriber();
+        this.transcribers.put(TranscriberType.VOSK, new VoskTranscriber());
+        this.transcribers.put(TranscriberType.WHISPER, new WhisperTranscriber());
     }
 
     private Transcriber getActiveTranscriber() {
-        if (persistency.getTranscriberType() == TranscriberType.WHISPER) {
-            return whisperTranscriber;
-        } else {
-            return voskTranscriber;
+        TranscriberType activeType = persistency.getTranscriberType();
+        Transcriber transcriber = transcribers.get(activeType);
+        if (transcriber == null) {
+            // Fallback to VOSK if something goes wrong
+            return transcribers.get(TranscriberType.VOSK);
         }
+        return transcriber;
     }
 
     @Override
@@ -63,8 +66,24 @@ public class DelegatingTranscriber implements Transcriber {
     }
 
     @Override
+    public TranscriberType getType() {
+        return getActiveTranscriber().getType();
+    }
+
+    @Override
+    public int getNameResId() {
+        return getActiveTranscriber().getNameResId();
+    }
+
+    @Override
+    public boolean providesPunctuation() {
+        return getActiveTranscriber().providesPunctuation();
+    }
+
+    @Override
     public void close() {
-        voskTranscriber.close();
-        whisperTranscriber.close();
+        for (Transcriber transcriber : transcribers.values()) {
+            transcriber.close();
+        }
     }
 }

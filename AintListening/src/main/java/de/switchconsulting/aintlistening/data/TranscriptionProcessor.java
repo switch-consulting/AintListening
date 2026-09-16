@@ -33,7 +33,6 @@ import dagger.hilt.android.qualifiers.ApplicationContext;
 import de.switchconsulting.aintlistening.formatting.OnnxSmartFormatter;
 import de.switchconsulting.aintlistening.formatting.SmartFormatter;
 import de.switchconsulting.aintlistening.transcription.Transcriber;
-import de.switchconsulting.aintlistening.transcription.TranscriberType;
 import de.switchconsulting.aintlistening.transcription.TranscriptionListener;
 import de.switchconsulting.aintlistening.transcription.TranscriptionParagraph;
 import de.switchconsulting.aintlistening.util.OpusToWavDecoder;
@@ -90,7 +89,6 @@ public class TranscriptionProcessor {
                 transcriber.ensureModelLoaded(context, modelIndex);
 
                 callback.onStatusUpdate("Transcribing...");
-                TranscriberType activeType = persistency.getTranscriberType();
                 List<TranscriptionParagraph> rawParagraphs = transcriber.transcribe(context, wavFile, new TranscriptionListener() {
                     @Override
                     public void onPartialResult(String text) {
@@ -113,7 +111,7 @@ public class TranscriptionProcessor {
                     }
                 });
 
-                applySmartFormatting(rawParagraphs, modelIndex, activeType, callback);
+                applySmartFormatting(rawParagraphs, modelIndex, callback);
 
             } catch (Exception e) {
                 Log.e(TAG, "Transcription failed", e);
@@ -127,16 +125,15 @@ public class TranscriptionProcessor {
      *
      * @param paragraphs     The raw transcription paragraphs.
      * @param modelIndex     The index of the language model to use for formatting.
-     * @param transcriberType The engine used for transcription.
      * @param callback       The callback to receive progress updates and the final result.
      */
-    private void applySmartFormatting(List<TranscriptionParagraph> paragraphs, int modelIndex, TranscriberType transcriberType, TranscriptionCallback callback) {
+    private void applySmartFormatting(List<TranscriptionParagraph> paragraphs, int modelIndex, TranscriptionCallback callback) {
         LanguageSupport selectedLanguage = ModelManager.SUPPORTED_LANGUAGES[modelIndex];
         List<TranscriptionParagraph> formattedParagraphs = new ArrayList<>();
 
-        // Skip smart formatting for Whisper as it already provides punctuation and casing.
+        // Skip smart formatting if the engine already provides punctuation and casing.
         // We just copy the raw text to the formatted field.
-        if (transcriberType == TranscriberType.WHISPER) {
+        if (transcriber.providesPunctuation()) {
             for (TranscriptionParagraph p : paragraphs) {
                 formattedParagraphs.add(new TranscriptionParagraph(p.getRawText(), p.getRawText(), p.getAudioFilePath()));
             }

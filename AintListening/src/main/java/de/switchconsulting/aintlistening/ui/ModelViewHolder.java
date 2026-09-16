@@ -66,7 +66,7 @@ public class ModelViewHolder extends RecyclerView.ViewHolder {
     public void bind(LanguageSupport language, TranscriberType activeType, boolean isBusy, ModelInteractionListener listener) {
         languageNameText.setText(language.getLocale().getDisplayName());
 
-        ModelInfo transcriptionInfo = (activeType == TranscriberType.VOSK) ? language.getVoskModel() : language.getWhisperModel();
+        ModelInfo transcriptionInfo = language.getModel(activeType);
 
         if (transcriptionInfo != null) {
             transcriberRow.setVisibility(View.VISIBLE);

@@ -214,7 +214,7 @@ public class MainActivity extends AppCompatActivity {
         List<Integer> availableIndices = new ArrayList<>();
         int index = 0;
         for (LanguageSupport lang : ModelManager.SUPPORTED_LANGUAGES) {
-            boolean isDownloaded = (activeType == TranscriberType.VOSK) ? lang.isVoskDownloaded(this) : lang.isWhisperDownloaded(this);
+            boolean isDownloaded = lang.isDownloaded(this, activeType);
             if (isDownloaded) {
                 availableIndices.add(index);
             }

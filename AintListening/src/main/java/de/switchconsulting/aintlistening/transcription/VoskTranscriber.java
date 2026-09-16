@@ -32,7 +32,9 @@ import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import de.switchconsulting.aintlistening.R;
 import de.switchconsulting.aintlistening.data.LanguageSupport;
+import de.switchconsulting.aintlistening.data.ModelInfo;
 import de.switchconsulting.aintlistening.data.ModelManager;
 
 /**
@@ -62,11 +64,16 @@ public class VoskTranscriber implements Transcriber {
         }
 
         LanguageSupport language = ModelManager.SUPPORTED_LANGUAGES[modelIndex];
-        if (!language.isVoskDownloaded(context)) {
+        if (!language.isDownloaded(context, getType())) {
             throw new IllegalStateException("Vosk model not found for language: " + language.getLocale().getDisplayName());
         }
 
-        File modelDir = new File(context.getFilesDir(), language.getVoskModel().name);
+        ModelInfo modelInfo = language.getModel(getType());
+        if (modelInfo == null) {
+            throw new IllegalStateException("Vosk model info not found for language: " + language.getLocale().getDisplayName());
+        }
+
+        File modelDir = new File(context.getFilesDir(), modelInfo.name);
         Log.i(TAG, "Loading Vosk model from: " + modelDir.getAbsolutePath());
         model = new Model(modelDir.getAbsolutePath());
         loadedModelIndex = modelIndex;
@@ -195,6 +202,21 @@ public class VoskTranscriber implements Transcriber {
         } catch (Exception ignored) {
             return "";
         }
+    }
+
+    @Override
+    public TranscriberType getType() {
+        return TranscriberType.VOSK;
+    }
+
+    @Override
+    public int getNameResId() {
+        return R.string.engine_vosk;
+    }
+
+    @Override
+    public boolean providesPunctuation() {
+        return false;
     }
 
     /**

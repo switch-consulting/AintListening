@@ -45,6 +45,27 @@ public interface Transcriber {
     List<TranscriptionParagraph> transcribe(Context context, File wavFile, TranscriptionListener listener) throws Exception;
 
     /**
+     * Returns the type of the transcriber.
+     *
+     * @return The transcriber type.
+     */
+    TranscriberType getType();
+
+    /**
+     * Returns the resource ID for the human-readable name of the transcriber.
+     *
+     * @return The string resource ID.
+     */
+    int getNameResId();
+
+    /**
+     * Returns whether this transcriber provides punctuation and casing in its output.
+     *
+     * @return True if the engine provides punctuation, false otherwise.
+     */
+    boolean providesPunctuation();
+
+    /**
      * Releases any resources held by the transcriber.
      */
     void close();

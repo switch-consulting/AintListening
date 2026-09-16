@@ -36,7 +36,9 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import de.switchconsulting.aintlistening.R;
 import de.switchconsulting.aintlistening.data.LanguageSupport;
+import de.switchconsulting.aintlistening.data.ModelInfo;
 import de.switchconsulting.aintlistening.data.ModelManager;
 import kotlin.Unit;
 
@@ -58,11 +60,12 @@ public class WhisperTranscriber implements Transcriber {
         }
 
         LanguageSupport language = ModelManager.SUPPORTED_LANGUAGES[modelIndex];
-        if (!language.isWhisperDownloaded(context) || language.getWhisperModel() == null) {
+        ModelInfo modelInfo = language.getModel(getType());
+        if (!language.isDownloaded(context, getType()) || modelInfo == null) {
             throw new IllegalStateException("Whisper model not found for language: " + language.getLocale().getDisplayName());
         }
 
-        File modelFile = new File(context.getFilesDir(), language.getWhisperModel().name);
+        File modelFile = new File(context.getFilesDir(), modelInfo.name);
         Log.i(TAG, "Loading Whisper model from: " + modelFile.getAbsolutePath());
 
         if (whisper == null) {
@@ -257,6 +260,21 @@ public class WhisperTranscriber implements Transcriber {
             Log.e(TAG, "Failed to extract PCM from " + wavFile.getAbsolutePath(), e);
             return new byte[0];
         }
+    }
+
+    @Override
+    public TranscriberType getType() {
+        return TranscriberType.WHISPER;
+    }
+
+    @Override
+    public int getNameResId() {
+        return R.string.engine_whisper;
+    }
+
+    @Override
+    public boolean providesPunctuation() {
+        return true;
     }
 
     @Override
