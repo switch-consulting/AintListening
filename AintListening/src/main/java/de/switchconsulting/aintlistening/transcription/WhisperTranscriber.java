@@ -163,7 +163,7 @@ public class WhisperTranscriber implements Transcriber {
 
                     // Detect pauses between segments
                     long silenceGapMs = (lastSegmentEndMs != -1) ? (startMs - lastSegmentEndMs) : 0;
-                    boolean isSignificantPause = silenceGapMs > 300; // pause
+                    boolean isSignificantPause = silenceGapMs > 200; // pause
 
                     // Decide if we should start a new paragraph before adding this segment
                     boolean isEndOfSentence = false;

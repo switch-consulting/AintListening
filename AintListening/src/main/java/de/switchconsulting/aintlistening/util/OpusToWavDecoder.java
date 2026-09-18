@@ -36,8 +36,11 @@ import java.nio.ByteOrder;
 public class OpusToWavDecoder {
 
     private static final String TAG = "OpusToWavDecoder";
+    /** Timeout in microseconds for dequeue operations. */
     private static final long TIMEOUT_US = 5000;
+    /** The target audio sample rate (16000Hz). */
     private static final int TARGET_SAMPLE_RATE = 16000;
+    /** The target number of channels (1 for Mono). */
     private static final int TARGET_CHANNELS = 1;
 
     /**

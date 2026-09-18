@@ -43,11 +43,20 @@ import de.switchconsulting.aintlistening.transcription.TranscriptionParagraph;
  */
 public class TranscriptionAdapter extends RecyclerView.Adapter<TranscriptionViewHolder> {
 
+    /** The list of transcription paragraphs handled by this adapter. */
     final List<TranscriptionParagraph> paragraphs = new ArrayList<>();
+    /** The MediaPlayer instance used for paragraph audio playback. */
     MediaPlayer mediaPlayer;
+    /** The list position of the paragraph currently playing audio, or -1 if none. */
     int currentlyPlayingPosition = -1;
+    /** The persistency helper used to read UI settings. */
     final Persistency persistency;
 
+    /**
+     * Constructs a new TranscriptionAdapter.
+     *
+     * @param persistency The persistency helper.
+     */
     public TranscriptionAdapter(Persistency persistency) {
         this.persistency = persistency;
     }

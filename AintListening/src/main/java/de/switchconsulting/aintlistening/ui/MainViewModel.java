@@ -35,9 +35,12 @@ import javax.inject.Inject;
 @HiltViewModel
 public class MainViewModel extends ViewModel {
 
+    /** The transcription processor used to handle audio transcription logic. */
     private final TranscriptionProcessor processor;
-    private final MutableLiveData<MainUiState> _uiState = new MutableLiveData<>();
-    public final LiveData<MainUiState> uiState = _uiState;
+    /** Mutable LiveData representing the internal UI state. */
+    private final MutableLiveData<MainUiState> uiStateMutable = new MutableLiveData<>();
+    /** Public observable LiveData for the UI state. */
+    public final LiveData<MainUiState> uiState = uiStateMutable;
 
     /**
      * Constructs a new MainViewModel.
@@ -47,7 +50,7 @@ public class MainViewModel extends ViewModel {
     @Inject
     public MainViewModel(TranscriptionProcessor processor) {
         this.processor = processor;
-        _uiState.setValue(MainUiState.idle(processor.loadLastMessage()));
+        uiStateMutable.setValue(MainUiState.idle(processor.loadLastMessage()));
     }
 
     /**
@@ -57,34 +60,34 @@ public class MainViewModel extends ViewModel {
      * @param modelIndex The index of the language model to use.
      */
     public void startTranscription(Uri audioUri, int modelIndex) {
-        _uiState.setValue(MainUiState.loading("Preparing...", new ArrayList<>()));
+        uiStateMutable.setValue(MainUiState.loading("Preparing...", new ArrayList<>()));
         processor.startTranscription(audioUri, modelIndex, new TranscriptionCallback() {
             @Override
             public void onStatusUpdate(String message) {
-                MainUiState current = _uiState.getValue();
-                _uiState.postValue(MainUiState.loading(message, current != null ? current.paragraphs : new ArrayList<>()));
+                MainUiState current = uiStateMutable.getValue();
+                uiStateMutable.postValue(MainUiState.loading(message, current != null ? current.paragraphs : new ArrayList<>()));
             }
 
             @Override
             public void onPartialResult(List<TranscriptionParagraph> paragraphs) {
-                MainUiState current = _uiState.getValue();
-                _uiState.postValue(MainUiState.loading(current != null ? current.statusMessage : "Transcribing...", paragraphs));
+                MainUiState current = uiStateMutable.getValue();
+                uiStateMutable.postValue(MainUiState.loading(current != null ? current.statusMessage : "Transcribing...", paragraphs));
             }
 
             @Override
             public void onSmartFormattingProgress(int progress, int total, List<TranscriptionParagraph> paragraphs) {
-                _uiState.postValue(MainUiState.progress("Applying smart formatting...", progress, total, paragraphs));
+                uiStateMutable.postValue(MainUiState.progress("Applying smart formatting...", progress, total, paragraphs));
             }
 
             @Override
             public void onComplete(List<TranscriptionParagraph> paragraphs) {
-                _uiState.postValue(MainUiState.idle(paragraphs));
+                uiStateMutable.postValue(MainUiState.idle(paragraphs));
             }
 
             @Override
             public void onError(String message) {
-                MainUiState current = _uiState.getValue();
-                _uiState.postValue(MainUiState.error(message, current != null ? current.paragraphs : new ArrayList<>()));
+                MainUiState current = uiStateMutable.getValue();
+                uiStateMutable.postValue(MainUiState.error(message, current != null ? current.paragraphs : new ArrayList<>()));
             }
         });
     }
@@ -93,7 +96,7 @@ public class MainViewModel extends ViewModel {
      * Loads the last transcription result and updates the UI state.
      */
     public void loadLastMessage() {
-        _uiState.setValue(MainUiState.idle(processor.loadLastMessage()));
+        uiStateMutable.setValue(MainUiState.idle(processor.loadLastMessage()));
     }
 
     /**

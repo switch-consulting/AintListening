@@ -40,10 +40,12 @@ import de.switchconsulting.aintlistening.data.ModelInfo;
 @HiltViewModel
 public class ModelManagementViewModel extends AndroidViewModel {
 
+    /** The model downloader responsible for fetching and extracting speech models. */
     private final ModelDownloader modelDownloader = new ModelDownloader();
-    private final MutableLiveData<DownloadState> _downloadState = new MutableLiveData<>(DownloadState.idle());
+    /** Mutable LiveData representing the internal download state. */
+    private final MutableLiveData<DownloadState> downloadStateMutable = new MutableLiveData<>(DownloadState.idle());
     /** Observable LiveData for the current download state. */
-    public final LiveData<DownloadState> downloadState = _downloadState;
+    public final LiveData<DownloadState> downloadState = downloadStateMutable;
 
     /**
      * Constructs a new ModelManagementViewModel.
@@ -61,41 +63,41 @@ public class ModelManagementViewModel extends AndroidViewModel {
      * @param info The model information.
      */
     public void startDownload(ModelInfo info) {
-        if (_downloadState.getValue() != null && 
-            (_downloadState.getValue().status == DownloadStatus.DOWNLOADING || 
-             _downloadState.getValue().status == DownloadStatus.EXTRACTING)) {
+        if (downloadStateMutable.getValue() != null && 
+            (downloadStateMutable.getValue().status == DownloadStatus.DOWNLOADING || 
+             downloadStateMutable.getValue().status == DownloadStatus.EXTRACTING)) {
             return;
         }
 
         if (info == null) return;
         
-        _downloadState.setValue(DownloadState.downloading(0));
+        downloadStateMutable.setValue(DownloadState.downloading(0));
 
         File filesDir = getApplication().getFilesDir();
         modelDownloader.downloadAndExtract(info, filesDir, new ModelDownloadCallback() {
             @Override
             public void onProgress(int percentage) {
-                _downloadState.postValue(DownloadState.downloading(percentage));
+                downloadStateMutable.postValue(DownloadState.downloading(percentage));
             }
 
             @Override
             public void onExtracting() {
-                _downloadState.postValue(DownloadState.extracting());
+                downloadStateMutable.postValue(DownloadState.extracting());
             }
 
             @Override
             public void onSuccess() {
-                _downloadState.postValue(DownloadState.success());
+                downloadStateMutable.postValue(DownloadState.success());
             }
 
             @Override
             public void onError(Exception e) {
-                _downloadState.postValue(DownloadState.error(e));
+                downloadStateMutable.postValue(DownloadState.error(e));
             }
 
             @Override
             public void onCancelled() {
-                _downloadState.postValue(DownloadState.idle());
+                downloadStateMutable.postValue(DownloadState.idle());
             }
         });
     }
@@ -112,6 +114,6 @@ public class ModelManagementViewModel extends AndroidViewModel {
      * Resets the download state to idle.
      */
     public void resetState() {
-        _downloadState.setValue(DownloadState.idle());
+        downloadStateMutable.setValue(DownloadState.idle());
     }
 }
