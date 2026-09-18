@@ -116,22 +116,20 @@ public class ModelManager {
     }
 
     /**
-     * Returns a list of language display names for all languages where at least one transcription model is downloaded.
+     * Returns a list of language display names for all languages where at least one transcription model is downloaded
+     * AND the language is enabled in settings.
      *
      * @param context The context.
      * @return A list of available language display names.
      */
     public static List<String> getAvailableLanguageNames(Context context) {
+        Persistency persistency = new Persistency(context);
         List<String> available = new ArrayList<>();
         for (LanguageSupport language : SUPPORTED_LANGUAGES) {
-            boolean isAnyDownloaded = false;
-            for (TranscriberType type : TranscriberType.values()) {
-                if (language.isDownloaded(context, type)) {
-                    isAnyDownloaded = true;
-                    break;
-                }
+            if (!persistency.isLanguageEnabled(language.getLocale())) {
+                continue;
             }
-            if (isAnyDownloaded) {
+            if (language.hasTranscriptionModelDownloaded(context)) {
                 available.add(language.getLocale().getDisplayName());
             }
         }

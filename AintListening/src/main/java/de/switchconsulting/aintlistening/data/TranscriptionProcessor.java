@@ -137,7 +137,7 @@ public class TranscriptionProcessor {
             for (TranscriptionParagraph p : paragraphs) {
                 formattedParagraphs.add(new TranscriptionParagraph(p.getRawText(), p.getRawText(), p.getAudioFilePath()));
             }
-        } else if (persistency.isShowSmartText() && selectedLanguage.isFormattingDownloaded(context) && !paragraphs.isEmpty()) {
+        } else if (persistency.isShowSmartText() && persistency.isLanguageEnabled(selectedLanguage.getLocale()) && selectedLanguage.isFormattingDownloaded(context) && !paragraphs.isEmpty()) {
             try {
                 callback.onStatusUpdate("Applying smart formatting...");
                 ModelInfo targetModel = selectedLanguage.getFormattingModel();

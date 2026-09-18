@@ -179,6 +179,12 @@ public class ModelManagementActivity extends AppCompatActivity {
             public void onDeleteClicked(ModelInfo info) {
                 confirmDelete(info);
             }
+
+            @Override
+            public void onLanguageEnabledChanged(LanguageSupport language, boolean enabled) {
+                persistency.setLanguageEnabled(language.getLocale(), enabled);
+                updateModelStatusUI();
+            }
         });
         recyclerView.setAdapter(adapter);
     }

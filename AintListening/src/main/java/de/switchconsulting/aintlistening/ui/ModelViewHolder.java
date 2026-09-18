@@ -28,11 +28,13 @@ import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.materialswitch.MaterialSwitch;
 
 import de.switchconsulting.aintlistening.R;
 import de.switchconsulting.aintlistening.data.LanguageSupport;
 import de.switchconsulting.aintlistening.data.ModelInfo;
 import de.switchconsulting.aintlistening.data.ModelManager;
+import de.switchconsulting.aintlistening.data.Persistency;
 import de.switchconsulting.aintlistening.transcription.TranscriberType;
 
 /**
@@ -40,6 +42,7 @@ import de.switchconsulting.aintlistening.transcription.TranscriberType;
  */
 public class ModelViewHolder extends RecyclerView.ViewHolder {
     private final TextView languageNameText;
+    private final MaterialSwitch languageEnabledSwitch;
     private final ViewGroup transcriberModelsContainer;
     private final View formattingRow;
     private final TextView formattingNotSupportedText;
@@ -52,6 +55,7 @@ public class ModelViewHolder extends RecyclerView.ViewHolder {
     public ModelViewHolder(@NonNull View itemView) {
         super(itemView);
         languageNameText = itemView.findViewById(R.id.languageNameText);
+        languageEnabledSwitch = itemView.findViewById(R.id.languageEnabledSwitch);
         transcriberModelsContainer = itemView.findViewById(R.id.transcriberModelsContainer);
         formattingRow = itemView.findViewById(R.id.formattingModelRow);
         formattingNotSupportedText = itemView.findViewById(R.id.formattingNotSupportedText);
@@ -66,6 +70,15 @@ public class ModelViewHolder extends RecyclerView.ViewHolder {
      */
     public void bind(LanguageSupport language, boolean isBusy, ModelInteractionListener listener) {
         languageNameText.setText(language.getLocale().getDisplayName());
+
+        Persistency persistency = new Persistency(itemView.getContext());
+        boolean isEnabled = persistency.isLanguageEnabled(language.getLocale());
+        boolean hasTranscription = language.hasTranscriptionModelDownloaded(itemView.getContext());
+
+        languageEnabledSwitch.setOnCheckedChangeListener(null);
+        languageEnabledSwitch.setChecked(isEnabled && hasTranscription);
+        languageEnabledSwitch.setEnabled(hasTranscription && !isBusy);
+        languageEnabledSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> listener.onLanguageEnabledChanged(language, isChecked));
 
         // Optimize: Reuse existing views to prevent "flashing" during re-bind
         int childCount = transcriberModelsContainer.getChildCount();

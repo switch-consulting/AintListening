@@ -16,6 +16,7 @@
 
 package de.switchconsulting.aintlistening.ui;
 
+import de.switchconsulting.aintlistening.data.LanguageSupport;
 import de.switchconsulting.aintlistening.data.ModelInfo;
 
 /**
@@ -35,4 +36,12 @@ public interface ModelInteractionListener {
      * @param info The model information.
      */
     void onDeleteClicked(ModelInfo info);
+
+    /**
+     * Called when the enabled state of a language is toggled.
+     *
+     * @param language The language support information.
+     * @param enabled  True if enabled, false otherwise.
+     */
+    void onLanguageEnabledChanged(LanguageSupport language, boolean enabled);
 }

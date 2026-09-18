@@ -26,6 +26,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import de.switchconsulting.aintlistening.transcription.TranscriberType;
 import de.switchconsulting.aintlistening.transcription.TranscriptionParagraph;
@@ -45,6 +46,7 @@ public class Persistency {
     private static final String KEY_SHOW_RAW_TEXT = "show_raw_text";
     private static final String KEY_SHOW_SMART_TEXT = "show_smart_text";
     private static final String KEY_TRANSCRIBER_TYPE = "transcriber_type";
+    private static final String KEY_LANGUAGE_ENABLED_PREFIX = "lang_enabled_";
 
     private final Context context;
 
@@ -207,6 +209,30 @@ public class Persistency {
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
                 .edit()
                 .putString(KEY_TRANSCRIBER_TYPE, type.name())
+                .apply();
+    }
+
+    /**
+     * Checks if a language is enabled by the user.
+     *
+     * @param locale The locale of the language.
+     * @return True if enabled, false otherwise. Defaults to true.
+     */
+    public boolean isLanguageEnabled(Locale locale) {
+        return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+                .getBoolean(KEY_LANGUAGE_ENABLED_PREFIX + locale.toLanguageTag(), true);
+    }
+
+    /**
+     * Sets whether a language is enabled.
+     *
+     * @param locale  The locale of the language.
+     * @param enabled True to enable, false to disable.
+     */
+    public void setLanguageEnabled(Locale locale, boolean enabled) {
+        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+                .edit()
+                .putBoolean(KEY_LANGUAGE_ENABLED_PREFIX + locale.toLanguageTag(), enabled)
                 .apply();
     }
 

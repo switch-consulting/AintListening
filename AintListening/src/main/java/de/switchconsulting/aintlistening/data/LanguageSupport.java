@@ -108,6 +108,21 @@ public class LanguageSupport {
         return modelManager.isModelDownloaded(context, formattingModel);
     }
 
+    /**
+     * Checks if any transcription model is downloaded for this language.
+     *
+     * @param context The context.
+     * @return True if at least one transcription model is downloaded.
+     */
+    public boolean hasTranscriptionModelDownloaded(@NonNull Context context) {
+        for (TranscriberType type : TranscriberType.values()) {
+            if (isDownloaded(context, type)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
