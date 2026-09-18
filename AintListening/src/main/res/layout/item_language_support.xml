@@ -47,9 +47,11 @@
             android:textAllCaps="true"
             android:alpha="0.7" />
 
-        <include
-            android:id="@+id/transcriberModelRow"
-            layout="@layout/item_model_status" />
+        <LinearLayout
+            android:id="@+id/transcriberModelsContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" />
 
         <View
             android:layout_width="match_parent"

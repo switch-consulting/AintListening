@@ -102,9 +102,6 @@ public class ModelManagementActivity extends AppCompatActivity {
             if (isChecked) {
                 TranscriberType newType = (checkedId == R.id.buttonWhisper) ? TranscriberType.WHISPER : TranscriberType.VOSK;
                 persistency.setTranscriberType(newType);
-                if (adapter != null) {
-                    adapter.setActiveType(newType);
-                }
             }
         });
     }
@@ -183,7 +180,6 @@ public class ModelManagementActivity extends AppCompatActivity {
                 confirmDelete(info);
             }
         });
-        adapter.setActiveType(persistency.getTranscriberType());
         recyclerView.setAdapter(adapter);
     }
 

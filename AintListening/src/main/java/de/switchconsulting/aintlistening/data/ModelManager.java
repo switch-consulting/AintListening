@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import de.switchconsulting.aintlistening.R;
 import de.switchconsulting.aintlistening.transcription.TranscriberType;
 
 /**
@@ -37,6 +38,9 @@ public class ModelManager {
     /** The list of languages and their associated models supported by the application. */
     public static final LanguageSupport[] SUPPORTED_LANGUAGES;
 
+    /** Registry of human-readable names for transcriber engines. */
+    private static final Map<TranscriberType, Integer> ENGINE_NAMES = new EnumMap<>(TranscriberType.class);
+
     private static final String SHARED_PUNC_MODEL_NAME = "ONNXModel_multilingual";
     private static final String SHARED_PUNC_MODEL_URL = "https://github.com/switch-consulting/AintListening/raw/main/models/ONNXModel_multilingual.zip";
     private static final String SHARED_PUNC_MODEL_SIZE = "280MB";
@@ -46,6 +50,9 @@ public class ModelManager {
     private static final String WHISPER_TINY_SIZE = "75MB";
 
     static {
+        ENGINE_NAMES.put(TranscriberType.VOSK, R.string.engine_vosk);
+        ENGINE_NAMES.put(TranscriberType.WHISPER, R.string.engine_whisper);
+
         SUPPORTED_LANGUAGES = new LanguageSupport[]{
                 createLanguageSupport(Locale.GERMAN,
                         new ModelInfo(SHARED_PUNC_MODEL_NAME, SHARED_PUNC_MODEL_URL, Locale.GERMAN, SHARED_PUNC_MODEL_SIZE),
@@ -78,6 +85,17 @@ public class ModelManager {
             }
         }
         return new LanguageSupport(locale, map, formatting, INSTANCE);
+    }
+
+    /**
+     * Returns the resource ID for the human-readable name of the specified transcriber type.
+     *
+     * @param type The transcriber type.
+     * @return The string resource ID.
+     */
+    public static int getEngineNameResId(TranscriberType type) {
+        Integer resId = ENGINE_NAMES.get(type);
+        return resId != null ? resId : R.string.engine_vosk;
     }
 
     /**
