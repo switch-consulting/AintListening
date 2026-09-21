@@ -33,6 +33,8 @@ import dagger.hilt.android.qualifiers.ApplicationContext;
 import de.switchconsulting.aintlistening.formatting.OnnxSmartFormatter;
 import de.switchconsulting.aintlistening.formatting.SmartFormatter;
 import de.switchconsulting.aintlistening.transcription.Transcriber;
+import de.switchconsulting.aintlistening.transcription.TranscriberRegistry;
+import de.switchconsulting.aintlistening.transcription.TranscriberType;
 import de.switchconsulting.aintlistening.transcription.TranscriptionListener;
 import de.switchconsulting.aintlistening.transcription.TranscriptionParagraph;
 import de.switchconsulting.aintlistening.util.OpusToWavDecoder;
@@ -47,22 +49,23 @@ public class TranscriptionProcessor {
 
     private final Context context;
     private final Persistency persistency;
-    private final Transcriber transcriber;
+    private final TranscriberRegistry transcriberRegistry;
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
     private SmartFormatter smartFormatter;
+    private Transcriber activeTranscriber;
 
     /**
      * Constructs a new TranscriptionProcessor.
      *
-     * @param context     The application context.
-     * @param persistency The persistency manager for saving results and temporary files.
-     * @param transcriber The engine used for speech-to-text transcription.
+     * @param context             The application context.
+     * @param persistency         The persistency manager for saving results and temporary files.
+     * @param transcriberRegistry The registry for transcription engines.
      */
     @Inject
-    public TranscriptionProcessor(@ApplicationContext Context context, Persistency persistency, Transcriber transcriber) {
+    public TranscriptionProcessor(@ApplicationContext Context context, Persistency persistency, TranscriberRegistry transcriberRegistry) {
         this.context = context;
         this.persistency = persistency;
-        this.transcriber = transcriber;
+        this.transcriberRegistry = transcriberRegistry;
     }
 
     /**
@@ -86,10 +89,18 @@ public class TranscriptionProcessor {
                 }
 
                 callback.onStatusUpdate("Loading model...");
-                transcriber.ensureModelLoaded(context, modelIndex);
+                LanguageSupport language = ModelManager.SUPPORTED_LANGUAGES[modelIndex];
+                TranscriberType activeType = language.getActiveTranscriberType(context, persistency);
+                activeTranscriber = transcriberRegistry.getTranscriber(activeType);
+                
+                if (activeTranscriber == null) {
+                    throw new IllegalStateException("Transcriber not found for type: " + activeType);
+                }
+
+                activeTranscriber.ensureModelLoaded(context, modelIndex);
 
                 callback.onStatusUpdate("Transcribing...");
-                List<TranscriptionParagraph> rawParagraphs = transcriber.transcribe(context, wavFile, new TranscriptionListener() {
+                List<TranscriptionParagraph> rawParagraphs = activeTranscriber.transcribe(context, wavFile, new TranscriptionListener() {
                     @Override
                     public void onPartialResult(String text) {
                         callback.onPartialResult(parseParagraphs(text));
@@ -131,13 +142,11 @@ public class TranscriptionProcessor {
         LanguageSupport selectedLanguage = ModelManager.SUPPORTED_LANGUAGES[modelIndex];
         List<TranscriptionParagraph> formattedParagraphs = new ArrayList<>();
 
-        // Skip smart formatting if the engine already provides punctuation and casing.
-        // We just copy the raw text to the formatted field.
-        if (transcriber.providesPunctuation()) {
-            for (TranscriptionParagraph p : paragraphs) {
-                formattedParagraphs.add(new TranscriptionParagraph(p.getRawText(), p.getRawText(), p.getAudioFilePath()));
-            }
-        } else if (persistency.isShowSmartText() && persistency.isLanguageEnabled(selectedLanguage.getLocale()) && selectedLanguage.isFormattingDownloaded(context) && !paragraphs.isEmpty()) {
+        boolean engineProvidesPunctuation = activeTranscriber != null && activeTranscriber.providesPunctuation();
+        boolean userWantsSmart = persistency.isSmartFormattingEnabled(selectedLanguage.getLocale());
+        boolean modelAvailable = selectedLanguage.isFormattingDownloaded(context);
+
+        if (!engineProvidesPunctuation && userWantsSmart && modelAvailable && !paragraphs.isEmpty()) {
             try {
                 callback.onStatusUpdate("Applying smart formatting...");
                 ModelInfo targetModel = selectedLanguage.getFormattingModel();
@@ -210,9 +219,7 @@ public class TranscriptionProcessor {
      * Releases resources used by the transcriber and formatter.
      */
     public void release() {
-        if (transcriber != null) {
-            transcriber.close();
-        }
+        transcriberRegistry.closeAll();
         if (smartFormatter != null) {
             smartFormatter.close();
         }

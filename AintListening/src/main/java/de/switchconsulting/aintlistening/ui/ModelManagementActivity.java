@@ -44,6 +44,7 @@ import de.switchconsulting.aintlistening.data.LanguageSupport;
 import de.switchconsulting.aintlistening.data.ModelInfo;
 import de.switchconsulting.aintlistening.data.ModelManager;
 import de.switchconsulting.aintlistening.data.Persistency;
+import de.switchconsulting.aintlistening.transcription.TranscriberRegistry;
 import de.switchconsulting.aintlistening.transcription.TranscriberType;
 import de.switchconsulting.aintlistening.util.NetworkUtils;
 
@@ -62,6 +63,9 @@ public class ModelManagementActivity extends AppCompatActivity {
 
     @Inject
     Persistency persistency;
+
+    @Inject
+    TranscriberRegistry transcriberRegistry;
 
     private SwitchMaterial switchRaw;
     private SwitchMaterial switchSmart;
@@ -148,7 +152,7 @@ public class ModelManagementActivity extends AppCompatActivity {
         List<LanguageSupport> languages = Arrays.asList(ModelManager.SUPPORTED_LANGUAGES);
 
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        adapter = new ModelAdapter(languages, new ModelInteractionListener() {
+        adapter = new ModelAdapter(languages, transcriberRegistry, new ModelInteractionListener() {
             @Override
             public void onDownloadClicked(ModelInfo info) {
                 Toast.makeText(ModelManagementActivity.this, getString(R.string.message_starting_download, info.locale.getDisplayName()), Toast.LENGTH_SHORT).show();
@@ -169,6 +173,12 @@ public class ModelManagementActivity extends AppCompatActivity {
             @Override
             public void onTranscriberSelected(LanguageSupport language, TranscriberType type) {
                 persistency.setTranscriberType(language.getLocale(), type);
+                updateModelStatusUI();
+            }
+
+            @Override
+            public void onSmartFormattingToggled(LanguageSupport language, boolean enabled) {
+                persistency.setSmartFormattingEnabled(language.getLocale(), enabled);
                 updateModelStatusUI();
             }
         });

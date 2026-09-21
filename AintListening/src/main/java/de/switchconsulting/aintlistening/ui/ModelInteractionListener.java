@@ -53,4 +53,12 @@ public interface ModelInteractionListener {
      * @param type     The selected transcriber type.
      */
     void onTranscriberSelected(LanguageSupport language, TranscriberType type);
+
+    /**
+     * Called when smart formatting is toggled for a language.
+     *
+     * @param language The language support information.
+     * @param enabled  True if enabled, false otherwise.
+     */
+    void onSmartFormattingToggled(LanguageSupport language, boolean enabled);
 }

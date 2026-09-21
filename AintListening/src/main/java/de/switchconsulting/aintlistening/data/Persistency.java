@@ -190,6 +190,28 @@ public class Persistency {
     }
 
     /**
+     * @param locale The locale to check smart formatting for.
+     * @return True if smart formatting is enabled for this locale, or global default.
+     */
+    public boolean isSmartFormattingEnabled(Locale locale) {
+        String key = KEY_SHOW_SMART_TEXT + "_" + locale.toLanguageTag();
+        return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+                .getBoolean(key, isShowSmartText());
+    }
+
+    /**
+     * @param locale  The locale to set smart formatting for.
+     * @param enabled True to enable, false to disable.
+     */
+    public void setSmartFormattingEnabled(Locale locale, boolean enabled) {
+        String key = KEY_SHOW_SMART_TEXT + "_" + locale.toLanguageTag();
+        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+                .edit()
+                .putBoolean(key, enabled)
+                .apply();
+    }
+
+    /**
      * @return The default transcription engine type.
      */
     public TranscriberType getDefaultTranscriberType() {
