@@ -48,6 +48,8 @@ import kotlin.Unit;
  */
 public class WhisperTranscriber implements Transcriber {
     private static final String TAG = "WhisperTranscriber";
+    public static final int INCREMENTAL_UPDATE_POLLING_INTERVALL_MS = 100;
+    public static final int SILENCE_GAP_MS = 100;
 
     private Whisper whisper;
     private int loadedModelIndex = -1;
@@ -145,7 +147,7 @@ public class WhisperTranscriber implements Transcriber {
         if (enableIncrementalUpdates) {
             while (!future.isDone()) {
                 try {
-                    Thread.sleep(500);
+                    Thread.sleep(INCREMENTAL_UPDATE_POLLING_INTERVALL_MS);
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                     break;
@@ -199,7 +201,7 @@ public class WhisperTranscriber implements Transcriber {
 
                 // Detect pauses between segments
                 long silenceGapMs = (ctx.lastSegmentEndMs != -1) ? (startMs - ctx.lastSegmentEndMs) : 0;
-                boolean isSignificantPause = silenceGapMs > 200;
+                boolean isSignificantPause = silenceGapMs > SILENCE_GAP_MS;
 
                 // Decide if we should start a new paragraph
                 boolean isEndOfSentence = false;
