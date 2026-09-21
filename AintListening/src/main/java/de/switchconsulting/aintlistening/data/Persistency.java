@@ -190,25 +190,39 @@ public class Persistency {
     }
 
     /**
-     * @return The selected transcription engine type.
+     * @return The default transcription engine type.
      */
-    public TranscriberType getTranscriberType() {
+    public TranscriberType getDefaultTranscriberType() {
+        return TranscriberType.VOSK;
+    }
+
+    /**
+     * @param locale The locale to get the transcriber for.
+     * @return The selected transcription engine type for the locale, or the default.
+     */
+    public TranscriberType getTranscriberType(Locale locale) {
+        String key = KEY_TRANSCRIBER_TYPE + "_" + locale.toLanguageTag();
         String typeName = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-                .getString(KEY_TRANSCRIBER_TYPE, TranscriberType.VOSK.name());
+                .getString(key, null);
+        if (typeName == null) {
+            return getDefaultTranscriberType();
+        }
         try {
             return TranscriberType.valueOf(typeName);
         } catch (Exception e) {
-            return TranscriberType.VOSK;
+            return getDefaultTranscriberType();
         }
     }
 
     /**
-     * @param type The transcription engine type to use.
+     * @param locale The locale to set the transcriber for.
+     * @param type   The transcription engine type to use.
      */
-    public void setTranscriberType(TranscriberType type) {
+    public void setTranscriberType(Locale locale, TranscriberType type) {
+        String key = KEY_TRANSCRIBER_TYPE + "_" + locale.toLanguageTag();
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
                 .edit()
-                .putString(KEY_TRANSCRIBER_TYPE, type.name())
+                .putString(key, type.name())
                 .apply();
     }
 

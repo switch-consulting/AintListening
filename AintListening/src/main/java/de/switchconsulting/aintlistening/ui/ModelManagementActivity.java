@@ -26,7 +26,6 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.material.button.MaterialButtonToggleGroup;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.progressindicator.LinearProgressIndicator;
@@ -83,27 +82,8 @@ public class ModelManagementActivity extends AppCompatActivity {
         recyclerView = findViewById(R.id.modelRecyclerView);
 
         setupUISettings();
-        setupEngineToggle();
         setupRecyclerView();
         updateModelStatusUI();
-    }
-
-    private void setupEngineToggle() {
-        MaterialButtonToggleGroup engineToggleGroup = findViewById(R.id.engineToggleGroup);
-        TranscriberType currentType = persistency.getTranscriberType();
-        
-        if (currentType == TranscriberType.WHISPER) {
-            engineToggleGroup.check(R.id.buttonWhisper);
-        } else {
-            engineToggleGroup.check(R.id.buttonVosk);
-        }
-
-        engineToggleGroup.addOnButtonCheckedListener((group, checkedId, isChecked) -> {
-            if (isChecked) {
-                TranscriberType newType = (checkedId == R.id.buttonWhisper) ? TranscriberType.WHISPER : TranscriberType.VOSK;
-                persistency.setTranscriberType(newType);
-            }
-        });
     }
 
     private void setupUISettings() {
@@ -183,6 +163,12 @@ public class ModelManagementActivity extends AppCompatActivity {
             @Override
             public void onLanguageEnabledChanged(LanguageSupport language, boolean enabled) {
                 persistency.setLanguageEnabled(language.getLocale(), enabled);
+                updateModelStatusUI();
+            }
+
+            @Override
+            public void onTranscriberSelected(LanguageSupport language, TranscriberType type) {
+                persistency.setTranscriberType(language.getLocale(), type);
                 updateModelStatusUI();
             }
         });

@@ -26,6 +26,8 @@ import java.util.Map;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import de.switchconsulting.aintlistening.data.LanguageSupport;
+import de.switchconsulting.aintlistening.data.ModelManager;
 import de.switchconsulting.aintlistening.data.Persistency;
 
 /**
@@ -37,6 +39,7 @@ public class DelegatingTranscriber implements Transcriber {
 
     private final Persistency persistency;
     private final Map<TranscriberType, Transcriber> transcribers = new EnumMap<>(TranscriberType.class);
+    private TranscriberType activeType = null;
 
     @Inject
     public DelegatingTranscriber(Persistency persistency) {
@@ -46,8 +49,8 @@ public class DelegatingTranscriber implements Transcriber {
     }
 
     private Transcriber getActiveTranscriber() {
-        TranscriberType activeType = persistency.getTranscriberType();
-        Transcriber transcriber = transcribers.get(activeType);
+        TranscriberType type = activeType != null ? activeType : persistency.getDefaultTranscriberType();
+        Transcriber transcriber = transcribers.get(type);
         if (transcriber == null) {
             // Fallback to VOSK if something goes wrong
             return transcribers.get(TranscriberType.VOSK);
@@ -57,6 +60,10 @@ public class DelegatingTranscriber implements Transcriber {
 
     @Override
     public void ensureModelLoaded(Context context, int modelIndex) throws Exception {
+        if (modelIndex >= 0 && modelIndex < ModelManager.SUPPORTED_LANGUAGES.length) {
+            LanguageSupport language = ModelManager.SUPPORTED_LANGUAGES[modelIndex];
+            activeType = language.getActiveTranscriberType(context, persistency);
+        }
         getActiveTranscriber().ensureModelLoaded(context, modelIndex);
     }
 

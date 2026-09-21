@@ -29,6 +29,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.materialswitch.MaterialSwitch;
+import com.google.android.material.radiobutton.MaterialRadioButton;
 
 import de.switchconsulting.aintlistening.R;
 import de.switchconsulting.aintlistening.data.LanguageSupport;
@@ -71,9 +72,11 @@ public class ModelViewHolder extends RecyclerView.ViewHolder {
     public void bind(LanguageSupport language, boolean isBusy, ModelInteractionListener listener) {
         languageNameText.setText(language.getLocale().getDisplayName());
 
-        Persistency persistency = new Persistency(itemView.getContext());
+        Context context = itemView.getContext();
+        Persistency persistency = new Persistency(context);
         boolean isEnabled = persistency.isLanguageEnabled(language.getLocale());
-        boolean hasTranscription = language.hasTranscriptionModelDownloaded(itemView.getContext());
+        boolean hasTranscription = language.hasTranscriptionModelDownloaded(context);
+        TranscriberType activeType = language.getActiveTranscriberType(context, persistency);
 
         languageEnabledSwitch.setOnCheckedChangeListener(null);
         languageEnabledSwitch.setChecked(isEnabled && hasTranscription);
@@ -83,21 +86,18 @@ public class ModelViewHolder extends RecyclerView.ViewHolder {
         // Optimize: Reuse existing views to prevent "flashing" during re-bind
         int childCount = transcriberModelsContainer.getChildCount();
         int index = 0;
-        LayoutInflater inflater = LayoutInflater.from(itemView.getContext());
+        LayoutInflater inflater = LayoutInflater.from(context);
 
-        for (TranscriberType type : TranscriberType.values()) {
-            ModelInfo transcriptionInfo = language.getModel(type);
-            if (transcriptionInfo != null) {
-                View row;
-                if (index < childCount) {
-                    row = transcriberModelsContainer.getChildAt(index);
-                } else {
-                    row = inflater.inflate(R.layout.item_model_status, transcriberModelsContainer, false);
-                    transcriberModelsContainer.addView(row);
-                }
-                bindModelRow(row, transcriptionInfo, true, isBusy, listener);
-                index++;
+        for (ModelInfo transcriptionInfo : language.getTranscriptionModels()) {
+            View row;
+            if (index < childCount) {
+                row = transcriberModelsContainer.getChildAt(index);
+            } else {
+                row = inflater.inflate(R.layout.item_model_status, transcriberModelsContainer, false);
+                transcriberModelsContainer.addView(row);
             }
+            bindModelRow(language, row, transcriptionInfo, activeType, true, isBusy, listener);
+            index++;
         }
 
         // Remove any excess views if the model count changed (unlikely in this app)
@@ -108,7 +108,7 @@ public class ModelViewHolder extends RecyclerView.ViewHolder {
         if (language.getFormattingModel() != null) {
             formattingRow.setVisibility(View.VISIBLE);
             formattingNotSupportedText.setVisibility(View.GONE);
-            bindModelRow(formattingRow, language.getFormattingModel(), false, isBusy, listener);
+            bindModelRow(language, formattingRow, language.getFormattingModel(), null, false, isBusy, listener);
         } else {
             formattingRow.setVisibility(View.GONE);
             formattingNotSupportedText.setVisibility(View.VISIBLE);
@@ -118,15 +118,18 @@ public class ModelViewHolder extends RecyclerView.ViewHolder {
     /**
      * Binds model information to a specific row (transcription or formatting).
      *
+     * @param language      The language support information.
      * @param rowView       The row view.
      * @param info          The model information.
+     * @param activeType    The currently active transcriber type for this language.
      * @param isTranscriber Whether this row is for a transcriber (vs formatting).
      * @param isBusy        Whether the adapter is currently busy.
      * @param listener      The listener for user interactions.
      */
-    private void bindModelRow(View rowView, ModelInfo info, boolean isTranscriber, boolean isBusy, ModelInteractionListener listener) {
+    private void bindModelRow(LanguageSupport language, View rowView, ModelInfo info, TranscriberType activeType, boolean isTranscriber, boolean isBusy, ModelInteractionListener listener) {
         Context context = rowView.getContext();
         ImageView icon = rowView.findViewById(R.id.modelStatusIcon);
+        MaterialRadioButton radioButton = rowView.findViewById(R.id.modelSelectedRadio);
         TextView nameText = rowView.findViewById(R.id.modelNameText);
         TextView statusText = rowView.findViewById(R.id.modelStatusText);
         MaterialButton downloadButton = rowView.findViewById(R.id.inlineDownloadButton);
@@ -134,8 +137,18 @@ public class ModelViewHolder extends RecyclerView.ViewHolder {
 
         if (isTranscriber) {
             nameText.setText(ModelManager.getEngineNameResId(info.type));
+            radioButton.setVisibility(View.VISIBLE);
+            radioButton.setOnCheckedChangeListener(null);
+            radioButton.setChecked(info.type == activeType);
+            radioButton.setEnabled(!isBusy && ModelManager.INSTANCE.isModelDownloaded(context, info));
+            radioButton.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                if (isChecked) {
+                    listener.onTranscriberSelected(language, info.type);
+                }
+            });
         } else {
             nameText.setText(info.locale.getDisplayName());
+            radioButton.setVisibility(View.GONE);
         }
 
         boolean isDownloaded = ModelManager.INSTANCE.isModelDownloaded(context, info);

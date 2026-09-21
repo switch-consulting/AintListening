@@ -18,6 +18,7 @@ package de.switchconsulting.aintlistening.ui;
 
 import de.switchconsulting.aintlistening.data.LanguageSupport;
 import de.switchconsulting.aintlistening.data.ModelInfo;
+import de.switchconsulting.aintlistening.transcription.TranscriberType;
 
 /**
  * Interface for handling interactions with model items in the list.
@@ -44,4 +45,12 @@ public interface ModelInteractionListener {
      * @param enabled  True if enabled, false otherwise.
      */
     void onLanguageEnabledChanged(LanguageSupport language, boolean enabled);
+
+    /**
+     * Called when a specific transcriber is selected for a language.
+     *
+     * @param language The language support information.
+     * @param type     The selected transcriber type.
+     */
+    void onTranscriberSelected(LanguageSupport language, TranscriberType type);
 }

@@ -22,19 +22,17 @@
     android:gravity="center_vertical"
     android:padding="12dp">
 
-    <ImageView
-        android:id="@+id/modelStatusIcon"
-        android:layout_width="24dp"
-        android:layout_height="24dp"
-        android:src="@drawable/ic_error"
-        app:tint="@android:color/holo_red_dark"
-        android:contentDescription="@null" />
+    <com.google.android.material.radiobutton.MaterialRadioButton
+        android:id="@+id/modelSelectedRadio"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone" />
 
     <LinearLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:layout_marginStart="12dp"
+        android:layout_marginStart="8dp"
         android:orientation="vertical">
 
         <TextView
@@ -53,6 +51,15 @@
             android:text="@string/status_unavailable"
             android:textSize="12sp" />
     </LinearLayout>
+
+    <ImageView
+        android:id="@+id/modelStatusIcon"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_marginHorizontal="8dp"
+        android:src="@drawable/ic_error"
+        app:tint="@android:color/holo_red_dark"
+        android:contentDescription="@null" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/inlineDownloadButton"

@@ -16,7 +16,6 @@
 
 package de.switchconsulting.aintlistening.ui;
 
-import de.switchconsulting.aintlistening.transcription.TranscriberType;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -210,12 +209,11 @@ public class MainActivity extends AppCompatActivity {
      * @param audioUri The URI of the audio to transcribe.
      */
     private void checkModelsAndProceed(Uri audioUri) {
-        TranscriberType activeType = persistency.getTranscriberType();
         List<Integer> availableIndices = new ArrayList<>();
         int index = 0;
         for (LanguageSupport lang : ModelManager.SUPPORTED_LANGUAGES) {
             boolean isEnabled = persistency.isLanguageEnabled(lang.getLocale());
-            boolean isDownloaded = lang.isDownloaded(this, activeType);
+            boolean isDownloaded = lang.hasTranscriptionModelDownloaded(this);
             if (isEnabled && isDownloaded) {
                 availableIndices.add(index);
             }

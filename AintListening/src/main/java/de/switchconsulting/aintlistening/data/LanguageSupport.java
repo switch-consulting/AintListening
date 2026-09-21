@@ -19,6 +19,8 @@ package de.switchconsulting.aintlistening.data;
 import android.content.Context;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+
+import java.util.Collection;
 import java.util.EnumMap;
 import java.util.Locale;
 import java.util.Map;
@@ -76,6 +78,38 @@ public class LanguageSupport {
     @Nullable
     public ModelInfo getModel(TranscriberType type) {
         return transcriptionModels.get(type);
+    }
+
+    /**
+     * @return All available transcription models for this language.
+     */
+    public Collection<ModelInfo> getTranscriptionModels() {
+        return transcriptionModels.values();
+    }
+
+    /**
+     * Resolves the effectively active transcriber type for this language.
+     * Respects user preference if the model is downloaded, otherwise falls back to first available.
+     *
+     * @param context     Application context.
+     * @param persistency Persistency for user preferences.
+     * @return The active TranscriberType.
+     */
+    public TranscriberType getActiveTranscriberType(Context context, Persistency persistency) {
+        TranscriberType preferred = persistency.getTranscriberType(locale);
+        if (isDownloaded(context, preferred)) {
+            return preferred;
+        }
+
+        // Fallback to the first available transcription model
+        for (Map.Entry<TranscriberType, ModelInfo> entry : transcriptionModels.entrySet()) {
+            if (ModelManager.INSTANCE.isModelDownloaded(context, entry.getValue())) {
+                return entry.getKey();
+            }
+        }
+
+        // Default if nothing is downloaded (though UI should prevent this state being critical)
+        return persistency.getDefaultTranscriberType();
     }
 
     /**
