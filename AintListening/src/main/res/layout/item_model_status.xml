@@ -61,21 +61,28 @@
         app:tint="@android:color/holo_red_dark"
         android:contentDescription="@null" />
 
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/inlineDownloadButton"
-        style="@style/Widget.Material3.Button.TextButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/button_download"
-        android:visibility="gone" />
+    <FrameLayout
+        android:layout_width="140dp"
+        android:layout_height="wrap_content">
 
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/inlineDeleteButton"
-        style="@style/Widget.Material3.Button.TextButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/button_remove"
-        android:textColor="@android:color/holo_red_dark"
-        android:visibility="gone" />
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/inlineDownloadButton"
+            style="@style/Widget.Material3.Button.TextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:text="@string/button_download"
+            android:visibility="gone" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/inlineDeleteButton"
+            style="@style/Widget.Material3.Button.TextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:text="@string/button_remove"
+            android:textColor="@android:color/holo_red_dark"
+            android:visibility="gone" />
+    </FrameLayout>
 
 </LinearLayout>
