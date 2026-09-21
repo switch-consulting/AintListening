@@ -30,6 +30,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
@@ -50,8 +51,18 @@ public class WhisperTranscriber implements Transcriber {
 
     private Whisper whisper;
     private int loadedModelIndex = -1;
+    private boolean enableIncrementalUpdates = true;
 
     private static final Pattern TIMESTAMP_PATTERN = Pattern.compile("\\[(\\d{2}:\\d{2}:\\d{2}\\.\\d{3})\\s*-->\\s*(\\d{2}:\\d{2}:\\d{2}\\.\\d{3})]\\s*(.*)");
+
+    /**
+     * Sets whether to enable incremental transcription updates via log polling.
+     *
+     * @param enable True to enable incremental updates, false to only show the final result.
+     */
+    public void setEnableIncrementalUpdates(boolean enable) {
+        this.enableIncrementalUpdates = enable;
+    }
 
     @Override
     public void ensureModelLoaded(Context context, int modelIndex) throws Exception {
@@ -128,82 +139,120 @@ public class WhisperTranscriber implements Transcriber {
         // Enable timestamps to allow splitting into paragraphs with audio chunks
         whisper.transcribeAudioFile(wavFile, true, true);
 
-        String result = future.get(10, TimeUnit.MINUTES);
-        List<TranscriptionParagraph> paragraphs = new ArrayList<>();
-        StringBuilder fullText = new StringBuilder();
+        TranscriptionContext transcriptionContext = new TranscriptionContext(wavFile, listener);
+        int lastLogLineCount = 0;
 
-        if (result != null && !result.trim().isEmpty()) {
-            String[] lines = result.split("\n");
-            int chunkIndex = 0;
-            
-            // Temporary buffers to group short segments into paragraphs
-            StringBuilder currentParaText = new StringBuilder();
-            long currentParaStartMs = -1;
-            long currentParaEndMs = -1;
-            long lastSegmentEndMs = -1;
-
-            for (String line : lines) {
-                Matcher matcher = TIMESTAMP_PATTERN.matcher(line);
-                if (matcher.find()) {
-                    String startTs = matcher.group(1);
-                    String endTs = matcher.group(2);
-                    String segmentRaw = matcher.group(3);
-                    String segmentText = segmentRaw != null ? segmentRaw.trim() : "";
-
-                    // More aggressive cleaning of leading artifacts (colons, dots, dashes, spaces)
-                    while (segmentText.startsWith(":") || segmentText.startsWith(".") || 
-                           segmentText.startsWith("-") || segmentText.startsWith(" ")) {
-                        segmentText = segmentText.substring(1).trim();
-                    }
-
-                    if (segmentText.isEmpty()) continue;
-
-                    long startMs = parseTimestampToMs(startTs);
-                    long endMs = parseTimestampToMs(endTs);
-
-                    // Detect pauses between segments
-                    long silenceGapMs = (lastSegmentEndMs != -1) ? (startMs - lastSegmentEndMs) : 0;
-                    boolean isSignificantPause = silenceGapMs > 200; // pause
-
-                    // Decide if we should start a new paragraph before adding this segment
-                    boolean isEndOfSentence = false;
-                    if (!TextUtils.isEmpty(currentParaText)) {
-                        String currentTextStr = currentParaText.toString();
-                        isEndOfSentence = currentTextStr.endsWith(".") || currentTextStr.endsWith("?") || currentTextStr.endsWith("!");
-                    }
-
-                    boolean shouldSplit = (isSignificantPause && isEndOfSentence) || (currentParaText.length() > 400 && isEndOfSentence);
-
-                    if (shouldSplit && currentParaStartMs != -1) {
-                        processParagraph(currentParaText.toString(), currentParaStartMs, currentParaEndMs, wavFile, chunkIndex++, paragraphs, fullText, listener);
-                        currentParaText.setLength(0);
-                        currentParaStartMs = -1;
-                    }
-
-                    if (currentParaStartMs == -1) {
-                        currentParaStartMs = startMs;
-                    }
-
-                    if (!TextUtils.isEmpty(currentParaText)) {
-                        currentParaText.append(" ");
-                    }
-                    currentParaText.append(segmentText);
-                    currentParaEndMs = endMs;
-                    lastSegmentEndMs = endMs;
+        if (enableIncrementalUpdates) {
+            while (!future.isDone()) {
+                try {
+                    Thread.sleep(500);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    break;
                 }
-            }
-            
-            // Handle last remaining paragraph
-            if (!TextUtils.isEmpty(currentParaText)) {
-                processParagraph(currentParaText.toString(), currentParaStartMs, currentParaEndMs, wavFile, chunkIndex, paragraphs, fullText, listener);
+                String logs = whisper.getMessageLogs();
+                if (!TextUtils.isEmpty(logs)) {
+                    String[] logLines = logs.split("\n");
+                    if (logLines.length > lastLogLineCount) {
+                        List<String> newLines = new ArrayList<>(Arrays.asList(logLines).subList(lastLogLineCount, logLines.length));
+                        processTranscriptionLines(newLines, transcriptionContext, false);
+                        lastLogLineCount = logLines.length;
+                    }
+                }
             }
         }
 
-        return paragraphs;
+        String result = future.get(10, TimeUnit.MINUTES);
+        if (result != null && !result.trim().isEmpty()) {
+            if (!enableIncrementalUpdates) {
+                processTranscriptionLines(Arrays.asList(result.split("\n")), transcriptionContext, true);
+            } else {
+                finalizeRemaining(transcriptionContext);
+            }
+        }
+
+        return transcriptionContext.paragraphs;
     }
 
-    private void processParagraph(String text, long startMs, long endMs, File wavFile, int chunkIndex, 
-                                  List<TranscriptionParagraph> paragraphs, StringBuilder fullText, 
+    private void processTranscriptionLines(List<String> lines, TranscriptionContext ctx, boolean isFinal) {
+        for (String line : lines) {
+            Matcher matcher = TIMESTAMP_PATTERN.matcher(line);
+            if (matcher.find()) {
+                String startTs = matcher.group(1);
+                String endTs = matcher.group(2);
+                String segmentRaw = matcher.group(3);
+                String segmentText = segmentRaw != null ? segmentRaw.trim() : "";
+
+                // Cleaning of leading artifacts
+                while (segmentText.startsWith(":") || segmentText.startsWith(".") ||
+                        segmentText.startsWith("-") || segmentText.startsWith(" ")) {
+                    segmentText = segmentText.substring(1).trim();
+                }
+
+                if (segmentText.isEmpty()) continue;
+
+                long startMs = parseTimestampToMs(startTs);
+                long endMs = parseTimestampToMs(endTs);
+
+                // Skip if this segment has already been processed (by checking end timestamp)
+                if (startMs < ctx.lastSegmentEndMs) continue;
+
+                // Detect pauses between segments
+                long silenceGapMs = (ctx.lastSegmentEndMs != -1) ? (startMs - ctx.lastSegmentEndMs) : 0;
+                boolean isSignificantPause = silenceGapMs > 200;
+
+                // Decide if we should start a new paragraph
+                boolean isEndOfSentence = false;
+                if (!TextUtils.isEmpty(ctx.currentParaText)) {
+                    String currentTextStr = ctx.currentParaText.toString();
+                    isEndOfSentence = currentTextStr.endsWith(".") || currentTextStr.endsWith("?") || currentTextStr.endsWith("!");
+                }
+
+                boolean shouldSplit = (isSignificantPause && isEndOfSentence) || (ctx.currentParaText.length() > 400 && isEndOfSentence);
+
+                if (shouldSplit && ctx.currentParaStartMs != -1) {
+                    processParagraph(ctx.currentParaText.toString(), ctx.currentParaStartMs, ctx.currentParaEndMs, ctx.wavFile, ctx.chunkIndex++, ctx.paragraphs, ctx.fullText, ctx.listener);
+                    ctx.currentParaText.setLength(0);
+                    ctx.currentParaStartMs = -1;
+                }
+
+                if (ctx.currentParaStartMs == -1) {
+                    ctx.currentParaStartMs = startMs;
+                }
+
+                if (!TextUtils.isEmpty(ctx.currentParaText)) {
+                    ctx.currentParaText.append(" ");
+                }
+                ctx.currentParaText.append(segmentText);
+                ctx.currentParaEndMs = endMs;
+                ctx.lastSegmentEndMs = endMs;
+
+                // For incremental updates, show partial results
+                if (!isFinal && ctx.listener != null) {
+                    String currentDisplay = ctx.fullText.toString();
+                    if (!TextUtils.isEmpty(currentDisplay)) {
+                        currentDisplay += "\n\n";
+                    }
+                    ctx.listener.onPartialResult(currentDisplay + ctx.currentParaText);
+                }
+            }
+        }
+
+        if (isFinal) {
+            finalizeRemaining(ctx);
+        }
+    }
+
+    private void finalizeRemaining(TranscriptionContext ctx) {
+        if (!TextUtils.isEmpty(ctx.currentParaText)) {
+            processParagraph(ctx.currentParaText.toString(), ctx.currentParaStartMs, ctx.currentParaEndMs, ctx.wavFile, ctx.chunkIndex, ctx.paragraphs, ctx.fullText, ctx.listener);
+            ctx.currentParaText.setLength(0);
+            ctx.currentParaStartMs = -1;
+        }
+    }
+
+    private void processParagraph(String text, long startMs, long endMs, File wavFile, int chunkIndex,
+                                  List<TranscriptionParagraph> paragraphs, StringBuilder fullText,
                                   TranscriptionListener listener) {
         
         byte[] pcmData = extractPcm(wavFile, startMs, endMs);
@@ -284,5 +333,25 @@ public class WhisperTranscriber implements Transcriber {
             whisper = null;
         }
         loadedModelIndex = -1;
+    }
+
+    /**
+     * Helper to maintain state during transcription.
+     */
+    private static class TranscriptionContext {
+        final File wavFile;
+        final TranscriptionListener listener;
+        final List<TranscriptionParagraph> paragraphs = new ArrayList<>();
+        final StringBuilder fullText = new StringBuilder();
+        final StringBuilder currentParaText = new StringBuilder();
+        long currentParaStartMs = -1;
+        long currentParaEndMs = -1;
+        long lastSegmentEndMs = -1;
+        int chunkIndex = 0;
+
+        TranscriptionContext(File wavFile, TranscriptionListener listener) {
+            this.wavFile = wavFile;
+            this.listener = listener;
+        }
     }
 }
