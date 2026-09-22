@@ -100,15 +100,16 @@ public class TranscriptionProcessor {
                 activeTranscriber.ensureModelLoaded(context, modelIndex);
 
                 callback.onStatusUpdate("Transcribing...");
+                boolean providesPunctuation = activeTranscriber.providesPunctuation();
                 List<TranscriptionParagraph> rawParagraphs = activeTranscriber.transcribe(context, wavFile, new TranscriptionListener() {
                     @Override
                     public void onPartialResult(String text) {
-                        callback.onPartialResult(parseParagraphs(text));
+                        callback.onPartialResult(parseParagraphs(text, providesPunctuation));
                     }
 
                     @Override
                     public void onResult(String text) {
-                        callback.onPartialResult(parseParagraphs(text));
+                        callback.onPartialResult(parseParagraphs(text, providesPunctuation));
                     }
 
                     @Override
@@ -181,7 +182,17 @@ public class TranscriptionProcessor {
                 formattedParagraphs.addAll(paragraphs);
             }
         } else {
-            formattedParagraphs.addAll(paragraphs);
+            if (engineProvidesPunctuation) {
+                for (TranscriptionParagraph p : paragraphs) {
+                    if (p.getFormattedText() == null) {
+                        formattedParagraphs.add(new TranscriptionParagraph(p.getRawText(), p.getRawText(), p.getAudioFilePath()));
+                    } else {
+                        formattedParagraphs.add(p);
+                    }
+                }
+            } else {
+                formattedParagraphs.addAll(paragraphs);
+            }
         }
 
         persistency.saveLastMessage(formattedParagraphs, modelIndex);
@@ -191,16 +202,19 @@ public class TranscriptionProcessor {
     /**
      * Parses the raw transcription text into a list of TranscriptionParagraphs.
      *
-     * @param text The raw text to parse.
+     * @param text                The raw text to parse.
+     * @param providesPunctuation True if the engine already provides punctuation.
      * @return A list of paragraphs.
      */
-    private List<TranscriptionParagraph> parseParagraphs(String text) {
+    private List<TranscriptionParagraph> parseParagraphs(String text, boolean providesPunctuation) {
         if (text.trim().isEmpty()) return new ArrayList<>();
         String[] paras = text.split("\n\n");
         List<TranscriptionParagraph> pList = new ArrayList<>();
         for (String p : paras) {
             if (!p.trim().isEmpty()) {
-                pList.add(new TranscriptionParagraph(p.trim(), null));
+                String raw = p.trim();
+                String formatted = providesPunctuation ? raw : null;
+                pList.add(new TranscriptionParagraph(raw, formatted));
             }
         }
         return pList;
