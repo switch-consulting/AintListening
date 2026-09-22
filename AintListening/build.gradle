@@ -118,7 +118,7 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.7.0'
 }
 
-import de.switchconsulting.patcher.ElfPatcherTask
+import de.switchconsulting.elfpatcher.ElfPatcherTask
 
 tasks.register('patchDjlNativeLibs', ElfPatcherTask) {
     outputDir = file("${project.layout.buildDirectory.get().asFile}/generated/patchedJniLibs/arm64-v8a")

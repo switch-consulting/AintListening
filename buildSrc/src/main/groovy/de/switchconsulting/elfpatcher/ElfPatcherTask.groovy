@@ -1,4 +1,4 @@
-package de.switchconsulting.patcher
+package de.switchconsulting.elfpatcher
 
 import org.gradle.api.DefaultTask
 import org.gradle.api.artifacts.Configuration
