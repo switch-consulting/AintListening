@@ -92,7 +92,7 @@ dependencies {
     implementation ('ai.djl.android:tokenizer-native:0.33.0') {
         exclude group: 'net.java.dev.jna', module: 'jna'
     }
-    implementation ('ai.djl.huggingface:tokenizers:0.37.0') {
+    implementation ('ai.djl.huggingface:tokenizers:0.38.0') {
         exclude group: 'net.java.dev.jna', module: 'jna'
     }
     
@@ -103,7 +103,7 @@ dependencies {
     implementation 'com.alphacephei:vosk-android:0.3.75'
     implementation 'com.github.EberronBruce:WhisperCore_Android:master-SNAPSHOT'
 
-    implementation 'com.microsoft.onnxruntime:onnxruntime-android:1.29.0'
+    implementation 'com.microsoft.onnxruntime:onnxruntime-android:1.30.0'
     implementation 'com.facebook.fbjni:fbjni:0.7.0'
     implementation 'org.json:json:20260814'
 
@@ -121,11 +121,19 @@ dependencies {
 import de.switchconsulting.elfpatcher.ElfPatcherTask
 
 tasks.register('patchDjlNativeLibs', ElfPatcherTask) {
-    outputDir = file("${project.layout.buildDirectory.get().asFile}/generated/patchedJniLibs/arm64-v8a")
+    outputDir.set(file("${project.layout.buildDirectory.get().asFile}/generated/patchedJniLibs/arm64-v8a"))
     
     def cpName = project.configurations.any { it.name == "debugRuntimeClasspath" } ? "debugRuntimeClasspath" : "runtimeClasspath"
-    classpathFiles = project.configurations.named(cpName).map { it.incoming.files }
-    runtimeConfiguration = project.configurations.named(cpName)
+    classpathFiles.set(project.configurations.named(cpName).map { it.incoming.files })
+    runtimeConfiguration.set(project.configurations.named(cpName))
+
+    libraryIncludes.add('ai.djl')
+    libraryIncludes.add('WhisperCore_Android')
+    libraryIncludes.add('onnxruntime')
+    libraryIncludes.add('EberronBruce')
+    libraryIncludes.add('vosk-android')
+    
+    abiFilter.set('arm64-v8a')
 }
 
 tasks.configureEach { task ->

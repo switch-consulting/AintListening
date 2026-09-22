@@ -2,7 +2,10 @@ package de.switchconsulting.elfpatcher
 
 import org.gradle.api.DefaultTask
 import org.gradle.api.artifacts.Configuration
+import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
+import org.gradle.api.provider.SetProperty
+import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.OutputDirectory
@@ -11,43 +14,58 @@ import java.io.RandomAccessFile
 import java.nio.file.Files
 import java.nio.file.StandardCopyOption
 
-class ElfPatcherTask extends DefaultTask {
+abstract class ElfPatcherTask extends DefaultTask {
 
     @OutputDirectory
-    File outputDir
+    abstract Property<File> getOutputDir()
 
     @InputFiles
-    Object classpathFiles
+    abstract Property<Object> getClasspathFiles()
 
     @Internal
-    Object runtimeConfiguration
+    abstract Property<Object> getRuntimeConfiguration()
+
+    @Input
+    abstract SetProperty<String> getLibraryIncludes()
+
+    @Input
+    abstract Property<String> getAbiFilter()
 
     @TaskAction
     void patch() {
-        if (!outputDir.exists()) {
-            outputDir.mkdirs()
+        File output = outputDir.get()
+        if (!output.exists()) {
+            output.mkdirs()
         }
 
-        def config = runtimeConfiguration instanceof Provider ? runtimeConfiguration.get() : runtimeConfiguration
+        def config = runtimeConfiguration.get()
+        if (config instanceof Provider) {
+            config = config.get()
+        }
         Configuration classpath = (Configuration) config
+        
+        Set<String> includes = libraryIncludes.get()
+        String abi = abiFilter.get()
+
         for (def artifact : classpath.incoming.artifacts.artifacts) {
             def id = artifact.id.componentIdentifier
             boolean matches = false
-            if (id.hasProperty('group')) {
-                String group = id.group
-                if (group == 'ai.djl.android' || group == 'com.github.EberronBruce') {
+            
+            String idStr = id.toString().toLowerCase()
+            for (String include : includes) {
+                if (idStr.contains(include.toLowerCase())) {
                     matches = true
+                    break
                 }
-            } else if (id.toString().contains('ai.djl.android') || id.toString().contains('WhisperCore_Android')) {
-                matches = true
             }
 
             if (matches) {
                 def jarFile = artifact.file
+                println "Patching native libs in ${id}: ${jarFile.name}"
                 if (jarFile.exists()) {
                     for (File file : project.zipTree(jarFile)) {
-                        if (file.name.endsWith('.so') && file.path.contains('arm64-v8a')) {
-                            def destFile = new File(outputDir, file.name)
+                        if (file.name.endsWith('.so') && file.path.contains(abi)) {
+                            def destFile = new File(output, file.name)
                             Files.copy(file.toPath(), destFile.toPath(), StandardCopyOption.REPLACE_EXISTING)
                             patchElf64File(destFile)
                         }
