@@ -1,0 +1,47 @@
+{
+  "schemaVersion": 1,
+  "pages": {
+    "/openwiki/architecture/overview.md": {
+      "gitHead": "f0bb8829a1cbb759c0bd9747e61d96f859d0fb48",
+      "sourceFingerprint": "sha256:114e2ebf89f82c3c10da69f7fb3c18c267113f9e476dee517d5f9328cfeb758a",
+      "pageVersion": "sha256:0c77ddbef12335589681ddfe6fb0bd9d949ca823901347f5580487090910e15b",
+      "completedBy": "openwiki/0.5.2",
+      "completedRunId": "465d1aae-db76-423d-a850-3cda3f5463c1"
+    },
+    "/openwiki/concepts/smart-formatting.md": {
+      "gitHead": "f0bb8829a1cbb759c0bd9747e61d96f859d0fb48",
+      "sourceFingerprint": "sha256:114e2ebf89f82c3c10da69f7fb3c18c267113f9e476dee517d5f9328cfeb758a",
+      "pageVersion": "sha256:21fdf5a0965eda86623173c6ca0b36bb1b051f45d3c89953b69fe1babe5d8251",
+      "completedBy": "openwiki/0.5.2",
+      "completedRunId": "465d1aae-db76-423d-a850-3cda3f5463c1"
+    },
+    "/openwiki/concepts/transcription-engines.md": {
+      "gitHead": "f0bb8829a1cbb759c0bd9747e61d96f859d0fb48",
+      "sourceFingerprint": "sha256:114e2ebf89f82c3c10da69f7fb3c18c267113f9e476dee517d5f9328cfeb758a",
+      "pageVersion": "sha256:63cd114b855f7265bb873b1b603e5fb51fb9c0058efda4efe7e325b5f3faa634",
+      "completedBy": "openwiki/0.5.2",
+      "completedRunId": "465d1aae-db76-423d-a850-3cda3f5463c1"
+    },
+    "/openwiki/operations/build-and-elfpatching.md": {
+      "gitHead": "f0bb8829a1cbb759c0bd9747e61d96f859d0fb48",
+      "sourceFingerprint": "sha256:114e2ebf89f82c3c10da69f7fb3c18c267113f9e476dee517d5f9328cfeb758a",
+      "pageVersion": "sha256:055451fad0ef3300f2d06806accfeb87b87d372a258c1a6e347b45bd875f589b",
+      "completedBy": "openwiki/0.5.2",
+      "completedRunId": "465d1aae-db76-423d-a850-3cda3f5463c1"
+    },
+    "/openwiki/quickstart.md": {
+      "gitHead": "f0bb8829a1cbb759c0bd9747e61d96f859d0fb48",
+      "sourceFingerprint": "sha256:114e2ebf89f82c3c10da69f7fb3c18c267113f9e476dee517d5f9328cfeb758a",
+      "pageVersion": "sha256:962a0d6fa7d3f831fdf92955f6e7dbc8b7e6bfdf65207b79f1648486a8bb81aa",
+      "completedBy": "openwiki/0.5.2",
+      "completedRunId": "465d1aae-db76-423d-a850-3cda3f5463c1"
+    },
+    "/openwiki/workflows/ingestion-and-processing.md": {
+      "gitHead": "f0bb8829a1cbb759c0bd9747e61d96f859d0fb48",
+      "sourceFingerprint": "sha256:114e2ebf89f82c3c10da69f7fb3c18c267113f9e476dee517d5f9328cfeb758a",
+      "pageVersion": "sha256:5de4a077bb3e5e2bd474ef5a5d86718f20ce226bf8db85c00b03b0781cf6358b",
+      "completedBy": "openwiki/0.5.2",
+      "completedRunId": "465d1aae-db76-423d-a850-3cda3f5463c1"
+    }
+  }
+}

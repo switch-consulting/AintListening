@@ -1,0 +1,80 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:63cd114b855f7265bb873b1b603e5fb51fb9c0058efda4efe7e325b5f3faa634",
+  "claims": [
+    {
+      "id": "claim_c8a77a00d1d245adb7f7f9019e329e69",
+      "statement": "The TranscriberRegistry resolves transcription engines dynamically using an EnumMap keyed by TranscriberType and exposes a closeAll method to clean up all engine resources.",
+      "evidence": [
+        {
+          "resource": "repo://src/main/java/de/switchconsulting/aintlistening/transcription/TranscriberRegistry.java#L31-L56",
+          "version": "repo-lines-v1:sha256:479895885f3fabd43881e9fc6204bd5d5a934a51539168dd6b6b34934816d584:eyJzZWxlY3RlZExpbmVDb3VudCI6MjYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjVmOTVjZTcxMWJkODYyMTY5M2Y5ZDRiOTczYzlmMGQxYTQ2N2E3N2FkOTQ4MjU1ZmUwNmJhMDNlZGNhNDQ0NDQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjE0MTlhNmRjYzA0ZTIxM2EzYzdhNzdhNDU2YjAxZTc2ZDFlZjc4Y2QwMGJiZWMxZDhmODE0NThmZTkzZWRjNTYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImJhYTg5NjNmZWQ3ZGNiOWZkMWUyZWYyNDFmNGVhYTkwN2E4OTZiY2FkMzM2MmJjZTQyZjRjMDM1OTFiYTM0NDAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUyMmZhYTUzNWJkMmVhM2Q1MmU3NDFlZDQ1NDQzNWI3ZmU0OWU4MzU4NmU5NDNkOThkODJiYmZiMjRkMWY1YzUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_003beeea8990400ba76cdd1482cb36a8",
+      "statement": "The Transcriber interface defines core lifecycle methods including ensureModelLoaded for RAM allocation, transcribe for streaming files and triggering listener updates, and close for releasing native handles.",
+      "evidence": [
+        {
+          "resource": "repo://src/main/java/de/switchconsulting/aintlistening/transcription/Transcriber.java#L26-L72",
+          "version": "repo-lines-v1:sha256:3126cbc100603a680a2b8544d38996bddd2490d486ad4fa07ee1b466d15dd890:eyJzZWxlY3RlZExpbmVDb3VudCI6NDcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjY4YjE3NmIyOTI4NDQ0ODVjNGQ2ZWI1ZDc5OGI1NGQ0MTBlMzlmNjgwYjk2NzlkZjAzYTA5NDVlYjI1NTEyNDAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImUyMmZhYTUzNWJkMmVhM2Q1MmU3NDFlZDQ1NDQzNWI3ZmU0OWU4MzU4NmU5NDNkOThkODJiYmZiMjRkMWY1YzUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImY3MDQzOWRlNWJjM2JmMjZiMjFjMmQ3ZTEyMmVhZDkxZTc4MmQzOTliZDkyNDI2NzBhZjhlMDNmZDY3M2ZkMTAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_eea3efd67ec34d1a8bf0b4dce5b848de",
+      "statement": "VoskTranscriber processes streaming WAV audio by skipping the 44-byte header and feeding PCM chunks into Vosk's Recognizer, extracting partial text from partial JSON and final text from final JSON.",
+      "evidence": [
+        {
+          "resource": "repo://src/main/java/de/switchconsulting/aintlistening/transcription/VoskTranscriber.java#L101-L205",
+          "version": "repo-lines-v1:sha256:2161b16cca29de00948b10d76d2a63b2cb548308c0eb588d14cf20a759dcc67b:eyJzZWxlY3RlZExpbmVDb3VudCI6MTA1LCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiIyNzZmZjk3N2M0MWM1NjA0ZGU4MmE0ODVmZjUxZjQ3Zjg1M2MzYzdkNmM4N2Y1NjBmYjZiYzRiODMzNjk0YTJjIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiIxNDE5YTZkY2MwNGUyMTNhM2M3YTc3YTQ1NmIwMWU3NmQxZWY3OGNkMDBiYmVjMWQ4ZjgxNDU4ZmU5M2VkYzU2IiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiI3MmNlYzE0OWUwNDg3NGI1Y2JjYWQyNWVkODRhYThiYmVlOGMzNWM2MjlhNzg0YzFhNWMwZDQ5ZjAxZmUwNTZjIiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiJlMTNiZmI4ZjAwNGNiOTc2NzMxYzQxZTcwNGY1Y2RjMWExMWRkOWMwMTY4NGQxZGZkZGEzNzRmMTY4ZWRjOTBmIn0"
+        }
+      ]
+    },
+    {
+      "id": "claim_e51346f40115467d800eb011693de8ad",
+      "statement": "VoskTranscriber accumulates audio PCM bytes into a ByteArrayOutputStream during reading and triggers onAudioChunkAvailable on segment finalization to save chunk audio.",
+      "evidence": [
+        {
+          "resource": "repo://src/main/java/de/switchconsulting/aintlistening/transcription/VoskTranscriber.java#L102-L170",
+          "version": "repo-lines-v1:sha256:f958dbcea766876ec97a4fc6639ad023a9ec7a9c4d9b7279580ae331cda3b6be:eyJzZWxlY3RlZExpbmVDb3VudCI6NjksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjM2ZWU3NWYwNWU1NjUxZTI2YzI4MTkzMDE5ODE3NTgwYzVmYTI4YmQ4MjY0YjA2MDAyNTA4NjAyNzdlZmEzZTEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjgyNTFiZmFiY2ZiNmQ4OWZkOWY0ZTNiN2JjNGExNzRmZDkwYzk5ODE4NmU0ZmRlMmM4ZmEzNGU2ZDVjMjkzYWEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijg1NTBlOWQ2Nzk3MmNkMjE4NzY4MGYxZTA1YTJkNjRkNjZkN2JlMjZjN2RhNjk4N2FiYjg5NDc3NGI5Njk3NDIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjAyODllN2U5YTBkZjMxNmU2MTM1N2VlM2JkZTJhODNjNjcxZmFkMjQ2YjFlMDVlN2MzYjhhZThkNDQzMWIxNGQifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_d4227eefd201451e8b40403391b6c082",
+      "statement": "WhisperTranscriber triggers transcription using com.redravencomputing.whispercore.Whisper with delegates and polls message logs incrementally in a background loop with a default interval of 100 milliseconds.",
+      "evidence": [
+        {
+          "resource": "repo://src/main/java/de/switchconsulting/aintlistening/transcription/WhisperTranscriber.java#L107-L178",
+          "version": "repo-lines-v1:sha256:f5e1149074de90692333d5c7c2ce1c1749923a3a8559c1c6ca118641548ff7b5:eyJzZWxlY3RlZExpbmVDb3VudCI6NzIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFmODE0NTJiOGI4NjdkMWRkNzYxMzI2YTQyYTBlNzFhZDgzYWViZDk1ZTcwYWRmZDM3NTUzYjk1MTc1M2U3YTUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdlYjcwMjU3NTkzZGEwNmY2ODJhM2RkZGE1NGE5ZDI2MGQ0ZmM1MTRmNjQ1MjM3ZjVjYTc0YjA4ZjhkYTYxYTYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImE4MTlkYjhhOTg1YmIzZmRlNDk2MWNlYmY4M2MxODI1ZjM5OWIxZDU0ZWY3Mzc1ZTk5YmFkY2EwNmM0NGFiYjQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjY1NDgwNDY5YmVjNGQ3NjI3NGUxZGVkOTdlMzAzNGU1ODc0YzUzYjJkODIwNjlhNzY0M2Q0NjVkMjJjNTBhNGIifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_23d5ec7aedff496786a433d60578c850",
+      "statement": "WhisperTranscriber decides to split paragraphs based on a significant silence gap of more than 100 milliseconds at a sentence boundary or when the paragraph length exceeds 400 characters at a sentence boundary.",
+      "evidence": [
+        {
+          "resource": "repo://src/main/java/de/switchconsulting/aintlistening/transcription/WhisperTranscriber.java#L196-L240",
+          "version": "repo-lines-v1:sha256:b4d7845fdcff6cb7ae20465ac1f616e08dd7f25fdc171a944c9169f78ade3101:eyJzZWxlY3RlZExpbmVDb3VudCI6NDUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImJkZTEzYjk2M2JiMDEwZjUzZDk0MzNlOTdlMTFlODRiYWI3ODJjOWYyZGE0ZjQ0Yzc1NTZhMjZlMzE5ZTRmZjkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImM5YTg1NzJiODg4YjA4Zjc5Nzk4YTE5YWNhZDFlZmRhZmVkMDI3MDQyNWEzZTFjMjJkODg4ZDEwNmQ2NTY4M2IiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImM1NTAzNjQ3N2VmMGI1M2U4OTNjZWMyMDE3ZmU1NWJlMTgwOWFkNTFmZmM5OTJmOGYxZDZjYWJhNzQ1YzJmYTIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjllNGQ1Y2JkOTIyNzhkZTNlYTM5M2IyNTZiZDk3Yzg5ZGU0YzE1NmY0YTFlYzkwZTQ5Y2ZjZTc2ZmY2ZGI5YjIifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_0dc95c20763b4822872ed0ca025ad2a0",
+      "statement": "WhisperTranscriber extracts exact segment audio from a 16kHz 16-bit Mono PCM WAV file using RandomAccessFile based on timing converted to a byte offset of 32 bytes per millisecond.",
+      "evidence": [
+        {
+          "resource": "repo://src/main/java/de/switchconsulting/aintlistening/transcription/WhisperTranscriber.java#L294-L314",
+          "version": "repo-lines-v1:sha256:ec45ef1abdd18ca7f4e79ffeda12f4cdd471b0f56aec19508fa896c2afea4041:eyJzZWxlY3RlZExpbmVDb3VudCI6MjEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk1YWYwOTE0MTVjNDdkZGMyYzY1ZGY1OTMwZmIzYTc3ZjE2YTAzZDAzYTc5MzZhNDQ2ZDFjNzdhYjI1YWU3ZjkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjE0MTlhNmRjYzA0ZTIxM2EzYzdhNzdhNDU2YjAxZTc2ZDFlZjc4Y2QwMGJiZWMxZDhmODE0NThmZTkzZWRjNTYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImM3NTRlYmJmZDhlZmVhNGQ0OWVjNWM3YTM4Yjg3MTYwNWNlNGYzMGM5NTY3NmQ2ZTU5MTBmYzQ4ZjUwMzQ1MTAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUxM2JmYjhmMDA0Y2I5NzY3MzFjNDFlNzA0ZjVjZGMxYTExZGQ5YzAxNjg0ZDFkZmRkYTM3NGYxNjhlZGM5MGYifQ"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.5.2",
+    "at": "2026-09-22T15:37:24.200Z"
+  }
+}

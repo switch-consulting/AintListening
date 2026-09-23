@@ -1,0 +1,70 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:055451fad0ef3300f2d06806accfeb87b87d372a258c1a6e347b45bd875f589b",
+  "claims": [
+    {
+      "id": "claim_0a90486c69bd42978decdcf854a70826",
+      "statement": "The Android Gradle configuration restricts native compilation to 64-bit architectures, explicitly filtering for 'arm64-v8a' and 'x86_64' to support offline deep learning models while excluding older 32-bit platforms.",
+      "evidence": [
+        {
+          "resource": "repo://build.gradle#L35-L37",
+          "version": "repo-lines-v1:sha256:aaa39cbb2d36fd92e2641db06226de256cec40f317e2b156f44c056b20f05426:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNTRiYjU2M2VhNzlkYjMzODY0MmM4ZGM4Y2QwNjYyM2ZiOGFkNTZlMjQ4NThkZjg4YTBjMjI1ZWVjYWVjNWI4NyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZTZiMDQ0OTE0Njk3MjJlODM2M2E5NGU0MDQ0NTM4ZTAxM2EyYTIxN2UzNmIxZTU2OGJhNjBhY2I3YjRjOGYyZSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNzUxZDAxZjJhNTExOWM2MjBhNDVhZjU3ZjYyNDA0OGI0OTViYTY1ZWQzMTAyNWM3MTZiZjkzNTc3NzNlMDAzOCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMjI2OTdlNzFlN2M1MTI2ODE5YzZiOWE0ZWMzYTRkZTY2YzZhZjVjNmE4NzVhYzFmNjhmNmI1M2NjNWMxOWI3NCJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_b67da224fdf245a2a3670506840e2dae",
+      "statement": "The packaging options set 'useLegacyPackaging' to true for JNI libraries, forcing extraction of native shared libraries from the APK at install time to support dynamic loaders in DJL, Vosk, Whisper, and ONNX Runtime.",
+      "evidence": [
+        {
+          "resource": "repo://build.gradle#L57-L57",
+          "version": "repo-lines-v1:sha256:c1d0e04c46ae7a44de9845fc81c3a4ff97c719f63aec2038c3e810643d16cf0c:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYzFkMGUwNGM0NmFlN2E0NGRlOTg0NWZjODFjM2E0ZmY5N2M3MTlmNjNhZWMyMDM4YzNlODEwNjQzZDE2Y2YwYyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYzFkMGUwNGM0NmFlN2E0NGRlOTg0NWZjODFjM2E0ZmY5N2M3MTlmNjNhZWMyMDM4YzNlODEwNjQzZDE2Y2YwYyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNmNkMjk0YTY3ZTg1NTkzNjllZWFlZDZlN2VhMTk1MGZiNjlhYTY2MDUzZDIxN2FiNjM3OGNlMWY0YjczZGVkYyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNmE4OTg3NzM1ZmRhMGI1N2Y1NzVjYzg5MTRmMjgyOTY2OWUzMTQ0MmVjMjhkZDQwMTlmYTRjYzg2OWRiZjgyMyJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_906db56930504c2581c3d751f5bb3bb8",
+      "statement": "The build configuration utilizes 'pickFirsts' to resolve duplicate native library conflicts in transitive dependencies for key AI libraries, specifically OpenMP and whisper-related libraries.",
+      "evidence": [
+        {
+          "resource": "repo://build.gradle#L58-L66",
+          "version": "repo-lines-v1:sha256:c43e316c0b73b8447f0cb84867b5f24242e91ff425f9b762b9a17e06071f2525:eyJzZWxlY3RlZExpbmVDb3VudCI6OSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZWVmMmQ1NjM1YjE5NDI5MWYwNzYwZjlmZjYxOGJjNTJhNzIzYTVkNDdmM2MzODIwNThhNjE0MmFhMGE3NWEwMyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZTdmMjM0MjQ3Yjc5OGE5MTdmMjgyYzlhZTg2NTYxZjExMDBiYmFhY2FhZDkzN2M5ZjJjZWY4ZTA3N2VjMDc3MSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZWQ5ODQ0Y2U3MWY2NDM4NzJlOGUxMjE4NWFiZDU5YmI2YzM3YjUyMWY0ZjNjNjBhZDAyN2NlNmM5ZTZhMzcyMyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMjYyNzNjYjU0N2M2MjRiOGM3MTljMDQxOGUxNGZkNGJjODMyNzg1NzE4YzcyNDRhM2QwN2RhYzUzNjZlYTg0MCJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_a749f210603e4459b520ecaf28126522",
+      "statement": "A custom Gradle task 'patchDjlNativeLibs' of type 'ElfPatcherTask' scans the classpath configurations for libraries from 'ai.djl', 'WhisperCore_Android', 'onnxruntime', 'EberronBruce', and 'vosk-android', extracts and patches their 'arm64-v8a' ELF binaries, and outputs them to a generated directory.",
+      "evidence": [
+        {
+          "resource": "repo://build.gradle#L123-L137",
+          "version": "repo-lines-v1:sha256:472d0e84d1a4c1af2da0710ee6fa8a8accdf853a0d081d5b8558c63cdc007936:eyJzZWxlY3RlZExpbmVDb3VudCI6MTUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjA1M2Q5OWM5NmFmNDk0NDA0MzA2OWRkOGMyNWIyNDYxMjAwZDRiZmQzNjVkNDYxYzA4MWU2Yjc1MGNiZGFjMjQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImI3MzljYjI4M2E2YzA0YzBkMjkwZWVkZDJlMTE2MGFiNjVhYzc3OGExNDg0ZDg5ODhmYzA2Mjk1MTY2YWQ4YzMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImI3MzdiMjhmN2JlNGZkMzBhMWQ5OTdmM2JiYWUxMTMwNDhjNWRlN2FhN2IxNWI1OWYxOWI4ZWQwMjVhZjFlZmUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_64c5854559ba4f27810097dc7c69f675",
+      "statement": "The dynamic JNI library output path from the ElfPatcherTask is added to the 'sourceSets.main.jniLibs.srcDirs' collection, allowing the Android Gradle Plugin to package the patched libraries into the application package.",
+      "evidence": [
+        {
+          "resource": "repo://build.gradle#L81-L85",
+          "version": "repo-lines-v1:sha256:5f3c0ea80dd35629b73220fe7fee37470e5e9263d2b3a56143e9dba9110f44e7:eyJzZWxlY3RlZExpbmVDb3VudCI6NSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZmFkYTRiNWNhYWFiZTE1ZTg0N2M3YTY1ZDllNDNmNTg0MzFkMTcxYTA3NmJlOTkxZGJiYmM4YThjMTEyMGFiNSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDg5M2Y0MGUzNzgxZWI4OTZjODJkMDQ2YTA4MDY3YTExZTM1Y2RmMmYxZGZhZjI2ZmVhOTBiOGRiNjY3NjQxMyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiOTk5YmRlZmVlYWNhNjM0MGUwMjkwZGM4NmU4ODljODlkNWUxODlhYTViYTQ0YjU4NWIzYjcwNzM0ZjRhNjJkOCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZWZhYzljNGViYjBmZTMyMzNkYWJiMjg1ZGRmYTNlNTY0YTJiMThiOGQ1MWVlN2RhOWQ0MTQ1OTRjMDk1YjA5MCJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_31e530ecace44389a9bfbaad4f541fa8",
+      "statement": "The custom 'patchDjlNativeLibs' task is registered as a dependency for all native library merging tasks (merge*JniLibFolders) to ensure binary patching is executed before packaging.",
+      "evidence": [
+        {
+          "resource": "repo://build.gradle#L139-L143",
+          "version": "repo-lines-v1:sha256:710257d9d8352936640073f4b1c3b0466aa0b8d2b65655ae6408ed7970f0ca93:eyJzZWxlY3RlZExpbmVDb3VudCI6NSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiOWU4MzE0NDQ3Nzc3NzM4MTgwOTdjOGE3ODlmYTMxOTY5OWM5MWZjMTc1ZjBlMTdlYzc0NmM4MWRiYzE3NDNlMiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDEyY2EzNDVjY2Y3NWJmOWMwODA2YmNlNjk1YmU4ZGU4MDhiNzk5ODQyNTFhN2E1NGQyMDJjZjYxMDFkZDQ1MSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMzNmNTIyZWI0OWJjOGQwODI0NzMyNGQ4YTVhMDVkZTA3MDA3MmNmMTc4OGI0YTA1MGQ4MzJmY2IwYmMyNjZmMSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNmEzY2Y1MTkyMzU0ZjcxNjE1YWM1MTAzNGIzZTk3YzIwZWRhOTk2NDNmY2FmNWJiZTZkNDFhZDU5YmQxMjE2NyJ9"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.5.2",
+    "at": "2026-09-22T15:37:24.200Z"
+  }
+}

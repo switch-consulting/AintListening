@@ -1,0 +1,58 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:962a0d6fa7d3f831fdf92955f6e7dbc8b7e6bfdf65207b79f1648486a8bb81aa",
+  "claims": [
+    {
+      "id": "claim_7fe8ca4f47a04cc991df30dfdb73d26a",
+      "statement": "The build process uses Gradle targeting Android compileSdk 37 and targetSdk 37, requiring JDK 17 compatibility.",
+      "evidence": [
+        {
+          "resource": "repo://build.gradle#L24-L31",
+          "version": "repo-lines-v1:sha256:2fe0a590563f5d39382e1f6c4e7288ebe0f869dee5ff91883ccb9bc710f61409:eyJzZWxlY3RlZExpbmVDb3VudCI6OCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZWFkNDUxNzc4ZjE0ZWMxODgwYTI1YmEwN2JkNDMxYTFkNDJiNDViY2ZjMDYwNzlkNTQxOTUxNjRhMzZhZDJiYyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNGQ5M2IxODVmZTcwODYzOWViODBmYTUzODM5OWFkNzcwYjA4MGZhZWI5YTA0MWM3ZTk5MmU3ZDE2MjFmODJmNSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMWRhMTE5OGMwMWVlMTY5MDNiZjVkYTA4ZmY5OTI5N2U2ZmIwMjUwZjRhZWI0YzMzNjlmNGI5YjM2ZGMyZTMzMyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNzUxZDAxZjJhNTExOWM2MjBhNDVhZjU3ZjYyNDA0OGI0OTViYTY1ZWQzMTAyNWM3MTZiZjkzNTc3NzNlMDAzOCJ9"
+        },
+        {
+          "resource": "repo://build.gradle#L50-L53",
+          "version": "repo-lines-v1:sha256:fc379d5e945e5f4ba74a250b76b772b48138963581c1192dde46dd43e922e8aa:eyJzZWxlY3RlZExpbmVDb3VudCI6NCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNmJhY2M1MmYxYWM1MDQ2ZTE4YmEzNmJkM2IwMWI0MzhkNWZhYjI5NzNkZGJlNTNjMWNhMGVlMmQxNGJjMTU2YiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDg5M2Y0MGUzNzgxZWI4OTZjODJkMDQ2YTA4MDY3YTExZTM1Y2RmMmYxZGZhZjI2ZmVhOTBiOGRiNjY3NjQxMyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiOTk5YmRlZmVlYWNhNjM0MGUwMjkwZGM4NmU4ODljODlkNWUxODlhYTViYTQ0YjU4NWIzYjcwNzM0ZjRhNjJkOCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNmNkMjk0YTY3ZTg1NTkzNjllZWFlZDZlN2VhMTk1MGZiNjlhYTY2MDUzZDIxN2FiNjM3OGNlMWY0YjczZGVkYyJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_a141f4fe37e74fe5b3515da0d4b1a023",
+      "statement": "The app targets 64-bit systems by filtering ABIs specifically to arm64-v8a and x86_64.",
+      "evidence": [
+        {
+          "resource": "repo://build.gradle#L35-L38",
+          "version": "repo-lines-v1:sha256:33493a67fd2426be1c7bef4660eb68317a1689d29edff261f10192a60029e4b4:eyJzZWxlY3RlZExpbmVDb3VudCI6NCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNTRiYjU2M2VhNzlkYjMzODY0MmM4ZGM4Y2QwNjYyM2ZiOGFkNTZlMjQ4NThkZjg4YTBjMjI1ZWVjYWVjNWI4NyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDg5M2Y0MGUzNzgxZWI4OTZjODJkMDQ2YTA4MDY3YTExZTM1Y2RmMmYxZGZhZjI2ZmVhOTBiOGRiNjY3NjQxMyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNzUxZDAxZjJhNTExOWM2MjBhNDVhZjU3ZjYyNDA0OGI0OTViYTY1ZWQzMTAyNWM3MTZiZjkzNTc3NzNlMDAzOCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYjA3MGI1Mzg2MDFhYWY3NDE4Yjg5OGJjNTlkZjZjMTk0NzFjMzBjMTQxY2I0YmY0NTUyZmNmZjFhNTM4ZGZiNiJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_4abd0f12dd814fa3a93be27e5b78c2b7",
+      "statement": "Model and asset management is anchored around the app's internal filesDir, storing offline language models, shared multilingual ONNX punctuation/formatting models, and temporary audio chunk files.",
+      "evidence": [
+        {
+          "resource": "repo://src/main/java/de/switchconsulting/aintlistening/data/ModelManager.java#L110-L115",
+          "version": "repo-lines-v1:sha256:7cd5f972f156b31f769b80be643a8e21c0f683d491a3724d96f680cc4fbba493:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiODE2MzJlNDY2YWQyNGZkNDZlMjBjN2U4ZDg2MzI3Zjk5Yjc5M2I0ZmE5MmNiNzZiYzgwNzA3OTBhZDY1YzAyMyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiODI1MWJmYWJjZmI2ZDg5ZmQ5ZjRlM2I3YmM0YTE3NGZkOTBjOTk4MTg2ZTRmZGUyYzhmYTM0ZTZkNWMyOTNhYSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiODRjZGZkMGYxNmMwNDYzNDNjYzkxZDRmYjUwOTFhZjg0Y2RhM2ZjODZlNTc4ODI3MTQzMTQwNGFiYzczNjFmZCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMDZmMzFhYWEwNTRkY2NhNjk1NWU5ODk3MWI2NWZlNzI0NWI1ZTZmOTljN2EwMmRjOTAyNDUwZDM0MWRmN2NkYyJ9"
+        },
+        {
+          "resource": "repo://src/main/java/de/switchconsulting/aintlistening/data/Persistency.java#L285-L290",
+          "version": "repo-lines-v1:sha256:2596e35eae26b20627fa20170696e5edc5ce93cd9809e7abb4889b811b6d662d:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZWM4MGRiYmU0YTAyZDIxNDgyZDQ0YjQxNTk0YzA0NTIzNTQwNjczMDI1NTcyYjllZDc1NThlODE5MjNmOWFiMCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYzlhODU3MmI4ODhiMDhmNzk3OThhMTlhY2FkMWVmZGFmZWQwMjcwNDI1YTNlMWMyMmQ4ODhkMTA2ZDY1NjgzYiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMWUwOWY2MjI1MmEyYzVjZThlNTQ1OTNkYTkwODk2ZGQ3MTI3ZWIxZDM5NjIwMDNjZWI5ZmEwMDJmOTYwZDVlMSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYjk5YjU0NzA3NDgxZjI4MmYxOWI5NTdhNGNmMmY5ZTUwYmU5NjZjZDNhMWExY2MzYjZkZWY3ZDVkYjdmYTA4OCJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_3ba24c3275434d8ba69092bc90687023",
+      "statement": "To resolve runtime linker compatibility on modern Android versions, a custom Gradle task named patchDjlNativeLibs runs ElfPatcherTask to extract and modify ELF dynamic libraries before packaging.",
+      "evidence": [
+        {
+          "resource": "repo://build.gradle#L121-L143",
+          "version": "repo-lines-v1:sha256:ca6b8788b9034ad207aae3abe83ba2ea2307e5f9f372dd8d9394e1db9426efe0:eyJzZWxlY3RlZExpbmVDb3VudCI6MjMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY5ZmQyYTk0NDI5ZWQ4N2I2YjE4MmQ4Y2RkYjJjOTQ2MTNjYzFmMDAxNmYwMjRmYjNlZGQyMjg2NGNmYTZiNzUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjRjZDAxYzcwMGY2M2U1ZTI4OTY0ZDJhOTdjZDlmNzBlOGJkYmFiNTM3YTdlNjc1ZmEwZWQ0ZGI2YTEyYTNmZTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjZhM2NmNTE5MjM1NGY3MTYxNWFjNTEwMzRiM2U5N2MyMGVkYTk5NjQzZmNhZjViYmU2ZDQxYWQ1OWJkMTIxNjcifQ"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.5.2",
+    "at": "2026-09-22T15:37:24.200Z"
+  }
+}

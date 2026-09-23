@@ -1,0 +1,60 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:21fdf5a0965eda86623173c6ca0b36bb1b051f45d3c89953b69fe1babe5d8251",
+  "claims": [
+    {
+      "id": "claim_1150c0d8c915499c972cb7e7893200f4",
+      "statement": "OnnxSmartFormatter loads an ONNX model from model.onnx and a HuggingFace tokenizer from tokenizer.json from the application's internal files directory, establishing session input and output mappings for post-processing transcribed text.",
+      "evidence": [
+        {
+          "resource": "repo://src/main/java/de/switchconsulting/aintlistening/formatting/OnnxSmartFormatter.java#L87-L124",
+          "version": "repo-lines-v1:sha256:ec53b6aedf32fdcc99e70f54a6fcf6e176d835e355fcc289f54bd1c18eaec90d:eyJzZWxlY3RlZExpbmVDb3VudCI6MzgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQ2MzBiMTI4YjEwZTRhN2E1YTdiMjA4ZTY4OTUwOTE5ZTY2MDMwM2RmMWE2MDZmMGI5YmFjODI5MjcwMDIxOGUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjE0MTlhNmRjYzA0ZTIxM2EzYzdhNzdhNDU2YjAxZTc2ZDFlZjc4Y2QwMGJiZWMxZDhmODE0NThmZTkzZWRjNTYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjI4NTk2NjhhMjQzMDE0NjQyMTU2YmM5NjYxNjM5NmVhNjdlNjcyNjFlOTY3YmNlMmE0YzY2MzJlNTBhNzYyYjAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjM5M2Y1OTQ5NGQxZjJhZDQwNjc1NDExMjQ2OWIyZWQ0ZTZiMmFjZjBlODI1ZDc2YTgzYTdkZmRlMTIyZjQzNTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_208ed4de64ea4935bc122435b45529fe",
+      "statement": "OnnxSmartFormatter performs ONNX model inference using dynamic input mapping of tokenized input IDs and optional attention masks, extracting multi-head predictions for pre-punctuation, post-punctuation, character capitalization, and sentence boundary segmentation.",
+      "evidence": [
+        {
+          "resource": "repo://src/main/java/de/switchconsulting/aintlistening/formatting/OnnxSmartFormatter.java#L160-L243",
+          "version": "repo-lines-v1:sha256:735f7707193cc7d2c50a378373f5f21173f1ab3d2d37d78a4ebf7984ea9e9699:eyJzZWxlY3RlZExpbmVDb3VudCI6ODQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImExYmFjNWQ4ZGNjOWM5MGYwOTFmNWNmZmZkNWFjNTAyNWM4MmVjMzhkN2EyNWI0N2E3ZTE2NTU0MjVkMGFlMzYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjE0MTlhNmRjYzA0ZTIxM2EzYzdhNzdhNDU2YjAxZTc2ZDFlZjc4Y2QwMGJiZWMxZDhmODE0NThmZTkzZWRjNTYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjIzOTU0MGI1ZWNjMzRjNjE5MWNkYTlkYzllZDVhMzNkMjFhZWU1ZjI5MTNlYzAzZjExMDIzOWQ1YTc3NWVjYzAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImY4NzliMTRlMWM1NDdjZGVjNGQ1NDYyYzdmNzE0YWEyZmZmYzc4MmMwMjc1Njc3ZTY3ZmJjZDNlZDkwZGJlNTkifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_2db9aac903694a44b3d17ad8dcf6397e",
+      "statement": "The reconstructTextBadCode algorithm merges SentencePiece sub-tokens into complete words, applying pre-punctuation, post-punctuation, acronym-expansion formatting (interspersing periods), character capitalization, and setting sentence boundary triggers to capitalize the next word.",
+      "evidence": [
+        {
+          "resource": "repo://src/main/java/de/switchconsulting/aintlistening/formatting/OnnxSmartFormatter.java#L284-L382",
+          "version": "repo-lines-v1:sha256:ddc6fe444a52276929d49ba35e63878d540e9f1cad7adc3f5aa89f61539817d4:eyJzZWxlY3RlZExpbmVDb3VudCI6OTksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImViMzgzM2RmNjc0MThiMDZiMGJlYWFjNjEzZDg4OWM4Y2ExYjg2MjllMmVmNjBmNTc5OGVlOGE3Yzc4YzlhYjAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjE0MTlhNmRjYzA0ZTIxM2EzYzdhNzdhNDU2YjAxZTc2ZDFlZjc4Y2QwMGJiZWMxZDhmODE0NThmZTkzZWRjNTYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjExNjE2Yjg2MDE2NDVkYzk5ODliNTY1NTA3ODJkMGY4MmI1NjE2NDIxZWM3MjlmMDQxZjllYzFmYzYyNTE4OWMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImVkNmIwMzBmNzQ1NDk5NGQxNThjYzgwZjg0OTk4ZjJmMzUyZDJjMGE1NmQ0ZjNkMDYwZGFhZGVhNDlhNGQ0OGYifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_b50174212a6a41998eb17df049c07ade",
+      "statement": "TranscriptionProcessor applies smart formatting to transcribed paragraphs incrementally on a background thread, notifying the user interface via progress callbacks to allow real-time display updates.",
+      "evidence": [
+        {
+          "resource": "repo://src/main/java/de/switchconsulting/aintlistening/data/TranscriptionProcessor.java#L142-L184",
+          "version": "repo-lines-v1:sha256:68b8ff9febefa16885031649cfcb2c8c66a81f5dc03710ba6fe562846e1aa5c0:eyJzZWxlY3RlZExpbmVDb3VudCI6NDMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjVlNjA5MTdmYjQzMzgyNzU4MTU4OTYyMmQyYjFiYTdmNDc3NGVkYmVmMmFkYmE3ODdhNWMwNTVkZDlkNThhOTciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjYxYzU4ZmVkNzk1ODY1ZTAzM2Y4OWU0MzQzNTQ2NTMwZjEzNzIwZjM2YTY5NDdlMzI0OWJlOTgzODU5MDI5Y2YiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImI0MGMyYmEzYmFjMGE1ODViNzliNDljOTcwMzg5MDg2ZTdlYWY4OTQyMzJjNTU1MGRhMWFmOWRkNmVhYTg3NDkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImY0ODIzZWNmZGM0ZTNmZjFkMTQ3MWNkNWU1MGFkMzA1ZmNhODJkYzdiYzgzOTgzZDczODI1YTllNTFmNThhNjAifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_1e1483e84d03402ab30614f8131024c8",
+      "statement": "SmartFormatterTest mocks the Android TextUtils class statically to run within local JVM environments and verifies reconstruction assertions for word splitting, German noun capitalization, and acronym handling.",
+      "evidence": [
+        {
+          "resource": "repo://src/test/java/de/switchconsulting/aintlistening/SmartFormatterTest.java#L36-L114",
+          "version": "repo-lines-v1:sha256:eb5bdba85cd28ec78e7cbfbfd95f6ea44d912497d73c967bdf104b65c57f22ef:eyJzZWxlY3RlZExpbmVDb3VudCI6NzksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjhhMGZmM2ZjNTZiNWUyMGJiYjUxN2FhM2IyMjMwN2VmMzExMWViZTdjNTYzOGI1NzE2MWUyOWE2ODU0NjU4NTUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImNlMTFkOThhNWQwN2E0MTZlOGQ1OTM2MGQ2NmZmZTY3ZWE3MTA0Nzc2MDYyOGZmMjgwYTEwZDhjNjg3M2ZlMTAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.5.2",
+    "at": "2026-09-22T15:37:24.200Z"
+  }
+}

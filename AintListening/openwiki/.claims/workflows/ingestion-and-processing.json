@@ -1,0 +1,124 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:5de4a077bb3e5e2bd474ef5a5d86718f20ce226bf8db85c00b03b0781cf6358b",
+  "claims": [
+    {
+      "id": "claim_51ecdcbbc1714d8898090a8f3aeebdc6",
+      "statement": "MainActivity intercepts the Intent.ACTION_SEND containing an audio/* MIME-type stream and uses ModelManager to resolve installed language models, prompting the user if multiple models are available before delegating the transcription request to the ViewModel.",
+      "evidence": [
+        {
+          "resource": "repo://src/main/java/de/switchconsulting/aintlistening/ui/MainActivity.java#L188-L233",
+          "version": "repo-lines-v1:sha256:6f15eb6f085252982077fa23815aaa101ab4b0da31ae396d9cce2717a54283a3:eyJzZWxlY3RlZExpbmVDb3VudCI6NDYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjZiMGQzYzQyNWI0MmVjZTg5YTIzYjJiNzExMDBhYTlmYWU3OWMxYmExZjdjZTQ5ZDMxOWRkMTIxNDI4MjVlZTYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjE0MTlhNmRjYzA0ZTIxM2EzYzdhNzdhNDU2YjAxZTc2ZDFlZjc4Y2QwMGJiZWMxZDhmODE0NThmZTkzZWRjNTYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjhlMDA4MmJlMTZlYjRmNzFlOTNmZGE5Nzg5NjY2MjlhNGY2YjRjYmQ2NjllNzQ2YjcwNDMzMmFiODRkOTE4NzEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImQxNWNiNTQyNzA3MjVlNDc4ODc1YTNkMWE0MjA2Mjg2MDZhZWYyYWJkNzMyNGVmMmIxMGUyNWQ5MjVmMTE3OGQifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_477d74255d554c35ae130152b1a18408",
+      "statement": "MainViewModel dispatches incoming transcription tasks to the TranscriptionProcessor off the main UI thread and observes state updates via standard Android LiveData, posting progress, partial text results, and final paragraph listings back to the UI.",
+      "evidence": [
+        {
+          "resource": "repo://src/main/java/de/switchconsulting/aintlistening/ui/MainViewModel.java#L62-L93",
+          "version": "repo-lines-v1:sha256:33fc928b1c0afaa025777e66f7e7d79aa67b471968151ba08350f40f02a83c16:eyJzZWxlY3RlZExpbmVDb3VudCI6MzIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImM4MWIxMDY3OGRjODNhNmVmNmRhY2E4MzMzY2MzYzZkMDk4NjEwYjRiZWNmZjJiYmVlNGMwMjNiNTgzOWZiMDciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjE0MTlhNmRjYzA0ZTIxM2EzYzdhNzdhNDU2YjAxZTc2ZDFlZjc4Y2QwMGJiZWMxZDhmODE0NThmZTkzZWRjNTYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjQ1ZDNkOTJkZDcxYmU4NTNhOWQwN2JiNDhlOGVhNzcwMjg0MzI2NDVhMzQ0MWFlODE0M2I3MDA2YWYxMGFhMzMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjFjOTNkNGQ0YWNmMThjNzU2NDI4OTNlNTRlNGJlYjA0M2IzZjg4ZWQzZWI4MGE5M2IzNTM4NjQ1ZWIyYzE1MmIifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_054d254ba88b4811bd1b6006889b89d2",
+      "statement": "TranscriptionProcessor coordinates background execution through a dedicated instance-level single-thread executor to sequentially execute temporary file cleanups, decoding, speech-to-text transcription, and deep-learning-based smart formatting.",
+      "evidence": [
+        {
+          "resource": "repo://src/main/java/de/switchconsulting/aintlistening/data/TranscriptionProcessor.java#L53-L53",
+          "version": "repo-lines-v1:sha256:14209d2f191e66ea131c8cdd8c246605e3541b46ab45981491c646ff9c3cb4b0:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMTQyMDlkMmYxOTFlNjZlYTEzMWM4Y2RkOGMyNDY2MDVlMzU0MWI0NmFiNDU5ODE0OTFjNjQ2ZmY5YzNjYjRiMCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMTQyMDlkMmYxOTFlNjZlYTEzMWM4Y2RkOGMyNDY2MDVlMzU0MWI0NmFiNDU5ODE0OTFjNjQ2ZmY5YzNjYjRiMCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMDI0Njc0MmU5ZTgwZjA3N2FiMWI0NmY3ZDEzZjdmNjMyZTZiNzMxOTM3MzdmYWExMjQxYTM1OTJhMDkyNDEyZSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYjI4MTA0ZDY1MzhlNTc4MmQxMWNkZDVkNTEyZjZjM2JmNjdlYWVlMTdiNzVhYjY0NDI3NTE2MWViOTgwZWQ2MyJ9"
+        },
+        {
+          "resource": "repo://src/main/java/de/switchconsulting/aintlistening/data/TranscriptionProcessor.java#L78-L133",
+          "version": "repo-lines-v1:sha256:b1d0f6748ddbdba86bf98470c93bca5afde773641751e9bc78c86b60136576c1:eyJzZWxlY3RlZExpbmVDb3VudCI6NTYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjkzOWFkMDA1ODA4MjNkZDE0NWNkMzdhMzk5MjE2NWYxMjI2OWE5OTJiNzVlYzY0ZmMzMzg4Nzk2NjdjY2EwMDgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjE0MTlhNmRjYzA0ZTIxM2EzYzdhNzdhNDU2YjAxZTc2ZDFlZjc4Y2QwMGJiZWMxZDhmODE0NThmZTkzZWRjNTYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjNmNjQ1YzFlMDI4ZDYyM2I0MzczZTIwZDY5MDRmM2NiYTdkM2FlNDc2NTc1YTc4ODhlYmUwZDYzMDM0ODk1NzYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjE2N2VkZjMyN2E0OGE1OTYxMGEwNzI0NTcyOWY2MTgzYzFhMDk5OGM5N2UxZDU0ZDI1YmQ5MGY3NGQ4MjBkZGEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_a4901c98f7e84e70b9d4c9a3849ab358",
+      "statement": "ModelDownloader utilizes a dedicated static single-thread background executor to fetch and unpack model binary weights asynchronously, avoiding thread contention with transcription workloads.",
+      "evidence": [
+        {
+          "resource": "repo://src/main/java/de/switchconsulting/aintlistening/data/ModelDownloader.java#L47-L47",
+          "version": "repo-lines-v1:sha256:68a0f485c71382149d1cfdef7074e0f93fbdadc19c30eaccdc60b6e084a0c1f6:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNjhhMGY0ODVjNzEzODIxNDlkMWNmZGVmNzA3NGUwZjkzZmJkYWRjMTljMzBlYWNjZGM2MGI2ZTA4NGEwYzFmNiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNjhhMGY0ODVjNzEzODIxNDlkMWNmZGVmNzA3NGUwZjkzZmJkYWRjMTljMzBlYWNjZGM2MGI2ZTA4NGEwYzFmNiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMTExZDIwZmY3Njc3ODEwM2NlYjRmNjBiMjMzNzU3YmNhZDU0ZWYzYTE4NDM1ZTNlOTA1ZDEyOTIzMjdjMWU3YyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYTFhNDA0ZWUwNGU0NmY4NDdmMmJkMTg5OTJiZGY4MjcwZmI2ZWIyM2I3Yzg0YTY1YjcwN2EzMzMxZmY0MmExMyJ9"
+        },
+        {
+          "resource": "repo://src/main/java/de/switchconsulting/aintlistening/data/ModelDownloader.java#L58-L66",
+          "version": "repo-lines-v1:sha256:ce02865a783ba7e37909c5138bea54a22329369f1ec077ac21c075b032e67f44:eyJzZWxlY3RlZExpbmVDb3VudCI6OSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMjA3YzZlZTllNjE2MjQ0YTBjNGI4ZjVmZTI5OWJiMmMyYmI1ZTA5NjE5NTQyZDYxNDdiNjI0YTY1YmE0ZTMwMSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNmQ5ZjUyYmVlN2FlZWI3MDYzNjk3M2M4NGI4NmFjNjFkOWFkMDlmNGU3YjZhNWNjZjYzMGRjMDRlNjk3MGQ0OSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNjc3ODZiNGFmMTI0ZDAwYzMyMmQ5MTAwZGIzMGRkMzI0M2NiMTFiYmM5NmQzYzFhNzZmY2NkNWZhZWZkNzk0YiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMDY3ODViY2EyYzFhMzVhMWQ0OGI5N2Y2MzU2NzgzZTI0YzNkODExZGNiMmY1Y2YxODM2YmYxOTE1NTc3MjNhNiJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_f91e95b76e4f43cc98d0a84dcb46b285",
+      "statement": "OpusToWavDecoder uses Android's MediaExtractor to select the audio track and MediaCodec to decode Opus and other audio formats into a raw PCM stream, downmixing stereo channels by averaging and down-sampling to a constant 16kHz sample rate before writing a valid RIFF-WAV header.",
+      "evidence": [
+        {
+          "resource": "repo://src/main/java/de/switchconsulting/aintlistening/util/OpusToWavDecoder.java#L163-L185",
+          "version": "repo-lines-v1:sha256:dbd2d94154a55063f4c02749aff2d892506617533c2d8b0c84b1f5a21e14a590:eyJzZWxlY3RlZExpbmVDb3VudCI6MjMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE5ZGRlZGJiZWM0YmQ4OTM4MzZkZGJiMTBlZGVjMmNmMzZhNzU4MmM1OGYwNGQ2MTdmZjE3Yzc4MGY0ZTVkZGYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjE0MTlhNmRjYzA0ZTIxM2EzYzdhNzdhNDU2YjAxZTc2ZDFlZjc4Y2QwMGJiZWMxZDhmODE0NThmZTkzZWRjNTYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjdmOGY3ZGRjODUwMjFkMGRmMmFhYjY5ZDUxNmZlNjVlNDFlYWVkN2Q4ZmM3ZmM5NzdkNTFiNzE1MDdiNmYwZmUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjM1MjhjOTJiYTZjNDg2OTJjNmE4MjM4ZWQ5MTEwNDZkYWQxMjlhY2EyNjhhZTgxN2ZiYzhlNWIzMTlmOGE1YjYifQ"
+        },
+        {
+          "resource": "repo://src/main/java/de/switchconsulting/aintlistening/util/OpusToWavDecoder.java#L187-L241",
+          "version": "repo-lines-v1:sha256:d8efac4ffbea271516dab00cb8558ef289106fc5137cce3b78028dc8e5ddbb1a:eyJzZWxlY3RlZExpbmVDb3VudCI6NTUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImJhMmQ4ZjQ5ZTBkNDZkMGIxOGE1MjliNTY4Zjk4M2ViMWQxNjA3YmY3YzY4ZmEwM2EwNDM3YTA3NGM4MTA5ZjAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjE0MTlhNmRjYzA0ZTIxM2EzYzdhNzdhNDU2YjAxZTc2ZDFlZjc4Y2QwMGJiZWMxZDhmODE0NThmZTkzZWRjNTYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjQ3MDJjMWFhNDMyYTJlZGE2N2IyNDlhZDEzNGE2NzVjYTI4MWNjZDUxMzkzNjVjY2NkYjdhNWNmZTQzMDM3NGUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUyMmZhYTUzNWJkMmVhM2Q1MmU3NDFlZDQ1NDQzNWI3ZmU0OWU4MzU4NmU5NDNkOThkODJiYmZiMjRkMWY1YzUifQ"
+        },
+        {
+          "resource": "repo://src/main/java/de/switchconsulting/aintlistening/util/OpusToWavDecoder.java#L60-L135",
+          "version": "repo-lines-v1:sha256:51198fdcf0e7392059601c546d210d4031315762f117e2558af52a1cd0e26267:eyJzZWxlY3RlZExpbmVDb3VudCI6NzYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjEzMjBjZWI0MmE2NGMxYmE5NzEwZDhkZGVjMDFjYzc3N2JlNjFjOWQ5Y2M0YjJhOTE2ZTk4OGI2Y2ViYzc4ZDgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImM5YTg1NzJiODg4YjA4Zjc5Nzk4YTE5YWNhZDFlZmRhZmVkMDI3MDQyNWEzZTFjMjJkODg4ZDEwNmQ2NTY4M2IiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjUwYzgwOTM2OTAzNDhhNGRiYmZlNDE1ZjRhNDFmN2JkYzkwNzRhZmY3Y2E1MGM3N2M4ZDZiYzgxZmFmMWIzYzEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjAyNTBlZDVkNzZiZjE4ZTM2ZjVkNTRkYmUxYTNmMTZmNGFhYWQ5ZWY2NDJjN2E4MmE5MzQ5YWJiMmE3OWExZjcifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_487088d7ad1c4867b53b45016befded5",
+      "statement": "Persistency guarantees a clean state by wiping all prior segment WAV files inside audio_chunks/ and the main cached WAV file immediately before decoding a new ingestion stream.",
+      "evidence": [
+        {
+          "resource": "repo://src/main/java/de/switchconsulting/aintlistening/data/Persistency.java#L313-L334",
+          "version": "repo-lines-v1:sha256:87ccbaa863ead7619ded71196c912ae65c6dfe0ac2b997269aa6020d3f46dbaf:eyJzZWxlY3RlZExpbmVDb3VudCI6MjIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijc4OTdiZjc1NjQ4OTY4ZThlMWIzYjI4MzcxYmQyNzA4ZDkyOGI1ZGQ1M2JiNWFiYmNmOTI0ZjUyYWIxYzIyNTciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjE0MTlhNmRjYzA0ZTIxM2EzYzdhNzdhNDU2YjAxZTc2ZDFlZjc4Y2QwMGJiZWMxZDhmODE0NThmZTkzZWRjNTYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjQ0NjMwOGExNGIwYTE4YTViYzdlOTEzOWU2ZmMzZDkyM2Q4MzU5MTI4YWE1YTNkZDYwY2ZhNDM0ZTI0MTU4ZDQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUyMmZhYTUzNWJkMmVhM2Q1MmU3NDFlZDQ1NDQzNWI3ZmU0OWU4MzU4NmU5NDNkOThkODJiYmZiMjRkMWY1YzUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_4e0659b805d04f2c9fd403b04e29571c",
+      "statement": "VoskTranscriber splits audio chunks incrementally on silence/segment boundaries as the speech recognition loop is processed, flushing raw PCM bytes of the segment to a file inside audio_chunks/ via the TranscriptionListener callback.",
+      "evidence": [
+        {
+          "resource": "repo://src/main/java/de/switchconsulting/aintlistening/transcription/VoskTranscriber.java#L114-L149",
+          "version": "repo-lines-v1:sha256:e351183d594645d1208f4bf9e4e769f96cb2fd3b801e8151944c7117f8b08a28:eyJzZWxlY3RlZExpbmVDb3VudCI6MzYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijg2M2MxYTBlODlmMDU1MDZhOTAwMWI4OWZmZmE1ODJmNGQ1ODUxYWE5NzRiYjk3Mzk4YzY0OTQ5OTdhNDI0NjgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImM5YTg1NzJiODg4YjA4Zjc5Nzk4YTE5YWNhZDFlZmRhZmVkMDI3MDQyNWEzZTFjMjJkODg4ZDEwNmQ2NTY4M2IiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjYxNjU1YjdlNDgxMDIwNmExZmI2OWNlNjQzYjZlMzExY2JlYzViM2FiNjJiMWQ3Mzc0M2FlOGIzMTI4NWQ5ZWMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjE4YzlkNjQyNDA0ZGVjOWRhOGEzM2ZiMjM4ZWQ5Y2Y4MjFiOWMwMDg5NTlmNDZlNGFiMWE3NzIwMWQ2Zjk4MDQifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_3fa54b792304442aae872da072cd96b7",
+      "statement": "WhisperTranscriber extracts raw segment PCM audio ranges by seeking and reading directly from the source WAV file using a RandomAccessFile based on millisecond timestamps (converted at 32 bytes per millisecond), saving each paragraph's audio as a separate WAV chunk.",
+      "evidence": [
+        {
+          "resource": "repo://src/main/java/de/switchconsulting/aintlistening/transcription/WhisperTranscriber.java#L256-L277",
+          "version": "repo-lines-v1:sha256:a2bf53c650e1ca6540b4b00e63b375ea7f8f51a96b18f4d14a553e38417c8d6a:eyJzZWxlY3RlZExpbmVDb3VudCI6MjIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ5ZmRjYTE1OTBhMzU0NDk2N2Q1MmEyYzljYjBiODc5ZWU3MDJlNjllY2I4NjVmM2Y5MzVkOTFhODlhMjc0YTEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjE0MTlhNmRjYzA0ZTIxM2EzYzdhNzdhNDU2YjAxZTc2ZDFlZjc4Y2QwMGJiZWMxZDhmODE0NThmZTkzZWRjNTYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImM3NTRlYmJmZDhlZmVhNGQ0OWVjNWM3YTM4Yjg3MTYwNWNlNGYzMGM5NTY3NmQ2ZTU5MTBmYzQ4ZjUwMzQ1MTAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjVlMTA0ZDY5Y2Y2MDBlMmE1MGY0NDQ5NDEwOGQ0MTdiNTUxMjk0ZTJkNzM3MDY0NDZkMmIyOTVmNjI0ZDkyODEifQ"
+        },
+        {
+          "resource": "repo://src/main/java/de/switchconsulting/aintlistening/transcription/WhisperTranscriber.java#L294-L314",
+          "version": "repo-lines-v1:sha256:ec45ef1abdd18ca7f4e79ffeda12f4cdd471b0f56aec19508fa896c2afea4041:eyJzZWxlY3RlZExpbmVDb3VudCI6MjEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk1YWYwOTE0MTVjNDdkZGMyYzY1ZGY1OTMwZmIzYTc3ZjE2YTAzZDAzYTc5MzZhNDQ2ZDFjNzdhYjI1YWU3ZjkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjE0MTlhNmRjYzA0ZTIxM2EzYzdhNzdhNDU2YjAxZTc2ZDFlZjc4Y2QwMGJiZWMxZDhmODE0NThmZTkzZWRjNTYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImM3NTRlYmJmZDhlZmVhNGQ0OWVjNWM3YTM4Yjg3MTYwNWNlNGYzMGM5NTY3NmQ2ZTU5MTBmYzQ4ZjUwMzQ1MTAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUxM2JmYjhmMDA0Y2I5NzY3MzFjNDFlNzA0ZjVjZGMxYTExZGQ5YzAxNjg0ZDFkZmRkYTM3NGYxNjhlZGM5MGYifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_e48bd8041f594eba9eeea832cd186c66",
+      "statement": "Persistency serializes the transcribed text (both raw and smart-formatted) along with the associated local audio chunk paths into a JSON-formatted string stored inside private SharedPreferences to enable instant session reload.",
+      "evidence": [
+        {
+          "resource": "repo://src/main/java/de/switchconsulting/aintlistening/data/Persistency.java#L68-L87",
+          "version": "repo-lines-v1:sha256:40d55d9b8e93c491f39452ace087cf0120cef17254a98ec001e84e62e473d400:eyJzZWxlY3RlZExpbmVDb3VudCI6MjAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQ4YTdjMDNmZjc3YWY4MTU3ZmFkYzRlYWRhZWRlM2ZmN2QwNjA0NGVlZTQ0ZTc3MjYxMDQxYjBiZTFmNmIzMzQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjE0MTlhNmRjYzA0ZTIxM2EzYzdhNzdhNDU2YjAxZTc2ZDFlZjc4Y2QwMGJiZWMxZDhmODE0NThmZTkzZWRjNTYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImE3NDUwZmVmMzhlNWNjMmUzZWRhMTJjZWRlMjRkMWE0NGNmNzIxYzg4MzhkZDM3MmJlYjNhZTkxNGNkNGE5OTEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijk4NjBmMGIxNWQ3NzY4YWQxZTJkMTk1NmIzMDQxZDNiNjA0MzU0NTcxZTZkYzM1NDcwMzUzZGZjZGI4ZjBiNGUifQ"
+        },
+        {
+          "resource": "repo://src/main/java/de/switchconsulting/aintlistening/data/Persistency.java#L94-L118",
+          "version": "repo-lines-v1:sha256:321e41c846576420a8719f12e42096119c3f02ac8af00b98e534aa66fb6361e0:eyJzZWxlY3RlZExpbmVDb3VudCI6MjUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImUzNjIwNTllYjdkYzAyNDQ5ZGJjZmM1YzBjMjg3YjZhOGE2MWNjOGZlNDNlM2EwMzYzNGVmOGFjNDUzZmVjNjYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjE0MTlhNmRjYzA0ZTIxM2EzYzdhNzdhNDU2YjAxZTc2ZDFlZjc4Y2QwMGJiZWMxZDhmODE0NThmZTkzZWRjNTYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImIzOWZiMGU4NDIzMTUwY2EwZTljMWIyODI5MThiZjdmNTI1YTdhZWVkOTk4NDExZjIzNTJiYjU5NDU5Yjg0OWQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjA3MmVhMDAzNjcyMmM3YWM4MDRhODNjNGNlOTcyYmIxN2NjZjc0YWExOWNhZTFiZjhkMGIyMzE0Y2Q1NmZjYTUifQ"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.5.2",
+    "at": "2026-09-22T15:37:24.200Z"
+  }
+}

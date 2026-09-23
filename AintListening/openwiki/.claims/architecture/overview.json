@@ -1,0 +1,112 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:0c77ddbef12335589681ddfe6fb0bd9d949ca823901347f5580487090910e15b",
+  "claims": [
+    {
+      "id": "claim_ea6a2d74e29d4e2dafb8feec258975fd",
+      "statement": "The application architecture is layered into Presentation/UI (Android MVVM), Domain/Orchestration (TranscriptionProcessor singleton), Persistence, decoupled Transcription Engines, and ONNX Post-processing.",
+      "evidence": [
+        {
+          "resource": "repo://src/main/java/de/switchconsulting/aintlistening/data/TranscriptionProcessor.java#L46-L70",
+          "version": "repo-lines-v1:sha256:97585371e5cfde98574439b4a8d1e7f8f9e53cffa42d7aa7ce26e1d3d1ff0d7e:eyJzZWxlY3RlZExpbmVDb3VudCI6MjUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI0ZjNhYTZiMzQ5NDI0NDZmYTAwNmVjY2FjNzM1YTVkNjVjNTJlNmIxMzZlZmQxYzgyYWYwN2U4Yjk1NTc3OWIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdlYjcwMjU3NTkzZGEwNmY2ODJhM2RkZGE1NGE5ZDI2MGQ0ZmM1MTRmNjQ1MjM3ZjVjYTc0YjA4ZjhkYTYxYTYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImZkZDA2MDdjMDYzMWJkN2NjODQ5YWJhYzVmZWRlYWE5NGNiZjYyYWJiMTQyZjA4OTdlNzM2OWUzYzk1ODk3Y2IiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjM3ODRiOTI4NzUwZDBlMTJiMzkyOWJhMGFiMzc2ZGQxZGZkYjQwMTI5ZDc4M2M2YzcwM2VmMTUwMDcwZjBlNDcifQ"
+        },
+        {
+          "resource": "repo://src/main/java/de/switchconsulting/aintlistening/di/AppModule.java#L33-L59",
+          "version": "repo-lines-v1:sha256:bc113a0ce66f8e7d9fb16fbbf69033c03c008304cdff94ee9782b9a35b57487b:eyJzZWxlY3RlZExpbmVDb3VudCI6MjcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImNjMDczZmYxZmU0OTVlYTllNDI3ZWIxNjMyZjE1MWVlZDY0ZTkxMzM3MDIxNWEwMDEzNjJkMmEyMGFkMGI0ZDAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImUyMmZhYTUzNWJkMmVhM2Q1MmU3NDFlZDQ1NDQzNWI3ZmU0OWU4MzU4NmU5NDNkOThkODJiYmZiMjRkMWY1YzUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImQyMDc2NWRmZjNjMGI5OTJkZGU3NzFiMTQ2MzlmMzYzMjQ3ODA4OTc4OTdiZDRjMWMyYzBhOTkyMWEzZDNhZmEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_22ab1697f62a45d7b6b309dcb3c87b8c",
+      "statement": "Dependency Injection is managed via Hilt/Dagger, which configures shared resources like the Persistency instance and the TranscriberRegistry in Hilt's SingletonComponent.",
+      "evidence": [
+        {
+          "resource": "repo://src/main/java/de/switchconsulting/aintlistening/di/AppModule.java#L33-L59",
+          "version": "repo-lines-v1:sha256:bc113a0ce66f8e7d9fb16fbbf69033c03c008304cdff94ee9782b9a35b57487b:eyJzZWxlY3RlZExpbmVDb3VudCI6MjcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImNjMDczZmYxZmU0OTVlYTllNDI3ZWIxNjMyZjE1MWVlZDY0ZTkxMzM3MDIxNWEwMDEzNjJkMmEyMGFkMGI0ZDAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImUyMmZhYTUzNWJkMmVhM2Q1MmU3NDFlZDQ1NDQzNWI3ZmU0OWU4MzU4NmU5NDNkOThkODJiYmZiMjRkMWY1YzUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImQyMDc2NWRmZjNjMGI5OTJkZGU3NzFiMTQ2MzlmMzYzMjQ3ODA4OTc4OTdiZDRjMWMyYzBhOTkyMWEzZDNhZmEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_d9b26bf9cb774aac9610421e3de5c84c",
+      "statement": "TranscriptionProcessor orchestrates the end-to-end transcription pipeline asynchronously on a single-thread executor by managing audio conversion, engine loading, callback notification, and smart formatting.",
+      "evidence": [
+        {
+          "resource": "repo://src/main/java/de/switchconsulting/aintlistening/data/TranscriptionProcessor.java#L78-L133",
+          "version": "repo-lines-v1:sha256:b1d0f6748ddbdba86bf98470c93bca5afde773641751e9bc78c86b60136576c1:eyJzZWxlY3RlZExpbmVDb3VudCI6NTYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjkzOWFkMDA1ODA4MjNkZDE0NWNkMzdhMzk5MjE2NWYxMjI2OWE5OTJiNzVlYzY0ZmMzMzg4Nzk2NjdjY2EwMDgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjE0MTlhNmRjYzA0ZTIxM2EzYzdhNzdhNDU2YjAxZTc2ZDFlZjc4Y2QwMGJiZWMxZDhmODE0NThmZTkzZWRjNTYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjNmNjQ1YzFlMDI4ZDYyM2I0MzczZTIwZDY5MDRmM2NiYTdkM2FlNDc2NTc1YTc4ODhlYmUwZDYzMDM0ODk1NzYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjE2N2VkZjMyN2E0OGE1OTYxMGEwNzI0NTcyOWY2MTgzYzFhMDk5OGM5N2UxZDU0ZDI1YmQ5MGY3NGQ4MjBkZGEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_75b4b5899c1146f08ed8ced9a55bc976",
+      "statement": "Speech engine implementations are decoupled through a standard Transcriber interface and managed inside a central TranscriberRegistry.",
+      "evidence": [
+        {
+          "resource": "repo://src/main/java/de/switchconsulting/aintlistening/transcription/Transcriber.java#L26-L72",
+          "version": "repo-lines-v1:sha256:3126cbc100603a680a2b8544d38996bddd2490d486ad4fa07ee1b466d15dd890:eyJzZWxlY3RlZExpbmVDb3VudCI6NDcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjY4YjE3NmIyOTI4NDQ0ODVjNGQ2ZWI1ZDc5OGI1NGQ0MTBlMzlmNjgwYjk2NzlkZjAzYTA5NDVlYjI1NTEyNDAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImUyMmZhYTUzNWJkMmVhM2Q1MmU3NDFlZDQ1NDQzNWI3ZmU0OWU4MzU4NmU5NDNkOThkODJiYmZiMjRkMWY1YzUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImY3MDQzOWRlNWJjM2JmMjZiMjFjMmQ3ZTEyMmVhZDkxZTc4MmQzOTliZDkyNDI2NzBhZjhlMDNmZDY3M2ZkMTAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://src/main/java/de/switchconsulting/aintlistening/transcription/TranscriberRegistry.java#L28-L57",
+          "version": "repo-lines-v1:sha256:afd1ddd4a5157160f604822e56d37715b7121d3d978ac2687ee2f87e4512d89c:eyJzZWxlY3RlZExpbmVDb3VudCI6MzAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI0ZjNhYTZiMzQ5NDI0NDZmYTAwNmVjY2FjNzM1YTVkNjVjNTJlNmIxMzZlZmQxYzgyYWYwN2U4Yjk1NTc3OWIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImUyMmZhYTUzNWJkMmVhM2Q1MmU3NDFlZDQ1NDQzNWI3ZmU0OWU4MzU4NmU5NDNkOThkODJiYmZiMjRkMWY1YzUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImViOGQxZDNhOTY4MTFiNGE5NWU4MTcxZDY1MGRjNTE2MjRjMGFkYjY4ZTQ5ZTQ0MTE3ZWEwNGIzYTljOGQxMzYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_84048e059c3c40d1a11a1f7769bd94c8",
+      "statement": "The Persistency layer serializes transcribed messages as JSON, keeps local settings in SharedPreferences, and organizes file caches and temporary audio chunks on the local disk.",
+      "evidence": [
+        {
+          "resource": "repo://src/main/java/de/switchconsulting/aintlistening/data/Persistency.java#L275-L334",
+          "version": "repo-lines-v1:sha256:de1b6dba50f2693f935ad4a75d7c7b685adb872d38df68c1f367d7fa3a53b41d:eyJzZWxlY3RlZExpbmVDb3VudCI6NjAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImJhMmQ4ZjQ5ZTBkNDZkMGIxOGE1MjliNTY4Zjk4M2ViMWQxNjA3YmY3YzY4ZmEwM2EwNDM3YTA3NGM4MTA5ZjAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjE0MTlhNmRjYzA0ZTIxM2EzYzdhNzdhNDU2YjAxZTc2ZDFlZjc4Y2QwMGJiZWMxZDhmODE0NThmZTkzZWRjNTYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImFmOWE5ZmM1NWI0YWQ1NWEzN2Y1OTE1YzUyZDkyNDBkZDVkZWQ3ZTkxODBlMTI3OWUyMmQzNmNhMmFiNWNkZDYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUyMmZhYTUzNWJkMmVhM2Q1MmU3NDFlZDQ1NDQzNWI3ZmU0OWU4MzU4NmU5NDNkOThkODJiYmZiMjRkMWY1YzUifQ"
+        },
+        {
+          "resource": "repo://src/main/java/de/switchconsulting/aintlistening/data/Persistency.java#L68-L118",
+          "version": "repo-lines-v1:sha256:4a5089512181619bfc6d738710f8946030f8419dae9b8b5a3137b6b2e5eed661:eyJzZWxlY3RlZExpbmVDb3VudCI6NTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQ4YTdjMDNmZjc3YWY4MTU3ZmFkYzRlYWRhZWRlM2ZmN2QwNjA0NGVlZTQ0ZTc3MjYxMDQxYjBiZTFmNmIzMzQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjE0MTlhNmRjYzA0ZTIxM2EzYzdhNzdhNDU2YjAxZTc2ZDFlZjc4Y2QwMGJiZWMxZDhmODE0NThmZTkzZWRjNTYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImE3NDUwZmVmMzhlNWNjMmUzZWRhMTJjZWRlMjRkMWE0NGNmNzIxYzg4MzhkZDM3MmJlYjNhZTkxNGNkNGE5OTEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjA3MmVhMDAzNjcyMmM3YWM4MDRhODNjNGNlOTcyYmIxN2NjZjc0YWExOWNhZTFiZjhkMGIyMzE0Y2Q1NmZjYTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_ce9a62ed935c4a0f80775002a3a8f9ce",
+      "statement": "WhisperTranscriber achieves incremental transcription updates and paragraph grouping by polling whisper.cpp output logs, matching segment timestamps, and applying silence-gap and sentence-ending heuristic rules.",
+      "evidence": [
+        {
+          "resource": "repo://src/main/java/de/switchconsulting/aintlistening/transcription/WhisperTranscriber.java#L147-L246",
+          "version": "repo-lines-v1:sha256:37d6cd078a088cfbee03a945958a65e8c16468a7f0dbc59c04e2bad1c163ea4b:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAwLCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiJhNWM5NzA5YjVkNjhkZmM5ODQyMTU3OTMwZTNhYTc3OTQwNDFmODU3MzlkZDIzODdkNzFjOWEzMTY4YjFkOWQyIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiIxNDE5YTZkY2MwNGUyMTNhM2M3YTc3YTQ1NmIwMWU3NmQxZWY3OGNkMDBiYmVjMWQ4ZjgxNDU4ZmU5M2VkYzU2IiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiIzZTUxYTFkNzk5YmM0MTQzZmNjYmQ1YzIzNGQwZWQyOTg1MjdkMDhkNWEyYTdlZTcwZDM1OGFkYmFkNjgxZDJkIiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiI5YWQ5MzFjNGNkYzI1ZThmMjkwOGY5ZTEzZDgwMWVjNzU4ZDE0MjIxMGY2ODc1ZDRhN2U4NmM0NmRlZDVkYTE2In0"
+        }
+      ]
+    },
+    {
+      "id": "claim_f22f67f763044a6c9d5d3208d82823f9",
+      "statement": "WhisperTranscriber extracts exact PCM audio slices corresponding to timestamped segments from the source WAV file at 32 bytes per millisecond, saving them as sequential WAV chunk files.",
+      "evidence": [
+        {
+          "resource": "repo://src/main/java/de/switchconsulting/aintlistening/transcription/WhisperTranscriber.java#L294-L314",
+          "version": "repo-lines-v1:sha256:ec45ef1abdd18ca7f4e79ffeda12f4cdd471b0f56aec19508fa896c2afea4041:eyJzZWxlY3RlZExpbmVDb3VudCI6MjEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk1YWYwOTE0MTVjNDdkZGMyYzY1ZGY1OTMwZmIzYTc3ZjE2YTAzZDAzYTc5MzZhNDQ2ZDFjNzdhYjI1YWU3ZjkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjE0MTlhNmRjYzA0ZTIxM2EzYzdhNzdhNDU2YjAxZTc2ZDFlZjc4Y2QwMGJiZWMxZDhmODE0NThmZTkzZWRjNTYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImM3NTRlYmJmZDhlZmVhNGQ0OWVjNWM3YTM4Yjg3MTYwNWNlNGYzMGM5NTY3NmQ2ZTU5MTBmYzQ4ZjUwMzQ1MTAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUxM2JmYjhmMDA0Y2I5NzY3MzFjNDFlNzA0ZjVjZGMxYTExZGQ5YzAxNjg0ZDFkZmRkYTM3NGYxNjhlZGM5MGYifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_6744e9f3b99c48ed9737a4a0386bbd5c",
+      "statement": "OnnxSmartFormatter loads an ONNX multi-head model (the 1-800-BAD-CODE XLM-RoBERTa architecture) and runs inference on lowercased input text to predict punctuation, character capitalization, and sentence boundaries.",
+      "evidence": [
+        {
+          "resource": "repo://src/main/java/de/switchconsulting/aintlistening/formatting/OnnxSmartFormatter.java#L160-L243",
+          "version": "repo-lines-v1:sha256:735f7707193cc7d2c50a378373f5f21173f1ab3d2d37d78a4ebf7984ea9e9699:eyJzZWxlY3RlZExpbmVDb3VudCI6ODQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImExYmFjNWQ4ZGNjOWM5MGYwOTFmNWNmZmZkNWFjNTAyNWM4MmVjMzhkN2EyNWI0N2E3ZTE2NTU0MjVkMGFlMzYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjE0MTlhNmRjYzA0ZTIxM2EzYzdhNzdhNDU2YjAxZTc2ZDFlZjc4Y2QwMGJiZWMxZDhmODE0NThmZTkzZWRjNTYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjIzOTU0MGI1ZWNjMzRjNjE5MWNkYTlkYzllZDVhMzNkMjFhZWU1ZjI5MTNlYzAzZjExMDIzOWQ1YTc3NWVjYzAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImY4NzliMTRlMWM1NDdjZGVjNGQ1NDYyYzdmNzE0YWEyZmZmYzc4MmMwMjc1Njc3ZTY3ZmJjZDNlZDkwZGJlNTkifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_5b07b77ae5434f6c8c520ea3ba8da05d",
+      "statement": "The ONNX reconstruction algorithm combines SentencePiece sub-tokens and merges predicted pre-punctuation, post-punctuation, acronym formatting, and multi-character casing to produce formatted sentences.",
+      "evidence": [
+        {
+          "resource": "repo://src/main/java/de/switchconsulting/aintlistening/formatting/OnnxSmartFormatter.java#L284-L382",
+          "version": "repo-lines-v1:sha256:ddc6fe444a52276929d49ba35e63878d540e9f1cad7adc3f5aa89f61539817d4:eyJzZWxlY3RlZExpbmVDb3VudCI6OTksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImViMzgzM2RmNjc0MThiMDZiMGJlYWFjNjEzZDg4OWM4Y2ExYjg2MjllMmVmNjBmNTc5OGVlOGE3Yzc4YzlhYjAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjE0MTlhNmRjYzA0ZTIxM2EzYzdhNzdhNDU2YjAxZTc2ZDFlZjc4Y2QwMGJiZWMxZDhmODE0NThmZTkzZWRjNTYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjExNjE2Yjg2MDE2NDVkYzk5ODliNTY1NTA3ODJkMGY4MmI1NjE2NDIxZWM3MjlmMDQxZjllYzFmYzYyNTE4OWMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImVkNmIwMzBmNzQ1NDk5NGQxNThjYzgwZjg0OTk4ZjJmMzUyZDJjMGE1NmQ0ZjNkMDYwZGFhZGVhNDlhNGQ0OGYifQ"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.5.2",
+    "at": "2026-09-22T15:37:24.200Z"
+  }
+}
