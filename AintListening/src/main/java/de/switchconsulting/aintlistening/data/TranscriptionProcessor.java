@@ -26,6 +26,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -159,7 +160,7 @@ public class TranscriptionProcessor {
                 notifyStatusUpdate(callback, "Applying smart formatting...");
                 ModelInfo targetModel = selectedLanguage.getFormattingModel();
                 if (targetModel != null) {
-                    if (smartFormatter != null && !smartFormatter.getModelInfo().equals(targetModel)) {
+                    if (smartFormatter != null && !Objects.equals(smartFormatter.getModelInfo(), targetModel)) {
                         smartFormatter.close();
                         smartFormatter = null;
                     }
