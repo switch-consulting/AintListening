@@ -16,12 +16,14 @@ Offline-first Android app to transcribe shared voice messages (`.opus`) locally 
 2. Let Gradle sync.
 3. Build and run on device/emulator.
 
-## Vosk Model Setup
-The app requires a speech model for offline transcription. Several languages are supported, including German, English, Spanish, French, and Italian.
+## Speech Model Setup (Vosk & Whisper)
+The app requires a speech model for offline transcription. Both **Vosk** (fast, ~40-50MB per language) and **Whisper** (high accuracy, ~75MB `ggml-tiny.bin`) engines are supported across multiple languages (German, English, Spanish, French, and Italian).
 
-- **Automatic**: Use the **Model Management** screen to download the models you need. The app will fetch and extract them (~40-50MB per language) from alphacephei.com.
-- **Manual**: Alternatively, you can download models from [alphacephei.com](https://alphacephei.com/vosk/models), unzip them, and place the folder in the app's internal storage directory:
+- **Automatic**: Use the **Model Management** screen to download the models you need. The app will fetch them automatically.
+- **Manual Vosk**: Download models from [alphacephei.com](https://alphacephei.com/vosk/models), unzip them, and place the folder in the app's internal storage directory:
   `/data/data/de.switchconsulting.aintlistening/files/<model-name>`
+- **Manual Whisper**: Download `ggml-tiny.bin` from [Hugging Face (ggerganov/whisper.cpp)](https://huggingface.co/ggerganov/whisper.cpp) and place it in the app's internal storage directory:
+  `/data/data/de.switchconsulting.aintlistening/files/ggml-tiny.bin`
 
 ## Usage
 1. In your messaging app (such as WhatsApp), share a voice message via **Share**.
