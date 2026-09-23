@@ -3,9 +3,6 @@ type: workflow
 title: Audio Ingestion & Processing Workflow
 description: Document the end-to-end data flow of receiving, decoding, transcribing, formatting, and saving audio recordings from external apps entirely offline on device.
 tags: [workflow, ingestion, audio-decoding, transcription, smart-formatting, multi-threading, offline-first]
-verified:
-  - by: openwiki/0.5.2
-    at: 2026-09-22T15:37:24.200Z
 sources:
   - id: openwiki-source-1667fbe5aa2896d93d29ef64
     resource: repo://src/main/java/de/switchconsulting/aintlistening/data/ModelDownloader.java
@@ -23,7 +20,10 @@ sources:
     resource: repo://src/main/java/de/switchconsulting/aintlistening/ui/MainViewModel.java
   - id: openwiki-source-4fa4082a9c1fe41de7b15848
     resource: repo://src/main/java/de/switchconsulting/aintlistening/util/OpusToWavDecoder.java
-generated: { by: "openwiki/0.5.2", at: "2026-09-22T15:37:24.200Z" }
+verified:
+  - by: openwiki/0.5.2
+    at: 2026-09-23T10:59:03.026Z
+generated: { by: "openwiki/0.5.2", at: "2026-09-23T10:59:03.026Z" }
 ---
 
 # Audio Ingestion & Processing Workflow
@@ -38,13 +38,21 @@ AintListening features a completely offline, secure, and privacy-respecting pipe
 
 The workflow begins when the user shares an audio file from an external application. `MainActivity` serves as the entry point, filtering incoming `Intent` objects to catch shared media.
 
-* **Intent Interception**: `MainActivity` overrides the activity lifecycle hooks (`onCreate` and `onNewIntent`) to intercept intents with the action `Intent.ACTION_SEND` and a MIME type starting with `audio/` (e.g., `audio/ogg`, `audio/aac`, `audio/wav`).
-* **URI Extraction**: It retrieves the audio stream URI from the intent's `EXTRA_STREAM` parcelable.
-* **Model Selection and Guarding**: Before triggering transcription, `MainActivity` queries `ModelManager` to verify which language models are currently downloaded and enabled by the user.
-  - If no models are available, it warns the user and aborts.
-  - If exactly one model is available, it automatically triggers transcription.
-  - If multiple models are available, it displays a `MaterialAlertDialogBuilder` prompting the user to select their desired language.
-* **ViewModel Delegation**: Once the language is determined, the activity delegates the URI and the selected model index to `MainViewModel`.
+### Intent Interception
+* **Lifecycle Hooks**: `MainActivity` overrides the activity lifecycle hooks `onCreate` and `onNewIntent` to intercept incoming intents.
+* **MIME-Type Filtering**: It targets intents with action `Intent.ACTION_SEND` and a MIME type starting with `audio/` (e.g., `audio/ogg`, `audio/aac`, `audio/wav`). If the incoming intent does not match these criteria, it delegates to `MainViewModel.loadLastMessage()` to display the last saved session instead of starting a new transcription.
+* **URI Extraction**: For valid intents, it retrieves the audio stream URI from the intent's `EXTRA_STREAM` parameter using `IntentCompat.getParcelableExtra`.
+
+### Model Selection and Guarding
+Before initiating the transcription process, `MainActivity` queries `ModelManager` to resolve which language models are downloaded and currently enabled by the user.
+1. **Resolution Criteria**: It loops through `ModelManager.SUPPORTED_LANGUAGES` and checks whether each language is:
+   - Enabled via user settings in `Persistency` (`persistency.isLanguageEnabled(lang.getLocale())`).
+   - Downloaded to local device storage (`lang.hasTranscriptionModelDownloaded(context)`).
+2. **Execution Paths**:
+   - **Zero Models Available**: If no language models meet the criteria, the activity warns the user with a Toast message (`R.string.status_no_models_installed`) and aborts.
+   - **Exactly One Model Available**: If only a single model is resolved, it skips prompting and immediately delegates the transcription request to the ViewModel via `viewModel.startTranscription(audioUri, availableLanguages.get(0).getLocale())`.
+   - **Multiple Models Available**: If multiple models are enabled and downloaded, it builds and displays a `MaterialAlertDialogBuilder` list dialog showing the display names of the available languages.
+3. **ViewModel Delegation**: Once the target `Locale` is resolved (automatically or via dialog selection), `MainActivity` invokes `viewModel.startTranscription(audioUri, selectedLocale)`.
 
 ---
 
@@ -108,9 +116,49 @@ To keep the application highly responsive, fluid, and free of Application Not Re
 ### Thread Responsibilities and Boundaries
 
 * **Main UI Thread**: Responsible for handling user interactions, presenting dialogs, rendering the `RecyclerView`, and animating the progress indicators. All UI-related changes are driven by observing `uiState` (a LiveData stream) inside the `MainActivity`.
-* **ViewModel Dispatching**: `MainViewModel` acts as the bridge. It initiates the transcription process by calling `TranscriptionProcessor.startTranscription` and registers a `TranscriptionCallback` to capture status messages, partial results, formatting progress, and final outputs. Inside the callback methods, it calls `postValue()` on the `MutableLiveData` to safely post UI state changes from background threads to the main UI thread.
-* **`TranscriptionProcessor` Single-Thread Executor**: Instantiated as `Executors.newSingleThreadExecutor()`, this executor processes all transcription tasks sequentially. This is a critical design choice because loading deep-learning models (Vosk/Whisper/ONNX) and running inference is highly CPU and memory intensive. Processing them on a single dedicated background thread avoids thread contention, prevents memory exhaustion, and guarantees thread safety during model loading and file I/O.
+* **ViewModel Dispatching and State Translation**: `MainViewModel` serves as the reactive coordinator. It triggers transcription by calling `TranscriptionProcessor.startTranscription` and registers an anonymous `TranscriptionCallback` listener. The processor executes off the main thread, and `MainViewModel` translates the asynchronous callback events into distinct `MainUiState` values using `MutableLiveData.postValue()` to safely bridge thread boundaries:
+  - **Status Updates (`onStatusUpdate(String message)`)**: Instantiates `MainUiState.loading(message, currentParagraphs)`, preserving already transcribed text, and posts it to notify the user of the ongoing phase (e.g., "Converting audio...", "Loading model...").
+  - **Partial/Incremental Text Results (`onPartialResult(List<TranscriptionParagraph> paragraphs)`)**: Instantiates `MainUiState.loading(statusMessage, paragraphs)`, retaining the active status message while updating the list of transcription paragraphs as speech is recognized in chunks.
+  - **Smart Formatting Progress (`onSmartFormattingProgress(int progress, int total, List<TranscriptionParagraph> paragraphs)`)**: Instantiates `MainUiState.progress("Applying smart formatting...", progress, total, paragraphs)` to update the horizontal progress indicator as each paragraph is processed.
+  - **Completion (`onComplete(List<TranscriptionParagraph> paragraphs)`)**: Instantiates `MainUiState.idle(paragraphs)` to update the UI with the final result and deactivate loading/progress overlays.
+  - **Error Handling (`onError(String message)`)**: Instantiates `MainUiState.error(message, paragraphs)` to display error dialogs or messages without discarding successfully transcribed text.
+* **`TranscriptionProcessor` Single-Thread Executor**: Instantiated as a dedicated instance-level `Executors.newSingleThreadExecutor()`, this executor sequentially schedules and executes transcription workflows. Runs operations sequentially to prevent thread contention, avoid memory exhaustion from loading large deep-learning models simultaneously, and guarantee thread safety.
 * **`ModelDownloader` Background Executor**: A separate static single-thread background executor is used inside `ModelDownloader` to handle HTTP download connections and extract model zip files. Keeping model downloading on a distinct thread ensures that a downloading task does not block or queue up behind a concurrent transcription task, allowing users to manage models while transcribing.
+
+### TranscriptionProcessor Orchestration Flow
+
+When `TranscriptionProcessor.startTranscription()` is called, it schedules an asynchronous task on its single-thread executor to perform the end-to-end processing pipeline:
+
+```mermaid
+flowchart TD
+    start([Start Transcription Task]) --> clear["Clear Temporary WAV & Audio Chunks"]
+    clear --> decode["Decode Audio via OpusToWavDecoder"]
+    decode --> check_decode{"Decode Successful?"}
+    
+    check_decode -- "No" --> notify_fail["Notify Callback with Error"]
+    check_decode -- "Yes" --> resolve_model["Resolve Transcriber & Load Language Model"]
+    
+    resolve_model --> run_transcribe["Execute Speech-To-Text Transcription"]
+    run_transcribe --> check_smart{"Smart Formatting Enabled & Needed?"}
+    
+    check_smart -- "Yes" --> load_onnx["Load ONNX Smart Formatter & Format Paragraphs"]
+    check_smart -- "No" --> save_state["Serialize & Save Session via Persistency"]
+    
+    load_onnx --> save_state
+    save_state --> notify_success([Notify Callback with Completed Result])
+
+    style start fill:#f9f,stroke:#333,stroke-width:2px
+    style notify_success fill:#bbf,stroke:#333,stroke-width:2px
+    style notify_fail fill:#ff9,stroke:#333,stroke-width:2px
+```
+*Figure 2: Sequential control flow of the TranscriptionProcessor.startTranscription() execution.*
+
+1. **Clean Environment**: Wipes any left-over audio artifacts from previous sessions by calling `repository.clearTemporaryFiles()`.
+2. **Audio Decoding**: Converts the incoming stream URI to a standardized WAV file using `OpusToWavDecoder.decodeOpusToWav()`.
+3. **Background Model Loading**: Resolves the appropriate transcriber engine (Vosk or Whisper) and triggers `activeTranscriber.ensureModelLoaded(context, locale)`. This loads the model weights into memory directly on the background processor thread, avoiding any UI stutter.
+4. **Speech-To-Text**: Feeds the WAV file to the active transcriber, receiving incremental partial updates and generating paragraph-level audio chunk segment files via a listener callback.
+5. **Smart Formatting**: Post-processes raw paragraphs sequentially through the `OnnxSmartFormatter` model (if enabled and applicable), updating the caller on formatting steps.
+6. **Persistence**: Invokes `repository.saveLastMessage()` to serialize the results for later retrieval before notifying the ViewModel of complete success.
 
 ---
 
@@ -149,16 +197,27 @@ Since `WhisperTranscriber` processes the entire audio stream and returns precise
   $$\text{endByte} = 44 + (\text{endMs} \times 32)$$
 * The transcriber reads this precise byte range, packages it as a WAV chunk via `listener.onAudioChunkAvailable()`, and maps it to the paragraph.
 
-### Persistency Mechanism for Saving Paragraphs
+### Session Persistence & SharedPreferences Serialization
 
-Once transcription and any applicable smart formatting are completed, `TranscriptionProcessor` saves the final list of paragraphs to the device's private `SharedPreferences` to support state persistence across app launches:
-* **Serialization**: The orchestrator converts the list of `TranscriptionParagraph` items into a serialized JSON array. Each JSON object records:
-  - `raw`: The unformatted transcribed text.
-  - `formatted`: The post-processed text (if smart formatting was applied).
-  - `showFormatted`: A boolean indicating whether the UI should show the formatted or raw text.
-  - `audioPath`: The absolute file path of the saved paragraph-level audio chunk.
-* **Saving**: This JSON string and the index of the language model used are stored in `SharedPreferences` under the keys `last_paragraphs_json` and `last_model_index`.
-* **State Recovery**: Upon launching the app or resuming, `MainActivity` queries the ViewModel, which loads this JSON string and reconstructs the `TranscriptionParagraph` objects, instantly populating the `RecyclerView` without re-running any CPU-intensive transcription.
+To support offline, instant session reloads upon application launches or configuration changes without re-running any CPU-heavy transcription or smart-formatting models, `Persistency` serializes the finalized state inside the app's private `SharedPreferences` (named `"AintListeningPrefs"`).
+
+#### Save Serialization Details (`Persistency.saveLastMessage`)
+When `Persistency.saveLastMessage(paragraphs, locale)` is called, it serializes the entire session state into a single JSON array format:
+* **JSON Array Structure**: Every paragraph in the list is packed as a `JSONObject` containing the following exact fields:
+  - `"raw"`: *(String)* The raw, unformatted speech text transcribed by the engine.
+  - `"formatted"`: *(String, nullable)* The post-processed smart-formatted text containing restored capitalization, spelling corrections, and punctuation marks.
+  - `"showFormatted"`: *(Boolean)* A toggle state flag indicating whether the user is currently displaying the formatted version or the raw text in the UI list.
+  - `"audioPath"`: *(String, nullable)* The absolute local directory file path of the corresponding split WAV audio chunk (`chunk_*.wav`).
+* **Preferences Storage**:
+  - The `JSONArray` is converted to a string and written under the preference key `"last_paragraphs_json"`.
+  - The active language model's locale metadata is serialized under the key `"last_locale_tag"` using `locale.toLanguageTag()`.
+  - The changes are immediately flushed using `apply()`.
+
+#### State Reconstruction Details (`Persistency.loadLastMessage`)
+When `loadLastMessage()` is invoked during app launch:
+1. It reads the raw JSON string from `"last_paragraphs_json"`.
+2. If available, it iterates through the `JSONArray` items, reconstructs individual `TranscriptionParagraph` objects, populating their raw, formatted, showFormatted, and audioPath fields, and adds them to a list.
+3. The list is returned to the `MainViewModel`, which transitions the UI state straight to `MainUiState.idle(paragraphs)`, allowing instantaneous rendering in the activity's `RecyclerView` with operational audio playback buttons.
 
 ---
 
@@ -265,4 +324,4 @@ sequenceDiagram
     MA->>MA: Render paragraphs and enable playback buttons
     deactivate VM
 ```
-_Figure 2: Sequence diagram detailing the ingestion and processing flow starting from an incoming Intent._
+*Figure 3: Sequence diagram detailing the ingestion and processing flow starting from an incoming Intent.*

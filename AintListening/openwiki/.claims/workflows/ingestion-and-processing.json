@@ -1,38 +1,46 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:5de4a077bb3e5e2bd474ef5a5d86718f20ce226bf8db85c00b03b0781cf6358b",
+  "pageVersion": "sha256:e410cbbeeed1696cf30886f9d9b7e580160c897797a134f20a65f4964555f4e5",
   "claims": [
     {
       "id": "claim_51ecdcbbc1714d8898090a8f3aeebdc6",
-      "statement": "MainActivity intercepts the Intent.ACTION_SEND containing an audio/* MIME-type stream and uses ModelManager to resolve installed language models, prompting the user if multiple models are available before delegating the transcription request to the ViewModel.",
+      "statement": "MainActivity intercepts the Intent.ACTION_SEND containing an audio/* MIME-type stream, queries ModelManager to identify enabled and downloaded language models, prompts the user via a selection dialog if multiple are available, and delegates the chosen locale along with the stream URI to the MainViewModel to start transcription.",
       "evidence": [
         {
-          "resource": "repo://src/main/java/de/switchconsulting/aintlistening/ui/MainActivity.java#L188-L233",
-          "version": "repo-lines-v1:sha256:6f15eb6f085252982077fa23815aaa101ab4b0da31ae396d9cce2717a54283a3:eyJzZWxlY3RlZExpbmVDb3VudCI6NDYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjZiMGQzYzQyNWI0MmVjZTg5YTIzYjJiNzExMDBhYTlmYWU3OWMxYmExZjdjZTQ5ZDMxOWRkMTIxNDI4MjVlZTYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjE0MTlhNmRjYzA0ZTIxM2EzYzdhNzdhNDU2YjAxZTc2ZDFlZjc4Y2QwMGJiZWMxZDhmODE0NThmZTkzZWRjNTYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjhlMDA4MmJlMTZlYjRmNzFlOTNmZGE5Nzg5NjY2MjlhNGY2YjRjYmQ2NjllNzQ2YjcwNDMzMmFiODRkOTE4NzEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImQxNWNiNTQyNzA3MjVlNDc4ODc1YTNkMWE0MjA2Mjg2MDZhZWYyYWJkNzMyNGVmMmIxMGUyNWQ5MjVmMTE3OGQifQ"
+          "resource": "repo://src/main/java/de/switchconsulting/aintlistening/ui/MainActivity.java#L190-L268",
+          "version": "repo-lines-v1:sha256:c75798b6fc5ebb3758b28a16eb560b74a57a0f739646ac71a0d0761a074f511a:eyJzZWxlY3RlZExpbmVDb3VudCI6NzksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk0YjBhMjUzM2JkNjg3YmIwMTk2NTA4MTM3MDcyNjcwMjdmNGNmOWU5MGVmOTM0ODRjZGIzNjFlNGUzZGM2MTAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImUyMmZhYTUzNWJkMmVhM2Q1MmU3NDFlZDQ1NDQzNWI3ZmU0OWU4MzU4NmU5NDNkOThkODJiYmZiMjRkMWY1YzUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjNiMDBhNmY1ODRmNDVjOTE1YTgzMDZjOGM3ZWE4ZGI0MWM0MDIyZDdiYmY4MzQ5NGY5MmE0NmMzNWFiNjNjNTgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
         }
       ]
     },
     {
       "id": "claim_477d74255d554c35ae130152b1a18408",
-      "statement": "MainViewModel dispatches incoming transcription tasks to the TranscriptionProcessor off the main UI thread and observes state updates via standard Android LiveData, posting progress, partial text results, and final paragraph listings back to the UI.",
+      "statement": "MainViewModel dispatches the audio URI and locale to the TranscriptionProcessor, and implements a TranscriptionCallback to translate processing events (including status updates, incremental partial results, smart formatting progress, and completion) into corresponding MainUiState values, posting them to a public LiveData stream.",
       "evidence": [
         {
-          "resource": "repo://src/main/java/de/switchconsulting/aintlistening/ui/MainViewModel.java#L62-L93",
-          "version": "repo-lines-v1:sha256:33fc928b1c0afaa025777e66f7e7d79aa67b471968151ba08350f40f02a83c16:eyJzZWxlY3RlZExpbmVDb3VudCI6MzIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImM4MWIxMDY3OGRjODNhNmVmNmRhY2E4MzMzY2MzYzZkMDk4NjEwYjRiZWNmZjJiYmVlNGMwMjNiNTgzOWZiMDciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjE0MTlhNmRjYzA0ZTIxM2EzYzdhNzdhNDU2YjAxZTc2ZDFlZjc4Y2QwMGJiZWMxZDhmODE0NThmZTkzZWRjNTYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjQ1ZDNkOTJkZDcxYmU4NTNhOWQwN2JiNDhlOGVhNzcwMjg0MzI2NDVhMzQ0MWFlODE0M2I3MDA2YWYxMGFhMzMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjFjOTNkNGQ0YWNmMThjNzU2NDI4OTNlNTRlNGJlYjA0M2IzZjg4ZWQzZWI4MGE5M2IzNTM4NjQ1ZWIyYzE1MmIifQ"
+          "resource": "repo://src/main/java/de/switchconsulting/aintlistening/ui/MainViewModel.java#L41-L44",
+          "version": "repo-lines-v1:sha256:5e28f1d87d5a4f12cede190349afce2a0d37bd657ccdb68b1da1af1a18b7f292:eyJzZWxlY3RlZExpbmVDb3VudCI6NCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMzNlYmVkOGJhN2MzOTlhODNiN2JjZTBlMzE1NzYzOGU5N2NlOGJiMjRkOGM1MmI2ODE3ZDM0MjRiOWZmZTRlOCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiY2M3MWE5MWFhM2NkZGFhNDk3ZGQxOWJiMDgwZmFhYmQzZmMwYTZlOTc4NmZlYjc5MWQ4MTZmNGM2ZTMyZDYyNyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNjg1YTRmNGUwMzczNmRiN2IzMTY4YmYwMWUwMWU0NDNhOTU1ODZmNWU3OTUzY2Q2YjU5ZjM1NmFlMTFjMTJiZSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYmI3YzZkNzY1NTg4OTljY2I3YjI0MzQ3MDZiMjlhODIyOTFhZTNiMmFmNTcyM2YxMjM4NzgxZTkwNzNiMTRkMCJ9"
+        },
+        {
+          "resource": "repo://src/main/java/de/switchconsulting/aintlistening/ui/MainViewModel.java#L63-L94",
+          "version": "repo-lines-v1:sha256:ca30a67553e7d7bd4c93ca03c4eddad9a88b116622202689d7369b533315a03f:eyJzZWxlY3RlZExpbmVDb3VudCI6MzIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNhZmIwMTQ4ZGRkMjE3NmU5MDc3ZGUxODZjMWQ0OWNiMWRhMmYwNTFlYzI1ZGE2YWY4Yjc3Zjg5OTU5ZTU1YTkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjE0MTlhNmRjYzA0ZTIxM2EzYzdhNzdhNDU2YjAxZTc2ZDFlZjc4Y2QwMGJiZWMxZDhmODE0NThmZTkzZWRjNTYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImFlMzg2NjgwODNkMTFiN2U1NTE0MjI1NjU2MzE0MGIzMmMxNDg2ODE4YmZkOTU3NjY1MmNmMGM1ZWQ1OWYyYTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjFjOTNkNGQ0YWNmMThjNzU2NDI4OTNlNTRlNGJlYjA0M2IzZjg4ZWQzZWI4MGE5M2IzNTM4NjQ1ZWIyYzE1MmIifQ"
         }
       ]
     },
     {
       "id": "claim_054d254ba88b4811bd1b6006889b89d2",
-      "statement": "TranscriptionProcessor coordinates background execution through a dedicated instance-level single-thread executor to sequentially execute temporary file cleanups, decoding, speech-to-text transcription, and deep-learning-based smart formatting.",
+      "statement": "TranscriptionProcessor orchestrates the offline transcription workflow off the UI thread via a dedicated instance-level single-thread ExecutorService, sequentially cleaning up temporary files, decoding the source audio via OpusToWavDecoder, resolving the transcriber, loading the language model, executing speech recognition, and applying deep-learning-based smart formatting.",
       "evidence": [
         {
-          "resource": "repo://src/main/java/de/switchconsulting/aintlistening/data/TranscriptionProcessor.java#L53-L53",
-          "version": "repo-lines-v1:sha256:14209d2f191e66ea131c8cdd8c246605e3541b46ab45981491c646ff9c3cb4b0:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMTQyMDlkMmYxOTFlNjZlYTEzMWM4Y2RkOGMyNDY2MDVlMzU0MWI0NmFiNDU5ODE0OTFjNjQ2ZmY5YzNjYjRiMCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMTQyMDlkMmYxOTFlNjZlYTEzMWM4Y2RkOGMyNDY2MDVlMzU0MWI0NmFiNDU5ODE0OTFjNjQ2ZmY5YzNjYjRiMCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMDI0Njc0MmU5ZTgwZjA3N2FiMWI0NmY3ZDEzZjdmNjMyZTZiNzMxOTM3MzdmYWExMjQxYTM1OTJhMDkyNDEyZSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYjI4MTA0ZDY1MzhlNTc4MmQxMWNkZDVkNTEyZjZjM2JmNjdlYWVlMTdiNzVhYjY0NDI3NTE2MWViOTgwZWQ2MyJ9"
+          "resource": "repo://src/main/java/de/switchconsulting/aintlistening/data/TranscriptionProcessor.java#L150-L208",
+          "version": "repo-lines-v1:sha256:f6bdac4dc660d9538cab5d96891fadeae0b834f062a18f9926f733312b7d46da:eyJzZWxlY3RlZExpbmVDb3VudCI6NTksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjUwNGY5YmM1MWJiZDQ4YzI3NmQ5MTVkNzQzYWJiZTNjYjdkM2M0MDdiNGQxZjEwNjEyZDIzM2VlZGRkZjVmYTUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjE0MTlhNmRjYzA0ZTIxM2EzYzdhNzdhNDU2YjAxZTc2ZDFlZjc4Y2QwMGJiZWMxZDhmODE0NThmZTkzZWRjNTYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjYzMTZkZDJjNTgzOGZmNTE0NDJlMTI0MzcxNWY3MGFkNTMxNDI4NDAxNzU5MzUzOWZhY2VlYjdhODkxNDk3NGYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjRlNGZkM2JiMmJmOGY2Mzc3ZWQwMzUxODQwMjRmY2JkNDRjZjMzNTZlNjgzMGExNTJkNDYwOGYyY2Q4YzkxMDUifQ"
         },
         {
-          "resource": "repo://src/main/java/de/switchconsulting/aintlistening/data/TranscriptionProcessor.java#L78-L133",
-          "version": "repo-lines-v1:sha256:b1d0f6748ddbdba86bf98470c93bca5afde773641751e9bc78c86b60136576c1:eyJzZWxlY3RlZExpbmVDb3VudCI6NTYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjkzOWFkMDA1ODA4MjNkZDE0NWNkMzdhMzk5MjE2NWYxMjI2OWE5OTJiNzVlYzY0ZmMzMzg4Nzk2NjdjY2EwMDgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjE0MTlhNmRjYzA0ZTIxM2EzYzdhNzdhNDU2YjAxZTc2ZDFlZjc4Y2QwMGJiZWMxZDhmODE0NThmZTkzZWRjNTYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjNmNjQ1YzFlMDI4ZDYyM2I0MzczZTIwZDY5MDRmM2NiYTdkM2FlNDc2NTc1YTc4ODhlYmUwZDYzMDM0ODk1NzYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjE2N2VkZjMyN2E0OGE1OTYxMGEwNzI0NTcyOWY2MTgzYzFhMDk5OGM5N2UxZDU0ZDI1YmQ5MGY3NGQ4MjBkZGEifQ"
+          "resource": "repo://src/main/java/de/switchconsulting/aintlistening/data/TranscriptionProcessor.java#L57-L57",
+          "version": "repo-lines-v1:sha256:14209d2f191e66ea131c8cdd8c246605e3541b46ab45981491c646ff9c3cb4b0:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMTQyMDlkMmYxOTFlNjZlYTEzMWM4Y2RkOGMyNDY2MDVlMzU0MWI0NmFiNDU5ODE0OTFjNjQ2ZmY5YzNjYjRiMCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMTQyMDlkMmYxOTFlNjZlYTEzMWM4Y2RkOGMyNDY2MDVlMzU0MWI0NmFiNDU5ODE0OTFjNjQ2ZmY5YzNjYjRiMCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNTQ2ZmE2OTRhNTMyZDNkNzUzMTYzN2M3MDYxMGU1NTIwYjE3MjgzNTliYzU3NmRiZmY5NzVhYmVjMDMwZTE4MCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMzU1N2Y1YmIwNTc2NDBmMDE3ZGUyZGFlYjY5Y2IxNjkwYWQyYmEzZjU1ZGYwN2U4NzBlMWQxODYwNzI3OTcyNyJ9"
+        },
+        {
+          "resource": "repo://src/main/java/de/switchconsulting/aintlistening/data/TranscriptionProcessor.java#L83-L141",
+          "version": "repo-lines-v1:sha256:363263bb01bb966f804f219dc333513b8883a5928a23605cd1df6f431121f7a5:eyJzZWxlY3RlZExpbmVDb3VudCI6NTksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImExMjhlNWY3ZGY1MDQ4ZjBhMmY3NTE2ZTg2MTczZGNjYmU1Nzg5NGU4YWQwYzBiYjRjNjNjMWZkZTE0Zjc1MmEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjE0MTlhNmRjYzA0ZTIxM2EzYzdhNzdhNDU2YjAxZTc2ZDFlZjc4Y2QwMGJiZWMxZDhmODE0NThmZTkzZWRjNTYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImM5YTAzY2IwZTUxZjA0Y2YyOTRkN2EwMzBlNDBlNjU3NDg2NjM4ZjY5ODFmOGUwNWE0ODhhNzY5N2FmM2UxZDUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjE2N2VkZjMyN2E0OGE1OTYxMGEwNzI0NTcyOWY2MTgzYzFhMDk5OGM5N2UxZDU0ZDI1YmQ5MGY3NGQ4MjBkZGEifQ"
         }
       ]
     },
@@ -104,14 +112,14 @@
     },
     {
       "id": "claim_e48bd8041f594eba9eeea832cd186c66",
-      "statement": "Persistency serializes the transcribed text (both raw and smart-formatted) along with the associated local audio chunk paths into a JSON-formatted string stored inside private SharedPreferences to enable instant session reload.",
+      "statement": "Persistency serializes transcription paragraphs as a JSON array containing raw text, formatted text, chunk audio paths, and layout visibility states, and saves it along with the locale's language tag in private SharedPreferences to enable instant session reconstruction upon app reload.",
       "evidence": [
         {
-          "resource": "repo://src/main/java/de/switchconsulting/aintlistening/data/Persistency.java#L68-L87",
-          "version": "repo-lines-v1:sha256:40d55d9b8e93c491f39452ace087cf0120cef17254a98ec001e84e62e473d400:eyJzZWxlY3RlZExpbmVDb3VudCI6MjAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQ4YTdjMDNmZjc3YWY4MTU3ZmFkYzRlYWRhZWRlM2ZmN2QwNjA0NGVlZTQ0ZTc3MjYxMDQxYjBiZTFmNmIzMzQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjE0MTlhNmRjYzA0ZTIxM2EzYzdhNzdhNDU2YjAxZTc2ZDFlZjc4Y2QwMGJiZWMxZDhmODE0NThmZTkzZWRjNTYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImE3NDUwZmVmMzhlNWNjMmUzZWRhMTJjZWRlMjRkMWE0NGNmNzIxYzg4MzhkZDM3MmJlYjNhZTkxNGNkNGE5OTEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijk4NjBmMGIxNWQ3NzY4YWQxZTJkMTk1NmIzMDQxZDNiNjA0MzU0NTcxZTZkYzM1NDcwMzUzZGZjZGI4ZjBiNGUifQ"
+          "resource": "repo://src/main/java/de/switchconsulting/aintlistening/data/Persistency.java#L67-L86",
+          "version": "repo-lines-v1:sha256:2f198d288af8f4e601badc471d4842d5bf699f1ae06911836c8e990809a4e948:eyJzZWxlY3RlZExpbmVDb3VudCI6MjAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjliYjExMWMwY2M0MjM1Mjg0ZDA4OWMyYzhiOTgyMmFmMWYzZDM1ZmFmNDY3NDY3ODlmYWYyNDQ3ZGY4NDczZTciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjE0MTlhNmRjYzA0ZTIxM2EzYzdhNzdhNDU2YjAxZTc2ZDFlZjc4Y2QwMGJiZWMxZDhmODE0NThmZTkzZWRjNTYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUyY2NjZWM2ZjU4MmQyM2M0OGM2YjEyMzBlZDhjZDMzODJlMDI0MzQxM2Q0YzU5MDM4MjcxOGFmY2IzODBmM2MiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijk4NjBmMGIxNWQ3NzY4YWQxZTJkMTk1NmIzMDQxZDNiNjA0MzU0NTcxZTZkYzM1NDcwMzUzZGZjZGI4ZjBiNGUifQ"
         },
         {
-          "resource": "repo://src/main/java/de/switchconsulting/aintlistening/data/Persistency.java#L94-L118",
+          "resource": "repo://src/main/java/de/switchconsulting/aintlistening/data/Persistency.java#L93-L117",
           "version": "repo-lines-v1:sha256:321e41c846576420a8719f12e42096119c3f02ac8af00b98e534aa66fb6361e0:eyJzZWxlY3RlZExpbmVDb3VudCI6MjUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImUzNjIwNTllYjdkYzAyNDQ5ZGJjZmM1YzBjMjg3YjZhOGE2MWNjOGZlNDNlM2EwMzYzNGVmOGFjNDUzZmVjNjYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjE0MTlhNmRjYzA0ZTIxM2EzYzdhNzdhNDU2YjAxZTc2ZDFlZjc4Y2QwMGJiZWMxZDhmODE0NThmZTkzZWRjNTYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImIzOWZiMGU4NDIzMTUwY2EwZTljMWIyODI5MThiZjdmNTI1YTdhZWVkOTk4NDExZjIzNTJiYjU5NDU5Yjg0OWQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjA3MmVhMDAzNjcyMmM3YWM4MDRhODNjNGNlOTcyYmIxN2NjZjc0YWExOWNhZTFiZjhkMGIyMzE0Y2Q1NmZjYTUifQ"
         }
       ]
@@ -119,6 +127,6 @@
   ],
   "verification": {
     "by": "openwiki/0.5.2",
-    "at": "2026-09-22T15:37:24.200Z"
+    "at": "2026-09-23T10:59:03.026Z"
   }
 }

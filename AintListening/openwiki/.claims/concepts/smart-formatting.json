@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:21fdf5a0965eda86623173c6ca0b36bb1b051f45d3c89953b69fe1babe5d8251",
+  "pageVersion": "sha256:2729428e3e1aca7b2701f62b039dabc0a3f0ef02ddc67c919559db2af82a83d6",
   "claims": [
     {
       "id": "claim_1150c0d8c915499c972cb7e7893200f4",
@@ -37,8 +37,8 @@
       "statement": "TranscriptionProcessor applies smart formatting to transcribed paragraphs incrementally on a background thread, notifying the user interface via progress callbacks to allow real-time display updates.",
       "evidence": [
         {
-          "resource": "repo://src/main/java/de/switchconsulting/aintlistening/data/TranscriptionProcessor.java#L142-L184",
-          "version": "repo-lines-v1:sha256:68b8ff9febefa16885031649cfcb2c8c66a81f5dc03710ba6fe562846e1aa5c0:eyJzZWxlY3RlZExpbmVDb3VudCI6NDMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjVlNjA5MTdmYjQzMzgyNzU4MTU4OTYyMmQyYjFiYTdmNDc3NGVkYmVmMmFkYmE3ODdhNWMwNTVkZDlkNThhOTciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjYxYzU4ZmVkNzk1ODY1ZTAzM2Y4OWU0MzQzNTQ2NTMwZjEzNzIwZjM2YTY5NDdlMzI0OWJlOTgzODU5MDI5Y2YiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImI0MGMyYmEzYmFjMGE1ODViNzliNDljOTcwMzg5MDg2ZTdlYWY4OTQyMzJjNTU1MGRhMWFmOWRkNmVhYTg3NDkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImY0ODIzZWNmZGM0ZTNmZjFkMTQ3MWNkNWU1MGFkMzA1ZmNhODJkYzdiYzgzOTgzZDczODI1YTllNTFmNThhNjAifQ"
+          "resource": "repo://src/main/java/de/switchconsulting/aintlistening/data/TranscriptionProcessor.java#L150-L208",
+          "version": "repo-lines-v1:sha256:f6bdac4dc660d9538cab5d96891fadeae0b834f062a18f9926f733312b7d46da:eyJzZWxlY3RlZExpbmVDb3VudCI6NTksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjUwNGY5YmM1MWJiZDQ4YzI3NmQ5MTVkNzQzYWJiZTNjYjdkM2M0MDdiNGQxZjEwNjEyZDIzM2VlZGRkZjVmYTUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjE0MTlhNmRjYzA0ZTIxM2EzYzdhNzdhNDU2YjAxZTc2ZDFlZjc4Y2QwMGJiZWMxZDhmODE0NThmZTkzZWRjNTYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjYzMTZkZDJjNTgzOGZmNTE0NDJlMTI0MzcxNWY3MGFkNTMxNDI4NDAxNzU5MzUzOWZhY2VlYjdhODkxNDk3NGYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjRlNGZkM2JiMmJmOGY2Mzc3ZWQwMzUxODQwMjRmY2JkNDRjZjMzNTZlNjgzMGExNTJkNDYwOGYyY2Q4YzkxMDUifQ"
         }
       ]
     },
@@ -55,6 +55,6 @@
   ],
   "verification": {
     "by": "openwiki/0.5.2",
-    "at": "2026-09-22T15:37:24.200Z"
+    "at": "2026-09-23T10:59:03.026Z"
   }
 }

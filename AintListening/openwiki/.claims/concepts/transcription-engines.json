@@ -1,24 +1,24 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:63cd114b855f7265bb873b1b603e5fb51fb9c0058efda4efe7e325b5f3faa634",
+  "pageVersion": "sha256:b0967bbaf2e6fab1fc46b9804ced427db4c63f88f5094207cec6bfd3ac7062aa",
   "claims": [
     {
       "id": "claim_c8a77a00d1d245adb7f7f9019e329e69",
-      "statement": "The TranscriberRegistry resolves transcription engines dynamically using an EnumMap keyed by TranscriberType and exposes a closeAll method to clean up all engine resources.",
+      "statement": "The TranscriberRegistry resolves transcription engines dynamically using an EnumMap keyed by TranscriberType, receives concrete transcriber dependencies via Hilt constructor injection, and exposes a closeAll method as a lifecycle shutdown hook.",
       "evidence": [
         {
-          "resource": "repo://src/main/java/de/switchconsulting/aintlistening/transcription/TranscriberRegistry.java#L31-L56",
-          "version": "repo-lines-v1:sha256:479895885f3fabd43881e9fc6204bd5d5a934a51539168dd6b6b34934816d584:eyJzZWxlY3RlZExpbmVDb3VudCI6MjYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjVmOTVjZTcxMWJkODYyMTY5M2Y5ZDRiOTczYzlmMGQxYTQ2N2E3N2FkOTQ4MjU1ZmUwNmJhMDNlZGNhNDQ0NDQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjE0MTlhNmRjYzA0ZTIxM2EzYzdhNzdhNDU2YjAxZTc2ZDFlZjc4Y2QwMGJiZWMxZDhmODE0NThmZTkzZWRjNTYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImJhYTg5NjNmZWQ3ZGNiOWZkMWUyZWYyNDFmNGVhYTkwN2E4OTZiY2FkMzM2MmJjZTQyZjRjMDM1OTFiYTM0NDAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUyMmZhYTUzNWJkMmVhM2Q1MmU3NDFlZDQ1NDQzNWI3ZmU0OWU4MzU4NmU5NDNkOThkODJiYmZiMjRkMWY1YzUifQ"
+          "resource": "repo://src/main/java/de/switchconsulting/aintlistening/transcription/TranscriberRegistry.java#L28-L57",
+          "version": "repo-lines-v1:sha256:bac8d8d16ac63b6225acce4659bc2be004a290378a5b6bf6dd85bfdf65b5a3ee:eyJzZWxlY3RlZExpbmVDb3VudCI6MzAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI0ZjNhYTZiMzQ5NDI0NDZmYTAwNmVjY2FjNzM1YTVkNjVjNTJlNmIxMzZlZmQxYzgyYWYwN2U4Yjk1NTc3OWIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImUyMmZhYTUzNWJkMmVhM2Q1MmU3NDFlZDQ1NDQzNWI3ZmU0OWU4MzU4NmU5NDNkOThkODJiYmZiMjRkMWY1YzUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImViOGQxZDNhOTY4MTFiNGE5NWU4MTcxZDY1MGRjNTE2MjRjMGFkYjY4ZTQ5ZTQ0MTE3ZWEwNGIzYTljOGQxMzYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
         }
       ]
     },
     {
       "id": "claim_003beeea8990400ba76cdd1482cb36a8",
-      "statement": "The Transcriber interface defines core lifecycle methods including ensureModelLoaded for RAM allocation, transcribe for streaming files and triggering listener updates, and close for releasing native handles.",
+      "statement": "The Transcriber interface defines core lifecycle methods including ensureModelLoaded for locale-based model loading, transcribe for file transcription returning a list of paragraphs and triggering updates, and close for releasing resources.",
       "evidence": [
         {
-          "resource": "repo://src/main/java/de/switchconsulting/aintlistening/transcription/Transcriber.java#L26-L72",
-          "version": "repo-lines-v1:sha256:3126cbc100603a680a2b8544d38996bddd2490d486ad4fa07ee1b466d15dd890:eyJzZWxlY3RlZExpbmVDb3VudCI6NDcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjY4YjE3NmIyOTI4NDQ0ODVjNGQ2ZWI1ZDc5OGI1NGQ0MTBlMzlmNjgwYjk2NzlkZjAzYTA5NDVlYjI1NTEyNDAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImUyMmZhYTUzNWJkMmVhM2Q1MmU3NDFlZDQ1NDQzNWI3ZmU0OWU4MzU4NmU5NDNkOThkODJiYmZiMjRkMWY1YzUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImY3MDQzOWRlNWJjM2JmMjZiMjFjMmQ3ZTEyMmVhZDkxZTc4MmQzOTliZDkyNDI2NzBhZjhlMDNmZDY3M2ZkMTAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+          "resource": "repo://src/main/java/de/switchconsulting/aintlistening/transcription/Transcriber.java#L27-L66",
+          "version": "repo-lines-v1:sha256:6e1e9a18807a60701d406c917f58f140d50d0351431af4aadef5a68dca1e7bc8:eyJzZWxlY3RlZExpbmVDb3VudCI6NDAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjY4YjE3NmIyOTI4NDQ0ODVjNGQ2ZWI1ZDc5OGI1NGQ0MTBlMzlmNjgwYjk2NzlkZjAzYTA5NDVlYjI1NTEyNDAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImUyMmZhYTUzNWJkMmVhM2Q1MmU3NDFlZDQ1NDQzNWI3ZmU0OWU4MzU4NmU5NDNkOThkODJiYmZiMjRkMWY1YzUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImY3MDQzOWRlNWJjM2JmMjZiMjFjMmQ3ZTEyMmVhZDkxZTc4MmQzOTliZDkyNDI2NzBhZjhlMDNmZDY3M2ZkMTAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
         }
       ]
     },
@@ -75,6 +75,6 @@
   ],
   "verification": {
     "by": "openwiki/0.5.2",
-    "at": "2026-09-22T15:37:24.200Z"
+    "at": "2026-09-23T10:59:03.026Z"
   }
 }

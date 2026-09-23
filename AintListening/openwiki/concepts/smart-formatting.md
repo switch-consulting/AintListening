@@ -5,7 +5,7 @@ description: Explains the on-device NLP post-processing stack that restores punc
 tags: [onnx, nlp, punctuation, capitalization, HuggingFace, tokenization, android]
 verified:
   - by: openwiki/0.5.2
-    at: 2026-09-22T15:37:24.200Z
+    at: 2026-09-23T10:59:03.026Z
 sources:
   - id: openwiki-source-85dfa2aef49cd169abedb8cf
     resource: repo://src/main/java/de/switchconsulting/aintlistening/data/TranscriptionProcessor.java
@@ -13,7 +13,7 @@ sources:
     resource: repo://src/main/java/de/switchconsulting/aintlistening/formatting/OnnxSmartFormatter.java
   - id: openwiki-source-f0dbf4f7005fc34b8de5db28
     resource: repo://src/test/java/de/switchconsulting/aintlistening/SmartFormatterTest.java
-generated: { by: "openwiki/0.5.2", at: "2026-09-22T15:37:24.200Z" }
+generated: { by: "openwiki/0.5.2", at: "2026-09-23T10:59:03.026Z" }
 ---
 
 ## Introduction
@@ -102,7 +102,7 @@ The core of the post-processing stack is the reconstruction algorithm implemente
 ```mermaid
 flowchart TD
     Start([Start reconstructTextBadCode]) --> LoopTokens{More tokens?}
-    LoopTokens -- Yes --> IsSpecial{Special Token?}
+    IsSpecial{Special Token?}
     IsSpecial -- Yes --> SkipSpecial[Skip Token] --> LoopTokens
     IsSpecial -- No --> IsNew{New Word?}
     IsNew -- No --> SkipNonNew[Skip to next token] --> LoopTokens
@@ -136,7 +136,7 @@ flowchart TD
     SetSBD -- Yes --> SBDOn["forceCapitalizeNext = true"] --> AdvanceIndex
     SetSBD -- No --> SBDOff["forceCapitalizeNext = false"] --> AdvanceIndex
     
-    LoopTokens -- No --> End([Trim and Return result])
+    LoopTokens -- No --> Done([Trim and Return result])
 ```
 *Figure 1: Token-merging and multi-head prediction reconstruction state machine.*
 
@@ -167,39 +167,88 @@ flowchart TD
 
 To maintain high responsiveness and prevent the UI thread from freezing on large transcriptions, smart formatting is applied **incrementally** per paragraph inside the background execution thread of `TranscriptionProcessor`.
 
+```mermaid
+flowchart TD
+    StartApply([Start applySmartFormatting]) --> CheckConditions{"Formatting conditions met?"}
+    
+    %% Condition check
+    CheckConditions -- "Yes" --> StatusUpdate["notifyStatusUpdate: 'Applying smart formatting...'"]
+    CheckConditions -- "No" --> BuildFallback["Populate formatted list without smart formatting"]
+    
+    %% Smart formatting path
+    StatusUpdate --> GetModel["Get targetModel from Selected Language"]
+    GetModel --> CheckFormatterCache{"Formatter cached & matches targetModel?"}
+    
+    CheckFormatterCache -- "No" --> CloseOldFormatter["Close old smartFormatter (if exists)"]
+    CloseOldFormatter --> InitNewFormatter["Initialize OnnxSmartFormatter with targetModel"]
+    InitNewFormatter --> LoopParagraphs
+    
+    CheckFormatterCache -- "Yes" --> LoopParagraphs{"More paragraphs?"}
+    
+    LoopParagraphs -- "Yes" --> GetPara["Get raw paragraph p"]
+    GetPara --> CheckEmpty{"p is empty?"}
+    
+    CheckEmpty -- "Yes" --> LoopParagraphs
+    CheckEmpty -- "No" --> FormatPara["Format paragraph: smartFormatter.format(rawText)"]
+    FormatPara --> CreateFormattedPara["Create formatted TranscriptionParagraph"]
+    CreateFormattedPara --> AddToFormattedList["Add to formattedParagraphs list"]
+    
+    AddToFormattedList --> CreateDisplayList["Create currentDisplayList: formatted paragraphs + remaining raw paragraphs"]
+    CreateDisplayList --> ProgressUpdate["notifySmartFormattingProgress with currentDisplayList"]
+    ProgressUpdate --> LoopParagraphs
+    
+    LoopParagraphs -- "No" --> SaveAndComplete["Save formatted list to repository & notifyComplete"]
+    BuildFallback --> SaveAndComplete
+    
+    %% Error handling
+    LoopParagraphs -.-> |"On Exception"| HandleError["Log error, clear formatted list, and fallback to raw paragraphs"]
+    HandleError --> SaveAndComplete
+    
+    SaveAndComplete --> Finished([Finished])
 ```
-Raw Transcription State ──> Parsed Paragraphs ──> Incremental Loop
-                                                        │
-         ┌──────────────────────────────────────────────┴───────────────┐
-         ▼                                                              ▼
-[Empty Paragraph] (Skipped)                                  [Active Text Paragraph]
-                                                                        │
-                                                                        ▼
-                                                             Load model and tokenizer
-                                                             (If first pass or language changed)
-                                                                        │
-                                                                        ▼
-                                                             Format via OnnxSmartFormatter
-                                                                        │
-                                                                        ▼
-                                                             Update progress callback
-                                                             (Partial formatted list to UI)
-```
+*Figure 2: Control flow of TranscriptionProcessor.applySmartFormatting() illustrating conditions, caching, loop-based formatting, and UI notifications.*
 
-1. **Paragraph Generation**:
-   * As raw transcription results flow from the underlying engine, they are parsed into individual paragraph segments (`TranscriptionParagraph`), representing text separated by newlines.
-2. **Orchestrated Evaluation**:
-   * `TranscriptionProcessor` evaluates if formatting should run based on configuration checks:
-     * Does the active `Transcriber` engine already provide built-in punctuation? (e.g. Whisper natively outputs casing, Vosk does not).
-     * Has the user enabled smart formatting in the preferences for the active locale?
-     * Is the language's smart formatting ONNX model fully downloaded onto local storage?
-3. **Model Warm-Up & Reuse**:
-   * To minimize latency, `OnnxSmartFormatter` is cached. If a model is already active and matches the current target language, it is reused. If the user changes target languages, the previous session is cleanly closed, and a new ONNX session and tokenizer are initialized.
-4. **Sequential Chunk-Based Execution**:
-   * Each parsed paragraph is sent to the formatter sequentially.
-   * After each paragraph is formatted, the processor updates the UI through `onSmartFormattingProgress(currentStep, totalSteps, formattedList)`. This allows the interface to update in real-time, showing formatted paragraphs as they complete rather than blocking until the entire transcript is processed.
-5. **Fail-safe Fallback**:
-   * If the post-processing engine encounters an out-of-memory exception, a file loading error, or a tensor dimensions mismatch, the exception is caught, and the raw unpunctuated text is cleanly substituted as a fallback. This guarantees that punctuation failure never crashes the application or blocks transcript delivery.
+### Detailed Execution & Control Flow (`applySmartFormatting`)
+
+The orchestration of the smart formatting stack is handled within `TranscriptionProcessor.applySmartFormatting()`. This method implements the pipeline controls, lazy initialization of model resources, incremental dispatching of results, and robust fail-safe fallbacks:
+
+#### 1. Evaluation Conditions
+Before executing ONNX model inference, `TranscriptionProcessor` evaluates whether smart formatting should run by assessing three primary boolean flags:
+* **`!engineProvidesPunctuation`**: Validates whether the active transcription engine natively handles punctuation. For engines like Whisper that output fully cased and punctuated text directly, smart formatting is bypassed to avoid redundant processing.
+* **`userWantsSmart`**: Queries user preferences via `repository.getPersistency().isSmartFormattingEnabled(locale)` to verify if smart formatting is enabled for the active target locale.
+* **`modelAvailable`**: Verifies that the required language model files (e.g., `model.onnx` and `tokenizer.json`) have been fully downloaded and are available on the internal filesystem (`selectedLanguage.isFormattingDownloaded(context)`).
+
+If these checks evaluate to `true` and the transcription contains non-empty paragraphs, the formatting engine initiates. Otherwise, it bypasses formatting and outputs either the raw transcription or the engine-provided punctuation.
+
+#### 2. Model Lifecycle & Initialization
+The `TranscriptionProcessor` manages the lifecycle of the `OnnxSmartFormatter` lazily to maximize efficiency:
+* It reads the target `ModelInfo` from the selected language support metadata.
+* It compares this `targetModel` against any cached `smartFormatter` instance.
+* If a model was already initialized but the target model has changed (e.g., the user switched target translation/transcription languages), the processor calls `smartFormatter.close()` to cleanly release ONNX sessions, environments, and memory, setting the reference to `null`.
+* If no active `smartFormatter` exists (on first run or following a language switch), a new `OnnxSmartFormatter` is instantiated:
+  ```java
+  smartFormatter = new OnnxSmartFormatter(context, targetModel);
+  ```
+
+#### 3. Incremental Progress Dispatching
+To ensure high UI responsiveness on large transcripts, the processor formats the raw paragraphs sequentially in a loop:
+* It extracts the raw text from each paragraph. Any paragraph containing only empty whitespace is skipped immediately to conserve CPU cycles.
+* It invokes the synchronous formatting method: `String formattedPara = smartFormatter.format(rawPara)`.
+* It wraps the returned text in a new `TranscriptionParagraph` and appends it to the `formattedParagraphs` buffer list.
+* Immediately after each paragraph is cased and punctuated, the processor compiles a temporary `currentDisplayList` which dynamically stitches together:
+  1. All **already-formatted** paragraphs (elements `0` to `i`).
+  2. All **remaining raw** paragraphs (elements `i + 1` to the end of the list).
+* This composite list is dispatched to the callback:
+  ```java
+  notifySmartFormattingProgress(callback, i + 1, paragraphs.size(), currentDisplayList);
+  ```
+  The progress update is marshaled onto the Android main thread using `mainHandler.post(...)`, allowing the UI to render fully formatted sections of text in real-time as they are completed, rather than locking or showing raw unpunctuated text until the end of the entire transcription block.
+
+#### 4. Fail-Safe Fallback
+If any exception occurs during the formatting loop (such as out-of-memory errors, invalid tensor dimension layouts, or filesystem I/O exceptions):
+* The exception is caught and logged.
+* The processor clears `formattedParagraphs` and immediately restores all original raw transcription paragraphs as a fallback, guaranteeing that formatting issues never block text delivery or cause application crashes.
+* Finally, it saves the result to the local repository and notifies completion via `notifyComplete(callback, formattedParagraphs)`.
 
 ---
 

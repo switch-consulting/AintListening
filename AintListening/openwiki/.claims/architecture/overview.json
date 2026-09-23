@@ -1,18 +1,18 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:0c77ddbef12335589681ddfe6fb0bd9d949ca823901347f5580487090910e15b",
+  "pageVersion": "sha256:06f7656a1a72c52894811aa642f59700eeb289f8792d1b3cec9cc1be9f076337",
   "claims": [
     {
       "id": "claim_ea6a2d74e29d4e2dafb8feec258975fd",
-      "statement": "The application architecture is layered into Presentation/UI (Android MVVM), Domain/Orchestration (TranscriptionProcessor singleton), Persistence, decoupled Transcription Engines, and ONNX Post-processing.",
+      "statement": "The application architecture is layered into Presentation/UI (Android MVVM), Domain/Orchestration (TranscriptionProcessor singleton), Persistence, decoupled Transcription Engines, and ONNX Post-processing, with TranscriptionProcessor managed via Hilt and running tasks sequentially on a single-thread background executor.",
       "evidence": [
         {
-          "resource": "repo://src/main/java/de/switchconsulting/aintlistening/data/TranscriptionProcessor.java#L46-L70",
-          "version": "repo-lines-v1:sha256:97585371e5cfde98574439b4a8d1e7f8f9e53cffa42d7aa7ce26e1d3d1ff0d7e:eyJzZWxlY3RlZExpbmVDb3VudCI6MjUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI0ZjNhYTZiMzQ5NDI0NDZmYTAwNmVjY2FjNzM1YTVkNjVjNTJlNmIxMzZlZmQxYzgyYWYwN2U4Yjk1NTc3OWIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdlYjcwMjU3NTkzZGEwNmY2ODJhM2RkZGE1NGE5ZDI2MGQ0ZmM1MTRmNjQ1MjM3ZjVjYTc0YjA4ZjhkYTYxYTYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImZkZDA2MDdjMDYzMWJkN2NjODQ5YWJhYzVmZWRlYWE5NGNiZjYyYWJiMTQyZjA4OTdlNzM2OWUzYzk1ODk3Y2IiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjM3ODRiOTI4NzUwZDBlMTJiMzkyOWJhMGFiMzc2ZGQxZGZkYjQwMTI5ZDc4M2M2YzcwM2VmMTUwMDcwZjBlNDcifQ"
+          "resource": "repo://src/main/java/de/switchconsulting/aintlistening/data/TranscriptionProcessor.java#L50-L74",
+          "version": "repo-lines-v1:sha256:43429558ee64a0ead3eab46fa707b045191a7f421dab36988d2c96718e371702:eyJzZWxlY3RlZExpbmVDb3VudCI6MjUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI0ZjNhYTZiMzQ5NDI0NDZmYTAwNmVjY2FjNzM1YTVkNjVjNTJlNmIxMzZlZmQxYzgyYWYwN2U4Yjk1NTc3OWIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjE0MTlhNmRjYzA0ZTIxM2EzYzdhNzdhNDU2YjAxZTc2ZDFlZjc4Y2QwMGJiZWMxZDhmODE0NThmZTkzZWRjNTYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijc5Njk0NWZiZDMzOTdlZGM4MzBkMDA1ODAzNTZhMGQ5YmU0MzQ1ODE3OTkyZWNhMmM0NjUxOGNlYmVmMTZjMjAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjIyYmI2ODdhNmU3MmZjYjcyM2YwZWFlZjMzZGEzOTU0OGU1ZmJlYjE3M2FmNjc3NTNkNTE0ZDk4NzUzZjY0NTIifQ"
         },
         {
-          "resource": "repo://src/main/java/de/switchconsulting/aintlistening/di/AppModule.java#L33-L59",
-          "version": "repo-lines-v1:sha256:bc113a0ce66f8e7d9fb16fbbf69033c03c008304cdff94ee9782b9a35b57487b:eyJzZWxlY3RlZExpbmVDb3VudCI6MjcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImNjMDczZmYxZmU0OTVlYTllNDI3ZWIxNjMyZjE1MWVlZDY0ZTkxMzM3MDIxNWEwMDEzNjJkMmEyMGFkMGI0ZDAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImUyMmZhYTUzNWJkMmVhM2Q1MmU3NDFlZDQ1NDQzNWI3ZmU0OWU4MzU4NmU5NDNkOThkODJiYmZiMjRkMWY1YzUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImQyMDc2NWRmZjNjMGI5OTJkZGU3NzFiMTQ2MzlmMzYzMjQ3ODA4OTc4OTdiZDRjMWMyYzBhOTkyMWEzZDNhZmEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+          "resource": "repo://src/main/java/de/switchconsulting/aintlistening/di/AppModule.java#L33-L63",
+          "version": "repo-lines-v1:sha256:6bf62042b9afd5098a2e768c7f895ab18b9b000f105ad16fe98cc6f1adba640b:eyJzZWxlY3RlZExpbmVDb3VudCI6MzEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImI4NzM2MmM4NTc5OWQ2NjhiMjgzZWViN2EwODY3Zjc1NWYxMWJmOTY0ZjEzNDVlNjU2MzlmYzRlNDIyZTU1YTIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImUyMmZhYTUzNWJkMmVhM2Q1MmU3NDFlZDQ1NDQzNWI3ZmU0OWU4MzU4NmU5NDNkOThkODJiYmZiMjRkMWY1YzUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjlhYmJjYzczYjU5NTA1MjIxMDc5ZDVhMzJkNTgyYjdjZWYyZjljYTViNmY5YmM4NmU3NjZjOTc1NGU1YmMxYzQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
         }
       ]
     },
@@ -21,8 +21,8 @@
       "statement": "Dependency Injection is managed via Hilt/Dagger, which configures shared resources like the Persistency instance and the TranscriberRegistry in Hilt's SingletonComponent.",
       "evidence": [
         {
-          "resource": "repo://src/main/java/de/switchconsulting/aintlistening/di/AppModule.java#L33-L59",
-          "version": "repo-lines-v1:sha256:bc113a0ce66f8e7d9fb16fbbf69033c03c008304cdff94ee9782b9a35b57487b:eyJzZWxlY3RlZExpbmVDb3VudCI6MjcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImNjMDczZmYxZmU0OTVlYTllNDI3ZWIxNjMyZjE1MWVlZDY0ZTkxMzM3MDIxNWEwMDEzNjJkMmEyMGFkMGI0ZDAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImUyMmZhYTUzNWJkMmVhM2Q1MmU3NDFlZDQ1NDQzNWI3ZmU0OWU4MzU4NmU5NDNkOThkODJiYmZiMjRkMWY1YzUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImQyMDc2NWRmZjNjMGI5OTJkZGU3NzFiMTQ2MzlmMzYzMjQ3ODA4OTc4OTdiZDRjMWMyYzBhOTkyMWEzZDNhZmEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+          "resource": "repo://src/main/java/de/switchconsulting/aintlistening/di/AppModule.java#L33-L63",
+          "version": "repo-lines-v1:sha256:6bf62042b9afd5098a2e768c7f895ab18b9b000f105ad16fe98cc6f1adba640b:eyJzZWxlY3RlZExpbmVDb3VudCI6MzEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImI4NzM2MmM4NTc5OWQ2NjhiMjgzZWViN2EwODY3Zjc1NWYxMWJmOTY0ZjEzNDVlNjU2MzlmYzRlNDIyZTU1YTIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImUyMmZhYTUzNWJkMmVhM2Q1MmU3NDFlZDQ1NDQzNWI3ZmU0OWU4MzU4NmU5NDNkOThkODJiYmZiMjRkMWY1YzUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjlhYmJjYzczYjU5NTA1MjIxMDc5ZDVhMzJkNTgyYjdjZWYyZjljYTViNmY5YmM4NmU3NjZjOTc1NGU1YmMxYzQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
         }
       ]
     },
@@ -31,22 +31,22 @@
       "statement": "TranscriptionProcessor orchestrates the end-to-end transcription pipeline asynchronously on a single-thread executor by managing audio conversion, engine loading, callback notification, and smart formatting.",
       "evidence": [
         {
-          "resource": "repo://src/main/java/de/switchconsulting/aintlistening/data/TranscriptionProcessor.java#L78-L133",
-          "version": "repo-lines-v1:sha256:b1d0f6748ddbdba86bf98470c93bca5afde773641751e9bc78c86b60136576c1:eyJzZWxlY3RlZExpbmVDb3VudCI6NTYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjkzOWFkMDA1ODA4MjNkZDE0NWNkMzdhMzk5MjE2NWYxMjI2OWE5OTJiNzVlYzY0ZmMzMzg4Nzk2NjdjY2EwMDgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjE0MTlhNmRjYzA0ZTIxM2EzYzdhNzdhNDU2YjAxZTc2ZDFlZjc4Y2QwMGJiZWMxZDhmODE0NThmZTkzZWRjNTYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjNmNjQ1YzFlMDI4ZDYyM2I0MzczZTIwZDY5MDRmM2NiYTdkM2FlNDc2NTc1YTc4ODhlYmUwZDYzMDM0ODk1NzYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjE2N2VkZjMyN2E0OGE1OTYxMGEwNzI0NTcyOWY2MTgzYzFhMDk5OGM5N2UxZDU0ZDI1YmQ5MGY3NGQ4MjBkZGEifQ"
+          "resource": "repo://src/main/java/de/switchconsulting/aintlistening/data/TranscriptionProcessor.java#L83-L141",
+          "version": "repo-lines-v1:sha256:363263bb01bb966f804f219dc333513b8883a5928a23605cd1df6f431121f7a5:eyJzZWxlY3RlZExpbmVDb3VudCI6NTksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImExMjhlNWY3ZGY1MDQ4ZjBhMmY3NTE2ZTg2MTczZGNjYmU1Nzg5NGU4YWQwYzBiYjRjNjNjMWZkZTE0Zjc1MmEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjE0MTlhNmRjYzA0ZTIxM2EzYzdhNzdhNDU2YjAxZTc2ZDFlZjc4Y2QwMGJiZWMxZDhmODE0NThmZTkzZWRjNTYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImM5YTAzY2IwZTUxZjA0Y2YyOTRkN2EwMzBlNDBlNjU3NDg2NjM4ZjY5ODFmOGUwNWE0ODhhNzY5N2FmM2UxZDUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjE2N2VkZjMyN2E0OGE1OTYxMGEwNzI0NTcyOWY2MTgzYzFhMDk5OGM5N2UxZDU0ZDI1YmQ5MGY3NGQ4MjBkZGEifQ"
         }
       ]
     },
     {
       "id": "claim_75b4b5899c1146f08ed8ced9a55bc976",
-      "statement": "Speech engine implementations are decoupled through a standard Transcriber interface and managed inside a central TranscriberRegistry.",
+      "statement": "Speech engine implementations are decoupled through a standard Transcriber interface and managed inside a central TranscriberRegistry, which coordinates resolving and shutting down transcription engines.",
       "evidence": [
         {
-          "resource": "repo://src/main/java/de/switchconsulting/aintlistening/transcription/Transcriber.java#L26-L72",
-          "version": "repo-lines-v1:sha256:3126cbc100603a680a2b8544d38996bddd2490d486ad4fa07ee1b466d15dd890:eyJzZWxlY3RlZExpbmVDb3VudCI6NDcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjY4YjE3NmIyOTI4NDQ0ODVjNGQ2ZWI1ZDc5OGI1NGQ0MTBlMzlmNjgwYjk2NzlkZjAzYTA5NDVlYjI1NTEyNDAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImUyMmZhYTUzNWJkMmVhM2Q1MmU3NDFlZDQ1NDQzNWI3ZmU0OWU4MzU4NmU5NDNkOThkODJiYmZiMjRkMWY1YzUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImY3MDQzOWRlNWJjM2JmMjZiMjFjMmQ3ZTEyMmVhZDkxZTc4MmQzOTliZDkyNDI2NzBhZjhlMDNmZDY3M2ZkMTAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+          "resource": "repo://src/main/java/de/switchconsulting/aintlistening/transcription/Transcriber.java#L26-L66",
+          "version": "repo-lines-v1:sha256:0bbdcd2c20d8e0e9ebe9e5bef17f4f65625d1fe252e9fadc2707aa18e5686d76:eyJzZWxlY3RlZExpbmVDb3VudCI6NDEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVkYjU0NGE1ODg2MzQzNTBjMTkxNjlhODI0M2I1MzFiZjMwOTVlYjU3YzhmYjAzZTQ0ODM2OTQzZjA4MTY4ODEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImUyMmZhYTUzNWJkMmVhM2Q1MmU3NDFlZDQ1NDQzNWI3ZmU0OWU4MzU4NmU5NDNkOThkODJiYmZiMjRkMWY1YzUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjBhZjk1NWMxOTRjNGY2NmFhOWFmZjNiMGNmYWY5ZmRiY2QxNGRkMTcwMTcwY2FkMmRiMjQ1ODM1MjUzZmJlM2UiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
         },
         {
           "resource": "repo://src/main/java/de/switchconsulting/aintlistening/transcription/TranscriberRegistry.java#L28-L57",
-          "version": "repo-lines-v1:sha256:afd1ddd4a5157160f604822e56d37715b7121d3d978ac2687ee2f87e4512d89c:eyJzZWxlY3RlZExpbmVDb3VudCI6MzAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI0ZjNhYTZiMzQ5NDI0NDZmYTAwNmVjY2FjNzM1YTVkNjVjNTJlNmIxMzZlZmQxYzgyYWYwN2U4Yjk1NTc3OWIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImUyMmZhYTUzNWJkMmVhM2Q1MmU3NDFlZDQ1NDQzNWI3ZmU0OWU4MzU4NmU5NDNkOThkODJiYmZiMjRkMWY1YzUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImViOGQxZDNhOTY4MTFiNGE5NWU4MTcxZDY1MGRjNTE2MjRjMGFkYjY4ZTQ5ZTQ0MTE3ZWEwNGIzYTljOGQxMzYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+          "version": "repo-lines-v1:sha256:bac8d8d16ac63b6225acce4659bc2be004a290378a5b6bf6dd85bfdf65b5a3ee:eyJzZWxlY3RlZExpbmVDb3VudCI6MzAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI0ZjNhYTZiMzQ5NDI0NDZmYTAwNmVjY2FjNzM1YTVkNjVjNTJlNmIxMzZlZmQxYzgyYWYwN2U4Yjk1NTc3OWIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImUyMmZhYTUzNWJkMmVhM2Q1MmU3NDFlZDQ1NDQzNWI3ZmU0OWU4MzU4NmU5NDNkOThkODJiYmZiMjRkMWY1YzUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImViOGQxZDNhOTY4MTFiNGE5NWU4MTcxZDY1MGRjNTE2MjRjMGFkYjY4ZTQ5ZTQ0MTE3ZWEwNGIzYTljOGQxMzYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
         }
       ]
     },
@@ -56,11 +56,11 @@
       "evidence": [
         {
           "resource": "repo://src/main/java/de/switchconsulting/aintlistening/data/Persistency.java#L275-L334",
-          "version": "repo-lines-v1:sha256:de1b6dba50f2693f935ad4a75d7c7b685adb872d38df68c1f367d7fa3a53b41d:eyJzZWxlY3RlZExpbmVDb3VudCI6NjAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImJhMmQ4ZjQ5ZTBkNDZkMGIxOGE1MjliNTY4Zjk4M2ViMWQxNjA3YmY3YzY4ZmEwM2EwNDM3YTA3NGM4MTA5ZjAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjE0MTlhNmRjYzA0ZTIxM2EzYzdhNzdhNDU2YjAxZTc2ZDFlZjc4Y2QwMGJiZWMxZDhmODE0NThmZTkzZWRjNTYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImFmOWE5ZmM1NWI0YWQ1NWEzN2Y1OTE1YzUyZDkyNDBkZDVkZWQ3ZTkxODBlMTI3OWUyMmQzNmNhMmFiNWNkZDYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUyMmZhYTUzNWJkMmVhM2Q1MmU3NDFlZDQ1NDQzNWI3ZmU0OWU4MzU4NmU5NDNkOThkODJiYmZiMjRkMWY1YzUifQ"
+          "version": "repo-lines-v1:sha256:3acd72ccb849a052b2a86fba4f77c3160a49af8f9bcf82e933362953d5f6190c:eyJzZWxlY3RlZExpbmVDb3VudCI6NjAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjY1MjEwZjBlYWI4ZjNhYjVhYjRkZmEzMGEyNmM5NWJlZjlhMTdjODc4Y2M5ZDU1ODVlMTFlYzRhYzg3MzdiZDUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImUyMmZhYTUzNWJkMmVhM2Q1MmU3NDFlZDQ1NDQzNWI3ZmU0OWU4MzU4NmU5NDNkOThkODJiYmZiMjRkMWY1YzUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjA2ZjMxYWFhMDU0ZGNjYTY5NTVlOTg5NzFiNjVmZTcyNDViNWU2Zjk5YzdhMDJkYzkwMjQ1MGQzNDFkZjdjZGMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
         },
         {
-          "resource": "repo://src/main/java/de/switchconsulting/aintlistening/data/Persistency.java#L68-L118",
-          "version": "repo-lines-v1:sha256:4a5089512181619bfc6d738710f8946030f8419dae9b8b5a3137b6b2e5eed661:eyJzZWxlY3RlZExpbmVDb3VudCI6NTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQ4YTdjMDNmZjc3YWY4MTU3ZmFkYzRlYWRhZWRlM2ZmN2QwNjA0NGVlZTQ0ZTc3MjYxMDQxYjBiZTFmNmIzMzQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjE0MTlhNmRjYzA0ZTIxM2EzYzdhNzdhNDU2YjAxZTc2ZDFlZjc4Y2QwMGJiZWMxZDhmODE0NThmZTkzZWRjNTYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImE3NDUwZmVmMzhlNWNjMmUzZWRhMTJjZWRlMjRkMWE0NGNmNzIxYzg4MzhkZDM3MmJlYjNhZTkxNGNkNGE5OTEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjA3MmVhMDAzNjcyMmM3YWM4MDRhODNjNGNlOTcyYmIxN2NjZjc0YWExOWNhZTFiZjhkMGIyMzE0Y2Q1NmZjYTUifQ"
+          "resource": "repo://src/main/java/de/switchconsulting/aintlistening/data/Persistency.java#L67-L118",
+          "version": "repo-lines-v1:sha256:06117a973fa8583328bb81ab21ac3cbcc5142fa928ff3f41d645c7519fa24022:eyJzZWxlY3RlZExpbmVDb3VudCI6NTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjliYjExMWMwY2M0MjM1Mjg0ZDA4OWMyYzhiOTgyMmFmMWYzZDM1ZmFmNDY3NDY3ODlmYWYyNDQ3ZGY4NDczZTciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdlYjcwMjU3NTkzZGEwNmY2ODJhM2RkZGE1NGE5ZDI2MGQ0ZmM1MTRmNjQ1MjM3ZjVjYTc0YjA4ZjhkYTYxYTYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUyY2NjZWM2ZjU4MmQyM2M0OGM2YjEyMzBlZDhjZDMzODJlMDI0MzQxM2Q0YzU5MDM4MjcxOGFmY2IzODBmM2MiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjZmODI4NjFlYjU5MmE4NGY0ZDY5ZjBjOTAxYjllMDNiODQ4OTZmMjlmYzg0ZDY1ODQyZGQ0MGMyNDc2MDdiNGEifQ"
         }
       ]
     },
@@ -107,6 +107,6 @@
   ],
   "verification": {
     "by": "openwiki/0.5.2",
-    "at": "2026-09-22T15:37:24.200Z"
+    "at": "2026-09-23T10:59:03.026Z"
   }
 }

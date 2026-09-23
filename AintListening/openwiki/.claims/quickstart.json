@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:962a0d6fa7d3f831fdf92955f6e7dbc8b7e6bfdf65207b79f1648486a8bb81aa",
+  "pageVersion": "sha256:392078badb87b58b05f0ba48d4f279707b4e27921591a8466115e0f177fd8ea4",
   "claims": [
     {
       "id": "claim_7fe8ca4f47a04cc991df30dfdb73d26a",
@@ -31,12 +31,16 @@
       "statement": "Model and asset management is anchored around the app's internal filesDir, storing offline language models, shared multilingual ONNX punctuation/formatting models, and temporary audio chunk files.",
       "evidence": [
         {
-          "resource": "repo://src/main/java/de/switchconsulting/aintlistening/data/ModelManager.java#L110-L115",
-          "version": "repo-lines-v1:sha256:7cd5f972f156b31f769b80be643a8e21c0f683d491a3724d96f680cc4fbba493:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiODE2MzJlNDY2YWQyNGZkNDZlMjBjN2U4ZDg2MzI3Zjk5Yjc5M2I0ZmE5MmNiNzZiYzgwNzA3OTBhZDY1YzAyMyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiODI1MWJmYWJjZmI2ZDg5ZmQ5ZjRlM2I3YmM0YTE3NGZkOTBjOTk4MTg2ZTRmZGUyYzhmYTM0ZTZkNWMyOTNhYSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiODRjZGZkMGYxNmMwNDYzNDNjYzkxZDRmYjUwOTFhZjg0Y2RhM2ZjODZlNTc4ODI3MTQzMTQwNGFiYzczNjFmZCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMDZmMzFhYWEwNTRkY2NhNjk1NWU5ODk3MWI2NWZlNzI0NWI1ZTZmOTljN2EwMmRjOTAyNDUwZDM0MWRmN2NkYyJ9"
+          "resource": "repo://src/main/java/de/switchconsulting/aintlistening/data/ModelManager.java#L124-L132",
+          "version": "repo-lines-v1:sha256:5d5181b4c775c40a4a956c338618a60e8ecd589a571e04835fb7322b7b34c9e7:eyJzZWxlY3RlZExpbmVDb3VudCI6OSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiN2YzYmI2M2FiOWRkZmU2NTgwYmMxNWU1OTY3NDE1MzgyOWEzNWNiNWIyZGUwZWI2MzU4MzQxNzA5Y2I2M2NkZiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMTQxOWE2ZGNjMDRlMjEzYTNjN2E3N2E0NTZiMDFlNzZkMWVmNzhjZDAwYmJlYzFkOGY4MTQ1OGZlOTNlZGM1NiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNzQ1NWQ1ZTc4MTNmNjYwYjRjOTAwYTNhY2Q1MTFlMDU4ZTAyNzE2MWNhYzBhMTU1NWNiMTNlYWFhOTc4MTRkYiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNzgyM2NjMWJhYjY1YzJjMWI3M2UwZDUyNjBiYWVlZGY4MWFkNjRjYTBlNTIzM2ZmY2I0OGRhZmJmZTgyOGIyNCJ9"
         },
         {
-          "resource": "repo://src/main/java/de/switchconsulting/aintlistening/data/Persistency.java#L285-L290",
-          "version": "repo-lines-v1:sha256:2596e35eae26b20627fa20170696e5edc5ce93cd9809e7abb4889b811b6d662d:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZWM4MGRiYmU0YTAyZDIxNDgyZDQ0YjQxNTk0YzA0NTIzNTQwNjczMDI1NTcyYjllZDc1NThlODE5MjNmOWFiMCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYzlhODU3MmI4ODhiMDhmNzk3OThhMTlhY2FkMWVmZGFmZWQwMjcwNDI1YTNlMWMyMmQ4ODhkMTA2ZDY1NjgzYiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMWUwOWY2MjI1MmEyYzVjZThlNTQ1OTNkYTkwODk2ZGQ3MTI3ZWIxZDM5NjIwMDNjZWI5ZmEwMDJmOTYwZDVlMSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYjk5YjU0NzA3NDgxZjI4MmYxOWI5NTdhNGNmMmY5ZTUwYmU5NjZjZDNhMWExY2MzYjZkZWY3ZDVkYjdmYTA4OCJ9"
+          "resource": "repo://src/main/java/de/switchconsulting/aintlistening/data/ModelManager.java#L56-L77",
+          "version": "repo-lines-v1:sha256:c0b2a0075002a29ad99135d7390f53259c6d5dd96c15d2ae11bdca08bb057713:eyJzZWxlY3RlZExpbmVDb3VudCI6MjIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijc5NWZlOWUwNDI3MzMxY2VhNzY1NWUzMTI5ODRiY2FhMTk3MzliYTEzNWUwZTc1MmFkOWZiOTM0NWY4YjFiMjIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImI5MDFhMTFmMmQ4MTcyMGMwMjU1ZDVlMTUyMjJiMTE4NTFmYTJmN2QxMjNjZjc0MzkyZGZkNWRmNmFlYTBmYWQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImEzMzIzZDQxNzMxZDY0ZTY4YjlmMWYwYzk0MWVhNmJiYTQ5M2M5MGUyNDdlODIzNzMzNTQ5ZjE0MThlZTBhYTIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjdjNDgyOTU0N2M4N2I1MDcyYzA1OTcxZmYzMTY1ZWRiMDc0NmVkOGU4YjVmN2ZiNjEyNjA4N2E0YmYzOGEyODQifQ"
+        },
+        {
+          "resource": "repo://src/main/java/de/switchconsulting/aintlistening/data/Persistency.java#L284-L291",
+          "version": "repo-lines-v1:sha256:4e7617c95304772d326ba47d7612d67f5e58fbb192f707f24b73a1d4b916d545:eyJzZWxlY3RlZExpbmVDb3VudCI6OCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZWM4MGRiYmU0YTAyZDIxNDgyZDQ0YjQxNTk0YzA0NTIzNTQwNjczMDI1NTcyYjllZDc1NThlODE5MjNmOWFiMCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNzZhZWUyZDNmZTdkMTI0MDgwMWYyMzUwN2I5OTk1ZDA4MzZmZDQ1YzVkOGJhOGFkNDY1ZWZlYTk5Njc2ZjY1YyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMWUwOWY2MjI1MmEyYzVjZThlNTQ1OTNkYTkwODk2ZGQ3MTI3ZWIxZDM5NjIwMDNjZWI5ZmEwMDJmOTYwZDVlMSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMDZmMzFhYWEwNTRkY2NhNjk1NWU5ODk3MWI2NWZlNzI0NWI1ZTZmOTljN2EwMmRjOTAyNDUwZDM0MWRmN2NkYyJ9"
         }
       ]
     },
@@ -53,6 +57,6 @@
   ],
   "verification": {
     "by": "openwiki/0.5.2",
-    "at": "2026-09-22T15:37:24.200Z"
+    "at": "2026-09-23T10:59:03.026Z"
   }
 }

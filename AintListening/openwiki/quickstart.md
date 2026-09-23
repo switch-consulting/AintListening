@@ -5,7 +5,7 @@ description: Prerequisite setup, Gradle build instructions, local model director
 tags: [setup, quickstart, gradle, android-sdk, hilt, offline-ai, guide]
 verified:
   - by: openwiki/0.5.2
-    at: 2026-09-22T15:37:24.200Z
+    at: 2026-09-23T10:59:03.026Z
 sources:
   - id: openwiki-source-18fdeaac7d12c7b7f20e3a74
     resource: repo://build.gradle
@@ -13,7 +13,7 @@ sources:
     resource: repo://src/main/java/de/switchconsulting/aintlistening/data/ModelManager.java
   - id: openwiki-source-ed6431c58e2bd530856218bc
     resource: repo://src/main/java/de/switchconsulting/aintlistening/data/Persistency.java
-generated: { by: "openwiki/0.5.2", at: "2026-09-22T15:37:24.200Z" }
+generated: { by: "openwiki/0.5.2", at: "2026-09-23T10:59:03.026Z" }
 ---
 
 ## Introduction
@@ -59,7 +59,7 @@ flowchart TD
     UI_Download --> Ready["Ready for Offline Transcription"]
     ADB_Sideload --> Ready
 ```
-Figure 1: High-level developer onboarding and execution pipeline.
+*Figure 1: High-level developer onboarding and execution pipeline.*
 
 ---
 
@@ -75,17 +75,20 @@ The app's internal storage path resolves to:
 /data/data/de.switchconsulting.aintlistening/files/
 ```
 
-Within this directory, the following folders and files must be structured exactly as specified below:
+Within this directory, the following folders and files must be structured exactly as specified below to match the model manager configuration:
 
 | Model Category | Model Folder/File Name | Sideload Source / Description |
 | :--- | :--- | :--- |
-| **Smart Formatting (ONNX)** | `ONNXModel_multilingual` | **Directory** extracted from `ONNXModel_multilingual.zip`. Contains the token classification ONNX model and configuration files for capitalization and punctuation restoration. |
+| **Smart Formatting (ONNX)** | `ONNXModel_multilingual` | **Directory** extracted from `ONNXModel_multilingual.zip`. Contains the token classification ONNX model and configuration files for capitalization and punctuation restoration. Shared across all supported languages. |
 | **Vosk Transcription (German)** | `vosk-model-small-de-0.15` | **Directory** extracted from `vosk-model-small-de-0.15.zip`. Kaldi-based lightweight transcription engine. |
-| **Vosk Transcription (English)**| `vosk-model-small-en-us-0.15` | **Directory** extracted from `vosk-model-small-en-us-0.15.zip`. |
-| **Whisper Transcription** | `ggml-tiny.bin` | **Single Binary File** (e.g., `ggml-tiny.bin`). Raw transformer weights used by the native C++ Whisper.cpp transcriber. |
+| **Vosk Transcription (English)** | `vosk-model-small-en-us-0.15` | **Directory** extracted from `vosk-model-small-en-us-0.15.zip`. |
+| **Vosk Transcription (Spanish)** | `vosk-model-small-es-0.42` | **Directory** extracted from `vosk-model-small-es-0.42.zip`. |
+| **Vosk Transcription (French)** | `vosk-model-small-fr-0.22` | **Directory** extracted from `vosk-model-small-fr-0.22.zip`. |
+| **Vosk Transcription (Italian)** | `vosk-model-small-it-0.22` | **Directory** extracted from `vosk-model-small-it-0.22.zip`. |
+| **Whisper Transcription** | `ggml-tiny.bin` | **Single Binary File** (e.g., `ggml-tiny.bin`). Raw transformer weights used by the native C++ Whisper.cpp transcriber. Shared across all supported languages. |
 
 ### Diagnostic & Cache Directories
-* **Audio Chunks Cache**: The persistence layer creates a temporary directory named `audio_chunks` inside `filesDir` (i.e. `/data/data/de.switchconsulting.aintlistening/files/audio_chunks/`). This is used to store raw sequential audio fragments during active transcription to allow incremental playback or export.
+* **Audio Chunks Cache**: The persistence layer creates a temporary directory named `audio_chunks` inside `filesDir` (i.e., `/data/data/de.switchconsulting.aintlistening/files/audio_chunks/`). This is used to store raw sequential audio fragments as temporary WAV files during active transcription to support incremental playback or chunk export.
 
 ### Manual Sideloading via ADB (Recommended for Speed)
 On a debuggable development build, you can sideload downloaded models directly to the device's internal files directory using Android Debug Bridge (ADB) and the `run-as` tool:
@@ -158,52 +161,37 @@ To run Deep Java Library (DJL) and ONNX tokenizers natively on modern 64-bit And
 
 Now that your local environment is configured and the app is building successfully, use the following routing guide to navigate the rest of the system documentation based on your development objectives:
 
+```mermaid
+flowchart TD
+    Quickstart["Developer Quickstart<br/>(This Page)"] --> Arch["Architecture & Design Patterns"]
+    Quickstart --> Engines["Speech-to-Text Engines"]
+    Quickstart --> Smart["ONNX Punctuation & Capitalization"]
+    
+    Arch --> Ingestion["Audio Ingestion & Workflows"]
+    Engines --> Ingestion
+    Smart --> Ingestion
+    
+    Arch --> Packaging["Native Packaging & ELF Patching"]
+    Engines --> Packaging
+    Smart --> Packaging
 ```
-                  ┌─────────────────────────────────────┐
-                  │        Developer Quickstart         │
-                  │             (This Page)             │
-                  └──────────────────┬──────────────────┘
-                                     │
-         ┌───────────────────────────┼───────────────────────────┐
-         ▼                           ▼                           ▼
-┌──────────────────┐       ┌──────────────────┐       ┌──────────────────┐
-│  Architecture &  │       │  Speech-to-Text  │       │ ONNX Punctuation │
-│  Design Patterns │       │     Engines      │       │  & Capitalization│
-├──────────────────┤       ├──────────────────┤       ├──────────────────┤
-│ Learn MVVM structure     │ Compare Vosk     │       │ Understand token │
-│ & Hilt injection │       │ and Whisper      │       │ classification   │
-│ in the code.     │       │ native runtimes. │       │ and ML post-proc.│
-├──────────────────┤       ├──────────────────┤       ├──────────────────┤
-│    /openwiki/    │       │    /openwiki/    │       │    /openwiki/    │
-│   architecture/  │       │     concepts/    │       │     concepts/    │
-│    overview.md   │       │  transcription-  │       │ smart-formatting.│
-│                  │       │    engines.md    │       │        md        │
-└──────────────────┘       └──────────────────┘       └──────────────────┘
-         │                           │                           │
-         └─────────────┬─────────────┴─────────────┬─────────────┘
-                       ▼                           ▼
-             ┌──────────────────┐        ┌──────────────────┐
-             │ Audio Ingestion  │        │ Native Packaging │
-             │   & Workflows    │        │  & ELF Patching  │
-             ├──────────────────┤        ├──────────────────┤
-             │ Step-by-step raw │        │ Troubleshoot     │
-             │ audio processing │        │ .so linkers, NDK │
-             │ & decoding.      │        │ and ProGuard.    │
-             ├──────────────────┤        ├──────────────────┤
-             │    /openwiki/    │        │    /openwiki/    │
-             │    workflows/    │        │    operations/   │
-             │  ingestion-and-  │        │    build-and-    │
-             │   processing.md  │        │ elfpatching.md   │
-             └──────────────────┘        └──────────────────┘
-```
+*Figure 2: Conceptual documentation navigation paths.*
 
-* **I want to understand the high-level architecture, directory layout, and MVVM layer boundary rules:**
-  Go to [/openwiki/architecture/overview.md](/openwiki/architecture/overview.md).
-* **I want to know how Vosk and Whisper are integrated natively, how their execution loops operate, and how audio sample rates are handled:**
-  Go to [/openwiki/concepts/transcription-engines.md](/openwiki/concepts/transcription-engines.md).
-* **I want to understand how the raw transcripts are capitalized and punctuated using tokenizers and ONNX Runtime:**
-  Go to [/openwiki/concepts/smart-formatting.md](/openwiki/concepts/smart-formatting.md).
-* **I want to follow the technical data flow of how a shared audio intent (e.g. OGG/Opus) is decoded to PCM, resampled to 16kHz mono, processed, and persisted:**
-  Go to [/openwiki/workflows/ingestion-and-processing.md](/openwiki/workflows/ingestion-and-processing.md).
-* **I want to troubleshoot build configuration issues, modify ProGuard rules, or understand the ELF patcher task in detail:**
-  Go to [/openwiki/operations/build-and-elfpatching.md](/openwiki/operations/build-and-elfpatching.md).
+### Core Documentation Directory & Subpages
+
+To help you find detailed technical insights quickly, below are direct links to every subpage within the Wiki:
+
+#### Detailed Technical Guides
+* **[Developer Quickstart](/openwiki/quickstart.md)** (This Page): Prerequisite environment setup, build workflows, and local model directory structure.
+* **[System Architecture Overview](/openwiki/architecture/overview.md)**: Details the overall app structure, dependency injection rules with Dagger Hilt, and the MVVM presentation layer layout.
+* **[Local Transcription Engines](/openwiki/concepts/transcription-engines.md)**: Compares the Vosk and Whisper native engines, explaining their integration, lifecycle states, and sample rate standards.
+* **[ONNX-Based Smart Formatting](/openwiki/concepts/smart-formatting.md)**: Explains the HuggingFace tokenizers, deep learning post-processing models, and runtime formatting execution loops.
+* **[Audio Ingestion & Processing Workflow](/openwiki/workflows/ingestion-and-processing.md)**: Details the end-to-end data processing workflow from a shared audio file intent to local audio resampling (16kHz mono), background processing, and database storage.
+* **[Gradle Build and ELF Patching Operations](/openwiki/operations/build-and-elfpatching.md)**: Deep-dive reference guide covering Gradle configuration, NDK compilation, legacy JNI packaging, and the `ElfPatcherTask` internals.
+
+#### Wiki Index & Directory Hubs
+* **[Wiki Main Index](/openwiki/index.md)**: The home portal listing all top-level documentation files and categories.
+* **[Architecture Index](/openwiki/architecture/index.md)**: Folder index for design patterns, Hilt setup, and MVVM diagrams.
+* **[Concepts Index](/openwiki/concepts/index.md)**: Folder index for on-device AI runtimes and post-processing.
+* **[Operations Index](/openwiki/operations/index.md)**: Folder index for build orchestration, ELF patching, and ProGuard rules.
+* **[Workflows Index](/openwiki/workflows/index.md)**: Folder index for audio ingestion, decoding, and data persistence workflows.
