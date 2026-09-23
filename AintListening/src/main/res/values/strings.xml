@@ -74,7 +74,7 @@
     <string name="message_at_least_one_mode">At least one display mode must be active</string>
     <string name="menu_about" translatable="false">About &amp; Licenses</string>
     <string name="dialog_about_title" translatable="false">About Ain\'t Listening</string>
-    <string name="dialog_about_message" translatable="false">Ain\'t Listening is an offline-first Android app to transcribe shared voice messages locally on-device.\n\nAuthor / Copyright: switch-consulting\nWebsite: https://switch-consulting.de/\nGitHub: https://github.com/switch-consulting/AintListening\n\nOpen Source Libraries:\n- Vosk Android (Apache 2.0)\n- Microsoft ONNX Runtime (MIT)\n- Deep Java Library &amp; Tokenizers (Apache 2.0)\n- WhisperCore Android / Whisper.cpp (MIT)\n\nIndependent utility not affiliated with or endorsed by WhatsApp Inc. or Meta.</string>
+    <string name="dialog_about_message" translatable="false">Ain\'t Listening is an offline-first Android app to transcribe shared voice messages locally on-device.\n\nAuthor / Copyright: switch-consulting\nWebsite: https://switch-consulting.de/\nGitHub: https://github.com/switch-consulting/AintListening\n\nOpen Source Libraries:\n- Vosk Android (Apache 2.0)\n- Microsoft ONNX Runtime (MIT)\n- Deep Java Library &amp; Tokenizers (Apache 2.0)\n- WhisperCore Android / Whisper.cpp (MIT)\n- Facebook fbjni (MIT)\n\nIndependent utility not affiliated with or endorsed by WhatsApp Inc. or Meta.</string>
     <string name="button_visit_website" translatable="false">Website</string>
     <string name="button_visit_github" translatable="false">GitHub</string>
     <string name="button_close" translatable="false">Close</string>

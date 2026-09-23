@@ -1,6 +1,6 @@
 # Ain't Listening
 
-Offline-first Android app to transcribe shared WhatsApp voice messages (`.opus`) locally on-device.
+Offline-first Android app to transcribe shared voice messages (`.opus`) locally on-device.
 
 ## Stack
 - Java
@@ -24,7 +24,7 @@ The app requires a speech model for offline transcription. Several languages are
   `/data/data/de.switchconsulting.aintlistening/files/<model-name>`
 
 ## Usage
-1. In WhatsApp, share a voice message via **Share**.
+1. In your messaging app (such as WhatsApp), share a voice message via **Share**.
 2. Select **Ain't Listening**.
 3. App converts audio to 16kHz mono WAV and transcribes locally.
 4. Copy transcript from selectable text view.
@@ -45,4 +45,12 @@ To test the app on your Android device without building from source:
 - **Vosk**: Apache License 2.0. Models (e.g., German small) may have separate licenses—verify before commercial distribution.
 - **ONNX Runtime**: MIT License
 - **DJL / Hugging Face Tokenizers**: Apache License 2.0
+- **WhisperCore / Whisper.cpp**: MIT License
+- **Facebook fbjni**: MIT License
 - **Vosk Model**: Verify individual model license at [alphacephei.com](https://alphacephei.com/vosk/models) (usually Alpaca/Apache/Creative Commons).
+
+## Privacy & Disclaimer
+Ain't Listening is an offline-first app that processes all audio locally on your device. No voice data, transcripts, or personal information are collected, stored, or transmitted. 
+For full details, please review the [Privacy Policy](https://switch-consulting.github.io/AintListening/privacy).
+
+*Disclaimer: Ain't Listening is an independent utility and is not affiliated with, endorsed by, or sponsored by WhatsApp Inc. or Meta.*
