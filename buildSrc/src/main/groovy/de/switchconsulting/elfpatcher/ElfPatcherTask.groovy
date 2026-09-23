@@ -2,8 +2,9 @@ package de.switchconsulting.elfpatcher
 
 import org.gradle.api.DefaultTask
 import org.gradle.api.artifacts.Configuration
+import org.gradle.api.file.ConfigurableFileCollection
+import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.provider.Property
-import org.gradle.api.provider.Provider
 import org.gradle.api.provider.SetProperty
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFiles
@@ -17,13 +18,13 @@ import java.nio.file.StandardCopyOption
 abstract class ElfPatcherTask extends DefaultTask {
 
     @OutputDirectory
-    abstract Property<File> getOutputDir()
+    abstract DirectoryProperty getOutputDir()
 
     @InputFiles
-    abstract Property<Object> getClasspathFiles()
+    abstract ConfigurableFileCollection getClasspathFiles()
 
     @Internal
-    abstract Property<Object> getRuntimeConfiguration()
+    abstract Property<Configuration> getRuntimeConfiguration()
 
     @Input
     abstract SetProperty<String> getLibraryIncludes()
@@ -33,17 +34,12 @@ abstract class ElfPatcherTask extends DefaultTask {
 
     @TaskAction
     void patch() {
-        File output = outputDir.get()
+        File output = outputDir.get().asFile
         if (!output.exists()) {
             output.mkdirs()
         }
 
-        def config = runtimeConfiguration.get()
-        if (config instanceof Provider) {
-            config = config.get()
-        }
-        Configuration classpath = (Configuration) config
-        
+        Configuration classpath = runtimeConfiguration.get()
         Set<String> includes = libraryIncludes.get()
         String abi = abiFilter.get()
 

@@ -80,7 +80,7 @@ android {
 
     sourceSets {
         main {
-            jniLibs.srcDirs += ["$buildDir/generated/patchedJniLibs"]
+            jniLibs.srcDirs += [layout.buildDirectory.dir("generated/patchedJniLibs").get().asFile]
         }
     }
 
@@ -129,11 +129,12 @@ dependencies {
 import de.switchconsulting.elfpatcher.ElfPatcherTask
 
 tasks.register('patchDjlNativeLibs', ElfPatcherTask) {
-    outputDir.set(file("${project.layout.buildDirectory.get().asFile}/generated/patchedJniLibs/arm64-v8a"))
+    outputDir.set(layout.buildDirectory.dir("generated/patchedJniLibs/arm64-v8a"))
     
-    def cpName = project.configurations.any { it.name == "debugRuntimeClasspath" } ? "debugRuntimeClasspath" : "runtimeClasspath"
-    classpathFiles.set(project.configurations.named(cpName).map { it.incoming.files })
-    runtimeConfiguration.set(project.configurations.named(cpName))
+    def runtimeConfig = project.configurations.named("debugRuntimeClasspath")
+
+    classpathFiles.from(runtimeConfig.map { it.incoming.files })
+    runtimeConfiguration.set(runtimeConfig)
 
     libraryIncludes.add('ai.djl')
     libraryIncludes.add('WhisperCore_Android')
