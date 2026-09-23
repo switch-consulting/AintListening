@@ -234,7 +234,7 @@ public class TranscriptionProcessor {
      * @param providesPunctuation True if the engine already provides punctuation.
      * @return A list of paragraphs.
      */
-    private List<TranscriptionParagraph> parseParagraphs(String text, boolean providesPunctuation) {
+    List<TranscriptionParagraph> parseParagraphs(String text, boolean providesPunctuation) {
         if (text.trim().isEmpty()) return new ArrayList<>();
         String[] paras = text.split("\n\n");
         List<TranscriptionParagraph> pList = new ArrayList<>();

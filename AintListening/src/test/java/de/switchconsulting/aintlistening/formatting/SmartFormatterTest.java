@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package de.switchconsulting.aintlistening;
+package de.switchconsulting.aintlistening.formatting;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -26,9 +26,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.MockedStatic;
-
-import de.switchconsulting.aintlistening.formatting.OnnxSmartFormatter;
-import de.switchconsulting.aintlistening.formatting.SmartFormatter;
 
 /**
  * Unit tests for {@link SmartFormatter}.

@@ -103,7 +103,7 @@ public class LanguageSupport {
 
         // Fallback to the first available transcription model
         for (Map.Entry<TranscriberType, ModelInfo> entry : transcriptionModels.entrySet()) {
-            if (ModelManager.INSTANCE.isModelDownloaded(context, entry.getValue())) {
+            if (isDownloaded(context, entry.getKey())) {
                 return entry.getKey();
             }
         }
