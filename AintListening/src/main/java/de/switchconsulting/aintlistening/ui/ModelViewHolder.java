@@ -145,20 +145,20 @@ public class ModelViewHolder extends RecyclerView.ViewHolder {
         boolean isDownloaded = ModelManager.INSTANCE.isModelDownloaded(context, info);
 
         if (isTranscriber) {
-            nameText.setText(ModelManager.getEngineNameResId(info.type));
+            nameText.setText(ModelManager.getEngineNameResId(info.type()));
             radioButton.setVisibility(View.VISIBLE);
             checkBox.setVisibility(View.GONE);
 
             radioButton.setOnCheckedChangeListener(null);
-            radioButton.setChecked(info.type == activeType);
+            radioButton.setChecked(info.type() == activeType);
             radioButton.setEnabled(!isBusy && isDownloaded);
             radioButton.setOnCheckedChangeListener((buttonView, isChecked) -> {
                 if (isChecked) {
-                    listener.onTranscriberSelected(language, info.type);
+                    listener.onTranscriberSelected(language, info.type());
                 }
             });
         } else {
-            nameText.setText(info.locale.getDisplayName());
+            nameText.setText(info.locale().getDisplayName());
             radioButton.setVisibility(View.GONE);
             checkBox.setVisibility(View.VISIBLE);
 
@@ -175,7 +175,7 @@ public class ModelViewHolder extends RecyclerView.ViewHolder {
         if (!isDownloaded) {
             icon.setImageResource(R.drawable.ic_error);
             icon.setColorFilter(ContextCompat.getColor(context, android.R.color.holo_red_dark));
-            statusText.setText(context.getString(R.string.status_unavailable_with_size, info.size));
+            statusText.setText(context.getString(R.string.status_unavailable_with_size, info.size()));
             downloadButton.setVisibility(View.VISIBLE);
             downloadButton.setEnabled(!isBusy);
             downloadButton.setOnClickListener(v -> listener.onDownloadClicked(info));

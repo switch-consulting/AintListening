@@ -58,8 +58,8 @@ public class TranscriptionViewHolder extends RecyclerView.ViewHolder {
         textView.setText(paragraph.getDisplayText());
 
         UiDisplaySettings settings = adapter.displaySettings != null ? adapter.displaySettings : UiDisplaySettings.defaultSettings();
-        boolean showPlayback = settings.showPlaybackButton;
-        boolean showCopy = settings.showCopyButton;
+        boolean showPlayback = settings.showPlaybackButton();
+        boolean showCopy = settings.showCopyButton();
 
         // Play button handling
         btnPlay.setVisibility(showPlayback ? View.VISIBLE : View.GONE);
@@ -92,8 +92,8 @@ public class TranscriptionViewHolder extends RecyclerView.ViewHolder {
         }
 
         // Text toggle handling
-        boolean showRaw = settings.showRawText;
-        boolean showSmart = settings.showSmartText;
+        boolean showRaw = settings.showRawText();
+        boolean showSmart = settings.showSmartText();
 
         boolean hasFormattedText = paragraph.getFormattedText() != null && !paragraph.getFormattedText().isEmpty();
 

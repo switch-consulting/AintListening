@@ -85,8 +85,8 @@ public class OnnxSmartFormatter implements SmartFormatter {
      * @throws Exception If the model or tokenizer files are not found or fail to load.
      */
     private void loadModel(Context context, ModelInfo info) throws Exception {
-        File initialDir = new File(context.getFilesDir(), info.name);
-        File nestedDir = new File(initialDir, info.name);
+        File initialDir = new File(context.getFilesDir(), info.name());
+        File nestedDir = new File(initialDir, info.name());
         
         final File actualDir;
         if (new File(initialDir, "model.onnx").exists()) {
@@ -160,7 +160,7 @@ public class OnnxSmartFormatter implements SmartFormatter {
     private String processWithModel(String text) throws Exception {
         Log.d(TAG, "Input text: " + text);
         // Bad-code model expects lowercased input
-        Encoding encoding = tokenizer.encode(text.toLowerCase(modelInfo.locale));
+        Encoding encoding = tokenizer.encode(text.toLowerCase(modelInfo.locale()));
         long[] inputIds = encoding.getIds();
         long[] attentionMask = encoding.getAttentionMask();
         String[] tokens = encoding.getTokens();

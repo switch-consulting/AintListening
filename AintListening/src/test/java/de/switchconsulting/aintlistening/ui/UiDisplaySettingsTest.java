@@ -30,19 +30,19 @@ public class UiDisplaySettingsTest {
     public void testCustomConstructor() {
         UiDisplaySettings settings = new UiDisplaySettings(true, false, true, false);
 
-        assertTrue(settings.showPlaybackButton);
-        assertFalse(settings.showCopyButton);
-        assertTrue(settings.showRawText);
-        assertFalse(settings.showSmartText);
+        assertTrue(settings.showPlaybackButton());
+        assertFalse(settings.showCopyButton());
+        assertTrue(settings.showRawText());
+        assertFalse(settings.showSmartText());
     }
 
     @Test
     public void testDefaultSettings() {
         UiDisplaySettings settings = UiDisplaySettings.defaultSettings();
 
-        assertTrue(settings.showPlaybackButton);
-        assertTrue(settings.showCopyButton);
-        assertTrue(settings.showRawText);
-        assertTrue(settings.showSmartText);
+        assertTrue(settings.showPlaybackButton());
+        assertTrue(settings.showCopyButton());
+        assertTrue(settings.showRawText());
+        assertTrue(settings.showSmartText());
     }
 }

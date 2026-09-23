@@ -21,23 +21,18 @@ import de.switchconsulting.aintlistening.transcription.TranscriptionParagraph;
 
 /**
  * Represents the UI state for the main transcription screen.
+ *
+ * @param isLoading       True if a transcription or loading process is ongoing.
+ * @param isIndeterminate True if the ongoing loading process has indeterminate progress.
+ * @param progress        The current progress value.
+ * @param maxProgress     The maximum progress value.
+ * @param statusMessage   An optional status message describing the current operation.
+ * @param paragraphs      The list of transcription paragraphs to display.
+ * @param errorMessage    An optional error message if an error occurred.
  */
-public class MainUiState {
-    /** True if a transcription or loading process is ongoing. */
-    public final boolean isLoading;
-    /** True if the ongoing loading process has indeterminate progress. */
-    public final boolean isIndeterminate;
-    /** The current progress value. */
-    public final int progress;
-    /** The maximum progress value. */
-    public final int maxProgress;
-    /** An optional status message describing the current operation. */
-    public final String statusMessage;
-    /** The list of transcription paragraphs to display. */
-    public final List<TranscriptionParagraph> paragraphs;
-    /** An optional error message if an error occurred. */
-    public final String errorMessage;
-
+public record MainUiState(boolean isLoading, boolean isIndeterminate, int progress, int maxProgress,
+                          String statusMessage, List<TranscriptionParagraph> paragraphs,
+                          String errorMessage) {
     /**
      * Constructs a new MainUiState.
      *
@@ -49,15 +44,7 @@ public class MainUiState {
      * @param paragraphs      The list of paragraphs.
      * @param errorMessage    The error message.
      */
-    public MainUiState(boolean isLoading, boolean isIndeterminate, int progress, int maxProgress,
-                   String statusMessage, List<TranscriptionParagraph> paragraphs, String errorMessage) {
-        this.isLoading = isLoading;
-        this.isIndeterminate = isIndeterminate;
-        this.progress = progress;
-        this.maxProgress = maxProgress;
-        this.statusMessage = statusMessage;
-        this.paragraphs = paragraphs;
-        this.errorMessage = errorMessage;
+    public MainUiState {
     }
 
     public static MainUiState idle(List<TranscriptionParagraph> paragraphs) {

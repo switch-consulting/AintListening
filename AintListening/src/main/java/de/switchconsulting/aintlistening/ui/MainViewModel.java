@@ -66,13 +66,13 @@ public class MainViewModel extends ViewModel {
             @Override
             public void onStatusUpdate(String message) {
                 MainUiState current = uiStateMutable.getValue();
-                uiStateMutable.postValue(MainUiState.loading(message, current != null ? current.paragraphs : new ArrayList<>()));
+                uiStateMutable.postValue(MainUiState.loading(message, current != null ? current.paragraphs() : new ArrayList<>()));
             }
 
             @Override
             public void onPartialResult(List<TranscriptionParagraph> paragraphs) {
                 MainUiState current = uiStateMutable.getValue();
-                uiStateMutable.postValue(MainUiState.loading(current != null ? current.statusMessage : "Transcribing...", paragraphs));
+                uiStateMutable.postValue(MainUiState.loading(current != null ? current.statusMessage() : "Transcribing...", paragraphs));
             }
 
             @Override
@@ -88,7 +88,7 @@ public class MainViewModel extends ViewModel {
             @Override
             public void onError(String message) {
                 MainUiState current = uiStateMutable.getValue();
-                uiStateMutable.postValue(MainUiState.error(message, current != null ? current.paragraphs : new ArrayList<>()));
+                uiStateMutable.postValue(MainUiState.error(message, current != null ? current.paragraphs() : new ArrayList<>()));
             }
         });
     }

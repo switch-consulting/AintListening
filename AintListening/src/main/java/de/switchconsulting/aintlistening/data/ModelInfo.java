@@ -21,21 +21,16 @@ import java.util.Locale;
 
 /**
  * Data class containing metadata for a speech or formatting model.
+ *
+ * @param name   The internal name/directory name of the model.
+ * @param url    The URL where the model file can be downloaded.
+ * @param locale The locale of the language.
+ * @param size   The approximate download size of the model (e.g., "45MB").
+ * @param type   The type of transcription engine this model is for.
+ * @param isZip  Whether the downloaded file is a zip that needs extraction.
  */
-public class ModelInfo {
-    /** The internal name/directory name of the model. */
-    public final String name;
-    /** The URL where the model file can be downloaded. */
-    public final String url;
-    /** The locale of the language. */
-    public final Locale locale;
-    /** The approximate download size of the model (e.g., "45MB"). */
-    public final String size;
-    /** The type of transcription engine this model is for. */
-    public final TranscriberType type;
-    /** Whether the downloaded file is a zip that needs extraction. */
-    public final boolean isZip;
-
+public record ModelInfo(String name, String url, Locale locale, String size, TranscriberType type,
+                        boolean isZip) {
     /**
      * Constructs a new ModelInfo.
      *
@@ -46,13 +41,7 @@ public class ModelInfo {
      * @param type   The transcriber type.
      * @param isZip  Whether the file is a zip.
      */
-    public ModelInfo(String name, String url, Locale locale, String size, TranscriberType type, boolean isZip) {
-        this.name = name;
-        this.url = url;
-        this.locale = locale;
-        this.size = size;
-        this.type = type;
-        this.isZip = isZip;
+    public ModelInfo {
     }
 
     /**

@@ -38,13 +38,13 @@ public class MainUiStateTest {
         List<TranscriptionParagraph> paragraphs = Collections.singletonList(new TranscriptionParagraph("raw", "formatted"));
         MainUiState state = MainUiState.idle(paragraphs);
 
-        assertFalse(state.isLoading);
-        assertFalse(state.isIndeterminate);
-        assertEquals(0, state.progress);
-        assertEquals(0, state.maxProgress);
-        assertNull(state.statusMessage);
-        assertEquals(paragraphs, state.paragraphs);
-        assertNull(state.errorMessage);
+        assertFalse(state.isLoading());
+        assertFalse(state.isIndeterminate());
+        assertEquals(0, state.progress());
+        assertEquals(0, state.maxProgress());
+        assertNull(state.statusMessage());
+        assertEquals(paragraphs, state.paragraphs());
+        assertNull(state.errorMessage());
     }
 
     @Test
@@ -52,13 +52,13 @@ public class MainUiStateTest {
         List<TranscriptionParagraph> paragraphs = Collections.emptyList();
         MainUiState state = MainUiState.loading("Transcribing...", paragraphs);
 
-        assertTrue(state.isLoading);
-        assertTrue(state.isIndeterminate);
-        assertEquals(0, state.progress);
-        assertEquals(0, state.maxProgress);
-        assertEquals("Transcribing...", state.statusMessage);
-        assertEquals(paragraphs, state.paragraphs);
-        assertNull(state.errorMessage);
+        assertTrue(state.isLoading());
+        assertTrue(state.isIndeterminate());
+        assertEquals(0, state.progress());
+        assertEquals(0, state.maxProgress());
+        assertEquals("Transcribing...", state.statusMessage());
+        assertEquals(paragraphs, state.paragraphs());
+        assertNull(state.errorMessage());
     }
 
     @Test
@@ -66,13 +66,13 @@ public class MainUiStateTest {
         List<TranscriptionParagraph> paragraphs = Collections.emptyList();
         MainUiState state = MainUiState.progress("Formatting...", 3, 10, paragraphs);
 
-        assertTrue(state.isLoading);
-        assertFalse(state.isIndeterminate);
-        assertEquals(3, state.progress);
-        assertEquals(10, state.maxProgress);
-        assertEquals("Formatting...", state.statusMessage);
-        assertEquals(paragraphs, state.paragraphs);
-        assertNull(state.errorMessage);
+        assertTrue(state.isLoading());
+        assertFalse(state.isIndeterminate());
+        assertEquals(3, state.progress());
+        assertEquals(10, state.maxProgress());
+        assertEquals("Formatting...", state.statusMessage());
+        assertEquals(paragraphs, state.paragraphs());
+        assertNull(state.errorMessage());
     }
 
     @Test
@@ -80,12 +80,12 @@ public class MainUiStateTest {
         List<TranscriptionParagraph> paragraphs = Collections.emptyList();
         MainUiState state = MainUiState.error("Error occurred", paragraphs);
 
-        assertFalse(state.isLoading);
-        assertFalse(state.isIndeterminate);
-        assertEquals(0, state.progress);
-        assertEquals(0, state.maxProgress);
-        assertEquals("Error occurred", state.statusMessage);
-        assertEquals(paragraphs, state.paragraphs);
-        assertEquals("Error occurred", state.errorMessage);
+        assertFalse(state.isLoading());
+        assertFalse(state.isIndeterminate());
+        assertEquals(0, state.progress());
+        assertEquals(0, state.maxProgress());
+        assertEquals("Error occurred", state.statusMessage());
+        assertEquals(paragraphs, state.paragraphs());
+        assertEquals("Error occurred", state.errorMessage());
     }
 }

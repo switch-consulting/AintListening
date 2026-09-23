@@ -65,8 +65,8 @@ public class MainViewModelTest {
     public void testInitialStateLoadsLastMessage() {
         MainUiState state = viewModel.uiState.getValue();
         assertNotNull(state);
-        assertEquals(1, state.paragraphs.size());
-        assertEquals("raw", state.paragraphs.get(0).getRawText());
+        assertEquals(1, state.paragraphs().size());
+        assertEquals("raw", state.paragraphs().get(0).getRawText());
     }
 
     @Test
@@ -78,7 +78,7 @@ public class MainViewModelTest {
 
         MainUiState state = viewModel.uiState.getValue();
         assertNotNull(state);
-        assertEquals(newParagraphs, state.paragraphs);
+        assertEquals(newParagraphs, state.paragraphs());
     }
 
     @Test
@@ -99,8 +99,8 @@ public class MainViewModelTest {
 
         MainUiState finalState = viewModel.uiState.getValue();
         assertNotNull(finalState);
-        assertEquals(resultParagraphs, finalState.paragraphs);
-        assertFalse(finalState.isLoading);
+        assertEquals(resultParagraphs, finalState.paragraphs());
+        assertFalse(finalState.isLoading());
     }
 
     @Test
@@ -117,7 +117,7 @@ public class MainViewModelTest {
 
         MainUiState finalState = viewModel.uiState.getValue();
         assertNotNull(finalState);
-        assertEquals("Failed to decode audio", finalState.errorMessage);
-        assertFalse(finalState.isLoading);
+        assertEquals("Failed to decode audio", finalState.errorMessage());
+        assertFalse(finalState.isLoading());
     }
 }

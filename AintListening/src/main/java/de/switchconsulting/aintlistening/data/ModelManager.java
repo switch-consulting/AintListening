@@ -80,8 +80,8 @@ public class ModelManager {
     private static LanguageSupport createLanguageSupport(Locale locale, ModelInfo formatting, ModelInfo... transcriptionModels) {
         Map<TranscriberType, ModelInfo> map = new EnumMap<>(TranscriberType.class);
         for (ModelInfo model : transcriptionModels) {
-            if (model != null && model.type != null) {
-                map.put(model.type, model);
+            if (model != null && model.type() != null) {
+                map.put(model.type(), model);
             }
         }
         return new LanguageSupport(locale, map, formatting, INSTANCE);
@@ -123,8 +123,8 @@ public class ModelManager {
      */
     public boolean isModelDownloaded(Context context, ModelInfo info) {
         if (info == null) return false;
-        File modelFile = new File(context.getFilesDir(), info.name);
-        if (info.isZip) {
+        File modelFile = new File(context.getFilesDir(), info.name());
+        if (info.isZip()) {
             return modelFile.exists() && modelFile.isDirectory();
         } else {
             return modelFile.exists() && modelFile.isFile();
@@ -161,7 +161,7 @@ public class ModelManager {
      */
     public static boolean deleteModel(Context context, ModelInfo info) {
         if (info == null) return false;
-        File modelDir = new File(context.getFilesDir(), info.name);
+        File modelDir = new File(context.getFilesDir(), info.name());
         return deleteRecursive(modelDir);
     }
 

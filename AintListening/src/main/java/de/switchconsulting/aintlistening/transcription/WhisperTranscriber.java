@@ -90,7 +90,7 @@ public class WhisperTranscriber implements Transcriber {
             throw new IllegalStateException("Whisper model not found for language: " + language.getLocale().getDisplayName());
         }
 
-        File modelFile = new File(context.getFilesDir(), modelInfo.name);
+        File modelFile = new File(context.getFilesDir(), modelInfo.name());
         Log.i(TAG, "Loading Whisper model from: " + modelFile.getAbsolutePath());
 
         if (whisper == null) {

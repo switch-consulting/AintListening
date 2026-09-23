@@ -60,11 +60,11 @@ public class ModelDownloader {
         Handler handler = new Handler(Looper.getMainLooper());
 
         currentFuture = executor.submit(() -> {
-            Log.d(TAG, "Starting download task for: " + info.url);
+            Log.d(TAG, "Starting download task for: " + info.url());
             HttpURLConnection connection = null;
-            File targetFile = new File(targetBaseDir, info.isZip ? "model_temp.zip" : info.name);
+            File targetFile = new File(targetBaseDir, info.isZip() ? "model_temp.zip" : info.name());
             try {
-                String currentUrl = info.url;
+                String currentUrl = info.url();
                 int redirectCount = 0;
                 while (redirectCount < 5) {
                     if (isCancelled) throw new InterruptedException();
@@ -134,7 +134,7 @@ public class ModelDownloader {
                     }
                 }
 
-                if (info.isZip) {
+                if (info.isZip()) {
                     handler.post(callback::onExtracting);
                     extractZip(targetFile, targetBaseDir);
                     

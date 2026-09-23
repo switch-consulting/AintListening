@@ -82,7 +82,7 @@ public class VoskTranscriber implements Transcriber {
             throw new IllegalStateException("Vosk model info not found for language: " + language.getLocale().getDisplayName());
         }
 
-        File modelDir = new File(context.getFilesDir(), modelInfo.name);
+        File modelDir = new File(context.getFilesDir(), modelInfo.name());
         Log.i(TAG, "Loading Vosk model from: " + modelDir.getAbsolutePath());
         model = new Model(modelDir.getAbsolutePath());
         loadedLocale = locale;

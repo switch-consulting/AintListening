@@ -155,7 +155,7 @@ public class ModelManagementActivity extends AppCompatActivity {
         adapter = new ModelAdapter(languages, transcriberRegistry, new ModelInteractionListener() {
             @Override
             public void onDownloadClicked(ModelInfo info) {
-                Toast.makeText(ModelManagementActivity.this, getString(R.string.message_starting_download, info.locale.getDisplayName()), Toast.LENGTH_SHORT).show();
+                Toast.makeText(ModelManagementActivity.this, getString(R.string.message_starting_download, info.locale().getDisplayName()), Toast.LENGTH_SHORT).show();
                 startDownload(info);
             }
 
@@ -219,7 +219,7 @@ public class ModelManagementActivity extends AppCompatActivity {
             Toast.makeText(this, R.string.error_no_internet, Toast.LENGTH_LONG).show();
             return;
         }
-        Log.d(TAG, "startDownload called for model: " + info.name);
+        Log.d(TAG, "startDownload called for model: " + info.name());
         viewModel.startDownload(info);
     }
 
@@ -237,7 +237,7 @@ public class ModelManagementActivity extends AppCompatActivity {
     private void confirmDelete(ModelInfo info) {
         new MaterialAlertDialogBuilder(this)
                 .setTitle(R.string.dialog_confirm_delete_title)
-                .setMessage(getString(R.string.dialog_confirm_delete_message, info.locale.getDisplayName()))
+                .setMessage(getString(R.string.dialog_confirm_delete_message, info.locale().getDisplayName()))
                 .setPositiveButton(R.string.button_remove, (dialog, which) -> {
                     if (ModelManager.deleteModel(this, info)) {
                         updateModelStatusUI();

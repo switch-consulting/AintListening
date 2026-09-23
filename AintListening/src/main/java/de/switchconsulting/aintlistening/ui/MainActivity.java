@@ -112,26 +112,26 @@ public class MainActivity extends AppCompatActivity {
     private void handleUiState(MainUiState state) {
         if (state == null) return;
 
-        progressIndicator.setVisibility(state.isLoading ? View.VISIBLE : View.GONE);
-        progressIndicator.setIndeterminate(state.isIndeterminate);
-        if (!state.isIndeterminate) {
-            progressIndicator.setMax(state.maxProgress);
-            progressIndicator.setProgress(state.progress);
+        progressIndicator.setVisibility(state.isLoading() ? View.VISIBLE : View.GONE);
+        progressIndicator.setIndeterminate(state.isIndeterminate());
+        if (!state.isIndeterminate()) {
+            progressIndicator.setMax(state.maxProgress());
+            progressIndicator.setProgress(state.progress());
         }
 
-        if (state.statusMessage != null) {
-            statusTextView.setText(state.statusMessage);
+        if (state.statusMessage() != null) {
+            statusTextView.setText(state.statusMessage());
             statusTextView.setVisibility(View.VISIBLE);
-        } else if (state.paragraphs != null && !state.paragraphs.isEmpty()) {
+        } else if (state.paragraphs() != null && !state.paragraphs().isEmpty()) {
             statusTextView.setVisibility(View.GONE);
         }
 
-        if (state.paragraphs != null) {
-            transcriptionAdapter.setParagraphs(state.paragraphs);
+        if (state.paragraphs() != null) {
+            transcriptionAdapter.setParagraphs(state.paragraphs());
         }
 
-        if (state.errorMessage != null) {
-            Toast.makeText(this, state.errorMessage, Toast.LENGTH_LONG).show();
+        if (state.errorMessage() != null) {
+            Toast.makeText(this, state.errorMessage(), Toast.LENGTH_LONG).show();
         }
     }
 

@@ -42,12 +42,12 @@ public class ModelInfoTest {
                 false
         );
 
-        assertEquals("ggml-tiny.bin", info.name);
-        assertEquals("https://example.com/whisper.bin", info.url);
-        assertEquals(Locale.GERMAN, info.locale);
-        assertEquals("75MB", info.size);
-        assertEquals(TranscriberType.WHISPER, info.type);
-        assertFalse(info.isZip);
+        assertEquals("ggml-tiny.bin", info.name());
+        assertEquals("https://example.com/whisper.bin", info.url());
+        assertEquals(Locale.GERMAN, info.locale());
+        assertEquals("75MB", info.size());
+        assertEquals(TranscriberType.WHISPER, info.type());
+        assertFalse(info.isZip());
     }
 
     @Test
@@ -59,11 +59,11 @@ public class ModelInfoTest {
                 "45MB"
         );
 
-        assertEquals("vosk-model-de", info.name);
-        assertEquals("https://example.com/vosk.zip", info.url);
-        assertEquals(Locale.GERMAN, info.locale);
-        assertEquals("45MB", info.size);
-        assertEquals(TranscriberType.VOSK, info.type);
-        assertTrue(info.isZip);
+        assertEquals("vosk-model-de", info.name());
+        assertEquals("https://example.com/vosk.zip", info.url());
+        assertEquals(Locale.GERMAN, info.locale());
+        assertEquals("45MB", info.size());
+        assertEquals(TranscriberType.VOSK, info.type());
+        assertTrue(info.isZip());
     }
 }

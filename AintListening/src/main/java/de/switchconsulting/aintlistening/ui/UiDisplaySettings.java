@@ -18,17 +18,14 @@ package de.switchconsulting.aintlistening.ui;
 
 /**
  * Value object representing UI display preferences for transcription paragraphs.
+ *
+ * @param showPlaybackButton True if the audio playback button should be shown.
+ * @param showCopyButton     True if the copy text button should be shown.
+ * @param showRawText        True if raw transcribed text view toggle should be enabled.
+ * @param showSmartText      True if smart formatted text view toggle should be enabled.
  */
-public class UiDisplaySettings {
-    /** True if the audio playback button should be shown. */
-    public final boolean showPlaybackButton;
-    /** True if the copy text button should be shown. */
-    public final boolean showCopyButton;
-    /** True if raw transcribed text view toggle should be enabled. */
-    public final boolean showRawText;
-    /** True if smart formatted text view toggle should be enabled. */
-    public final boolean showSmartText;
-
+public record UiDisplaySettings(boolean showPlaybackButton, boolean showCopyButton,
+                                boolean showRawText, boolean showSmartText) {
     /**
      * Constructs a new UiDisplaySettings instance.
      *
@@ -37,11 +34,7 @@ public class UiDisplaySettings {
      * @param showRawText        True to show raw text toggle.
      * @param showSmartText      True to show smart formatted text toggle.
      */
-    public UiDisplaySettings(boolean showPlaybackButton, boolean showCopyButton, boolean showRawText, boolean showSmartText) {
-        this.showPlaybackButton = showPlaybackButton;
-        this.showCopyButton = showCopyButton;
-        this.showRawText = showRawText;
-        this.showSmartText = showSmartText;
+    public UiDisplaySettings {
     }
 
     /**
