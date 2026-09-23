@@ -5,7 +5,7 @@ description: Detailed guide on local, offline speech-to-text engines in AintList
 tags: [transcription, speech-to-text, vosk, whisper, offline-first, android, local-ai]
 verified:
   - by: openwiki/0.5.2
-    at: 2026-09-22T15:37:24.200Z
+    at: 2026-09-23T10:59:03.026Z
 sources:
   - id: openwiki-source-d256493bcf5042e7f5be0387
     resource: repo://src/main/java/de/switchconsulting/aintlistening/transcription/Transcriber.java
@@ -15,7 +15,7 @@ sources:
     resource: repo://src/main/java/de/switchconsulting/aintlistening/transcription/VoskTranscriber.java
   - id: openwiki-source-d559f223847d6101065cafd8
     resource: repo://src/main/java/de/switchconsulting/aintlistening/transcription/WhisperTranscriber.java
-generated: { by: "openwiki/0.5.2", at: "2026-09-22T15:37:24.200Z" }
+generated: { by: "openwiki/0.5.2", at: "2026-09-23T10:59:03.026Z" }
 ---
 
 ## Overview
@@ -37,12 +37,13 @@ The orchestration and invocation of transcription engines are decoupled from the
 ```java
 @Singleton
 public class TranscriberRegistry {
+
     private final Map<TranscriberType, Transcriber> transcribers = new EnumMap<>(TranscriberType.class);
 
     @Inject
-    public TranscriberRegistry() {
-        transcribers.put(TranscriberType.VOSK, new VoskTranscriber());
-        transcribers.put(TranscriberType.WHISPER, new WhisperTranscriber());
+    public TranscriberRegistry(VoskTranscriber voskTranscriber, WhisperTranscriber whisperTranscriber) {
+        transcribers.put(TranscriberType.VOSK, voskTranscriber);
+        transcribers.put(TranscriberType.WHISPER, whisperTranscriber);
     }
 
     public Transcriber getTranscriber(TranscriberType type) {
@@ -58,9 +59,10 @@ public class TranscriberRegistry {
 ```
 
 ### Key Responsibilities
-* **Decoupled Mapping**: Maps `TranscriberType` keys (`VOSK` or `WHISPER`) to active `Transcriber` instances inside an `EnumMap`.
+* **Decoupled Mapping & Map Structure**: Maps `TranscriberType` keys (`VOSK` or `WHISPER`) to active `Transcriber` instances inside an `EnumMap`. This map avoids dynamic runtime allocations and provides rapid key-based lookups.
+* **Hilt Dependency Injection**: Leverages constructor-based dependency injection to receive singleton instances of concrete engines (`VoskTranscriber` and `WhisperTranscriber`).
 * **Runtime Resolution**: Exposes `getTranscriber(TranscriberType type)` to allow dynamic resolution of engines by the `TranscriptionProcessor` orchestrator based on user configuration.
-* **Lifecycle Shutdown**: Offers a central `closeAll()` hook called when the application or core processing loop terminates, releasing native memory and file handles.
+* **Lifecycle Shutdown hooks**: Offers a central `closeAll()` hook called when the application or core processing loop terminates, iterating through the EnumMap to release native memory and close JNI handles.
 
 ---
 
@@ -70,13 +72,11 @@ The `Transcriber` interface defines the contract that any local transcription se
 
 ```java
 public interface Transcriber {
-    void ensureModelLoaded(Context context, int modelIndex) throws Exception;
+    void ensureModelLoaded(Context context, Locale locale) throws Exception;
     
     List<TranscriptionParagraph> transcribe(Context context, File wavFile, TranscriptionListener listener) throws Exception;
     
     TranscriberType getType();
-    
-    int getNameResId();
     
     boolean providesPunctuation();
     
@@ -90,10 +90,11 @@ The lifecycle of an active transcriber revolves around three phases:
 
 #### 1. Model Memory Allocation (`ensureModelLoaded`)
 Before any audio is passed to an engine, its binary model weights (which may range from 40 MB to over 100 MB) must be loaded into memory. This method performs the following tasks:
+* **Locale-Based Model Selection**: Rather than loading by a numeric index, it accepts a standard Java `Locale` to locate the appropriate language model support via `ModelManager.getLanguageSupport(locale)`.
 * Asserts whether the requested model files exist in the internal storage (`context.getFilesDir()`).
 * If not present, it fails fast by throwing an `IllegalStateException` (meaning the model must be downloaded via `ModelDownloader` first).
 * Instantiates the underlying engine handles (e.g., `new Model()` in Vosk, or `whisper.initializeModel()` in Whisper) and blocks until the model is ready in RAM.
-* Cache Verification: Avoids redundant re-loading if the requested engine and model index match the already-loaded model weights.
+* Cache Verification: Avoids redundant re-loading if the requested engine and language locale match the already-loaded model weights.
 
 #### 2. Execution & Stream Processing (`transcribe`)
 Executes the main transcription pass on an input 16kHz WAV file.
@@ -147,8 +148,6 @@ Figure 1: State machine representing model installation, RAM loading, and transc
 
 ## Vosk vs. Whisper: Architectural Comparison
 
-While both engines share the `Transcriber` abstraction, they are built on entirely different design patterns and runtime APIs.
-
 | Feature / Metric | Vosk Engine (`VoskTranscriber`) | Whisper Engine (`WhisperTranscriber`) |
 | :--- | :--- | :--- |
 | **Underlying Lib** | Vosk API (Kaldi-based) | Whisper.cpp (C++ Port of OpenAI Whisper) |
@@ -193,7 +192,7 @@ whisper.transcribeAudioFile(wavFile, /* keepTimestamps */ true, /* printLogs */ 
 Results are delivered asynchronously via `WhisperDelegate` callbacks (`didTranscribe(text)` or `failedToTranscribe(error)`). The transcriber uses a `CompletableFuture<String>` to block the executing thread until the transcription finishes or times out.
 
 #### 2. Log Polling for Incremental Updates
-Because the C++ engine writes transcription progress directly to a internal message log buffer, `WhisperTranscriber` runs a background thread polling loop.
+Because the C++ engine writes transcription progress directly to an internal message log buffer, `WhisperTranscriber` runs a background thread polling loop.
 * Every `INCREMENTAL_UPDATE_POLLING_INTERVALL_MS` (100 ms), it calls `whisper.getMessageLogs()`.
 * It compares the message logs against the previous line count and processes newly added lines.
 * Each segment line matches a strict regex pattern representing timestamp boundaries:
@@ -219,8 +218,8 @@ When a paragraph split is triggered, Whisper extracts the corresponding raw audi
   - `16 samples/ms * 2 bytes/sample = 32 bytes/ms`.
 * **Random-Access Seek**:
   The transcriber opens the source file in read-only mode via a `RandomAccessFile` and seeks to:
-  $$\text{Start Byte} = 44 \text{ (WAV Header)} + (\text{Start Millisecond} \times 32)$$
-  $$\text{End Byte} = 44 \text{ (WAV Header)} + (\text{End Millisecond} \times 32)$$
+  $$\text{Start Byte} = 44 \text (WAV Header) + (\text{Start Millisecond} \times 32)$$
+  $$\text{End Byte} = 44 \text (WAV Header) + (\text{End Millisecond} \times 32)$$
 * The exact slice is read from disk, converted to a byte array, and sent to `listener.onAudioChunkAvailable(pcm, chunkIndex++)` to be stored in cache.
 
 ---
@@ -237,11 +236,6 @@ public TranscriberType getType() {
 }
 
 @Override
-public int getNameResId() {
-    return R.string.engine_vosk;
-}
-
-@Override
 public boolean providesPunctuation() {
     return false; // Requires subsequent smart formatting
 }
@@ -252,11 +246,6 @@ public boolean providesPunctuation() {
 @Override
 public TranscriberType getType() {
     return TranscriberType.WHISPER;
-}
-
-@Override
-public int getNameResId() {
-    return R.string.engine_whisper;
 }
 
 @Override
