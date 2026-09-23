@@ -24,6 +24,8 @@ import dagger.hilt.android.qualifiers.ApplicationContext;
 import dagger.hilt.components.SingletonComponent;
 import de.switchconsulting.aintlistening.data.Persistency;
 import de.switchconsulting.aintlistening.transcription.TranscriberRegistry;
+import de.switchconsulting.aintlistening.transcription.VoskTranscriber;
+import de.switchconsulting.aintlistening.transcription.WhisperTranscriber;
 
 import javax.inject.Singleton;
 
@@ -49,11 +51,13 @@ public class AppModule {
     /**
      * Provides the singleton instance of the TranscriberRegistry.
      *
+     * @param voskTranscriber    The Vosk transcriber instance.
+     * @param whisperTranscriber The Whisper transcriber instance.
      * @return The TranscriberRegistry instance.
      */
     @Provides
     @Singleton
-    public static TranscriberRegistry provideTranscriberRegistry() {
-        return new TranscriberRegistry();
+    public static TranscriberRegistry provideTranscriberRegistry(VoskTranscriber voskTranscriber, WhisperTranscriber whisperTranscriber) {
+        return new TranscriberRegistry(voskTranscriber, whisperTranscriber);
     }
 }

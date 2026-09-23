@@ -75,7 +75,7 @@ public class MainActivity extends AppCompatActivity {
         progressIndicator = findViewById(R.id.progressIndicator);
         statusTextView = findViewById(R.id.statusTextView);
         RecyclerView transcriptRecyclerView = findViewById(R.id.transcriptRecyclerView);
-        transcriptionAdapter = new TranscriptionAdapter(persistency);
+        transcriptionAdapter = new TranscriptionAdapter(getUiDisplaySettings());
         transcriptRecyclerView.setAdapter(transcriptionAdapter);
 
         MaterialButton configureButton = findViewById(R.id.configureButton);
@@ -143,8 +143,22 @@ public class MainActivity extends AppCompatActivity {
         super.onResume();
         updateAvailableLanguagesUI();
         if (transcriptionAdapter != null) {
-            transcriptionAdapter.notifyItemRangeChanged(0, transcriptionAdapter.getItemCount());
+            transcriptionAdapter.setDisplaySettings(getUiDisplaySettings());
         }
+    }
+
+    /**
+     * Creates a UiDisplaySettings instance reflecting current persistency preferences.
+     *
+     * @return Current UiDisplaySettings.
+     */
+    private UiDisplaySettings getUiDisplaySettings() {
+        return new UiDisplaySettings(
+                persistency.isShowPlaybackButton(),
+                persistency.isShowCopyButton(),
+                persistency.isShowRawText(),
+                persistency.isShowSmartText()
+        );
     }
 
     /**
@@ -209,45 +223,42 @@ public class MainActivity extends AppCompatActivity {
      * @param audioUri The URI of the audio to transcribe.
      */
     private void checkModelsAndProceed(Uri audioUri) {
-        List<Integer> availableIndices = new ArrayList<>();
-        int index = 0;
+        List<LanguageSupport> availableLanguages = new ArrayList<>();
         for (LanguageSupport lang : ModelManager.SUPPORTED_LANGUAGES) {
             boolean isEnabled = persistency.isLanguageEnabled(lang.getLocale());
             boolean isDownloaded = lang.hasTranscriptionModelDownloaded(this);
             if (isEnabled && isDownloaded) {
-                availableIndices.add(index);
+                availableLanguages.add(lang);
             }
-            index++;
         }
 
-        if (availableIndices.isEmpty()) {
+        if (availableLanguages.isEmpty()) {
             Toast.makeText(this, R.string.status_no_models_installed, Toast.LENGTH_SHORT).show();
             return;
         }
 
-        if (availableIndices.size() == 1) {
-            viewModel.startTranscription(audioUri, availableIndices.get(0));
+        if (availableLanguages.size() == 1) {
+            viewModel.startTranscription(audioUri, availableLanguages.get(0).getLocale());
         } else {
-            showLanguageSelectionDialog(availableIndices, audioUri);
+            showLanguageSelectionDialog(availableLanguages, audioUri);
         }
     }
 
     /**
      * Displays a dialog for the user to select the language for transcription.
      *
-     * @param availableIndices The indices of the available language models.
-     * @param audioUri         The URI of the audio to transcribe.
+     * @param availableLanguages The available language supports.
+     * @param audioUri           The URI of the audio to transcribe.
      */
-    private void showLanguageSelectionDialog(List<Integer> availableIndices, Uri audioUri) {
-        String[] languages = new String[availableIndices.size()];
-        int idx = 0;
-        for (Integer availableIndex : availableIndices) {
-            languages[idx++] = ModelManager.SUPPORTED_LANGUAGES[availableIndex].getLocale().getDisplayName();
+    private void showLanguageSelectionDialog(List<LanguageSupport> availableLanguages, Uri audioUri) {
+        String[] languages = new String[availableLanguages.size()];
+        for (int i = 0; i < availableLanguages.size(); i++) {
+            languages[i] = availableLanguages.get(i).getLocale().getDisplayName();
         }
 
         new MaterialAlertDialogBuilder(this)
                 .setTitle(R.string.dialog_select_transcription_language)
-                .setItems(languages, (dialog, which) -> viewModel.startTranscription(audioUri, availableIndices.get(which)))
+                .setItems(languages, (dialog, which) -> viewModel.startTranscription(audioUri, availableLanguages.get(which).getLocale()))
                 .setNegativeButton(R.string.button_cancel, (dialog, which) -> {
                     statusTextView.setText(R.string.intro_instruction);
                     statusTextView.setVisibility(View.VISIBLE);

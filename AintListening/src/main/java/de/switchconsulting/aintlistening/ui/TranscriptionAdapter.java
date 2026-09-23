@@ -34,7 +34,6 @@ import java.util.List;
 import java.util.Objects;
 
 import de.switchconsulting.aintlistening.R;
-import de.switchconsulting.aintlistening.data.Persistency;
 import de.switchconsulting.aintlistening.transcription.TranscriptionParagraph;
 
 /**
@@ -49,16 +48,26 @@ public class TranscriptionAdapter extends RecyclerView.Adapter<TranscriptionView
     MediaPlayer mediaPlayer;
     /** The list position of the paragraph currently playing audio, or -1 if none. */
     int currentlyPlayingPosition = -1;
-    /** The persistency helper used to read UI settings. */
-    final Persistency persistency;
+    /** The UI display settings for configuring visibility options. */
+    UiDisplaySettings displaySettings;
 
     /**
-     * Constructs a new TranscriptionAdapter.
+     * Constructs a new TranscriptionAdapter with specified display settings.
      *
-     * @param persistency The persistency helper.
+     * @param displaySettings The display settings.
      */
-    public TranscriptionAdapter(Persistency persistency) {
-        this.persistency = persistency;
+    public TranscriptionAdapter(UiDisplaySettings displaySettings) {
+        this.displaySettings = displaySettings;
+    }
+
+    /**
+     * Updates the UI display settings and refreshes visible items.
+     *
+     * @param displaySettings The new display settings.
+     */
+    public void setDisplaySettings(UiDisplaySettings displaySettings) {
+        this.displaySettings = displaySettings != null ? displaySettings : UiDisplaySettings.defaultSettings();
+        notifyItemRangeChanged(0, getItemCount());
     }
 
     /**

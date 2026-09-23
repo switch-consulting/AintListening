@@ -99,6 +99,22 @@ public class ModelManager {
     }
 
     /**
+     * Resolves the LanguageSupport instance for a given locale.
+     *
+     * @param locale The target locale.
+     * @return The matching LanguageSupport instance, or null if not found.
+     */
+    public static LanguageSupport getLanguageSupport(Locale locale) {
+        if (locale == null) return null;
+        for (LanguageSupport lang : SUPPORTED_LANGUAGES) {
+            if (lang.getLocale().getLanguage().equalsIgnoreCase(locale.getLanguage())) {
+                return lang;
+            }
+        }
+        return null;
+    }
+
+    /**
      * Checks if a model is already downloaded and present on the device.
      *
      * @param context The context.

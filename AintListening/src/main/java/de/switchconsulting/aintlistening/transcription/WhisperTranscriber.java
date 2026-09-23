@@ -32,12 +32,16 @@ import java.io.RandomAccessFile;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import de.switchconsulting.aintlistening.R;
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
 import de.switchconsulting.aintlistening.data.LanguageSupport;
 import de.switchconsulting.aintlistening.data.ModelInfo;
 import de.switchconsulting.aintlistening.data.ModelManager;
@@ -46,13 +50,18 @@ import kotlin.Unit;
 /**
  * Handles the speech-to-text transcription process using the whisper.cpp library.
  */
+@Singleton
 public class WhisperTranscriber implements Transcriber {
     private static final String TAG = "WhisperTranscriber";
     public static final int INCREMENTAL_UPDATE_POLLING_INTERVALL_MS = 100;
     public static final int SILENCE_GAP_MS = 100;
 
+    @Inject
+    public WhisperTranscriber() {
+    }
+
     private Whisper whisper;
-    private int loadedModelIndex = -1;
+    private Locale loadedLocale;
     private boolean enableIncrementalUpdates = true;
 
     private static final Pattern TIMESTAMP_PATTERN = Pattern.compile("\\[(\\d{2}:\\d{2}:\\d{2}\\.\\d{3})\\s*-->\\s*(\\d{2}:\\d{2}:\\d{2}\\.\\d{3})]\\s*(.*)");
@@ -67,12 +76,15 @@ public class WhisperTranscriber implements Transcriber {
     }
 
     @Override
-    public void ensureModelLoaded(Context context, int modelIndex) throws Exception {
-        if (whisper != null && loadedModelIndex == modelIndex && whisper.isModelLoaded()) {
+    public void ensureModelLoaded(Context context, Locale locale) throws Exception {
+        if (whisper != null && Objects.equals(loadedLocale, locale) && whisper.isModelLoaded()) {
             return;
         }
 
-        LanguageSupport language = ModelManager.SUPPORTED_LANGUAGES[modelIndex];
+        LanguageSupport language = ModelManager.getLanguageSupport(locale);
+        if (language == null) {
+            throw new IllegalStateException("Unsupported language locale: " + (locale != null ? locale.getDisplayName() : "null"));
+        }
         ModelInfo modelInfo = language.getModel(getType());
         if (!language.isDownloaded(context, getType()) || modelInfo == null) {
             throw new IllegalStateException("Whisper model not found for language: " + language.getLocale().getDisplayName());
@@ -82,7 +94,7 @@ public class WhisperTranscriber implements Transcriber {
         Log.i(TAG, "Loading Whisper model from: " + modelFile.getAbsolutePath());
 
         if (whisper == null) {
-            whisper = new Whisper(context);
+            whisper = new Whisper(context.getApplicationContext());
         }
 
         CompletableFuture<Void> future = new CompletableFuture<>();
@@ -95,7 +107,7 @@ public class WhisperTranscriber implements Transcriber {
         if (!whisper.isModelLoaded()) {
             throw new Exception("Failed to load Whisper model");
         }
-        loadedModelIndex = modelIndex;
+        loadedLocale = locale;
     }
 
     @Override
@@ -319,11 +331,6 @@ public class WhisperTranscriber implements Transcriber {
     }
 
     @Override
-    public int getNameResId() {
-        return R.string.engine_whisper;
-    }
-
-    @Override
     public boolean providesPunctuation() {
         return true;
     }
@@ -334,7 +341,7 @@ public class WhisperTranscriber implements Transcriber {
             whisper.cleanup();
             whisper = null;
         }
-        loadedModelIndex = -1;
+        loadedLocale = null;
     }
 
     /**

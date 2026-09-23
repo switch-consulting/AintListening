@@ -31,9 +31,9 @@ public class TranscriberRegistry {
     private final Map<TranscriberType, Transcriber> transcribers = new EnumMap<>(TranscriberType.class);
 
     @Inject
-    public TranscriberRegistry() {
-        transcribers.put(TranscriberType.VOSK, new VoskTranscriber());
-        transcribers.put(TranscriberType.WHISPER, new WhisperTranscriber());
+    public TranscriberRegistry(VoskTranscriber voskTranscriber, WhisperTranscriber whisperTranscriber) {
+        transcribers.put(TranscriberType.VOSK, voskTranscriber);
+        transcribers.put(TranscriberType.WHISPER, whisperTranscriber);
     }
 
     /**

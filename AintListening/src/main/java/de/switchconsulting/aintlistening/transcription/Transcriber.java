@@ -19,19 +19,20 @@ package de.switchconsulting.aintlistening.transcription;
 import android.content.Context;
 import java.io.File;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Interface for speech-to-text transcription services.
  */
 public interface Transcriber {
     /**
-     * Ensures that the transcription model for the specified language index is loaded and ready.
+     * Ensures that the transcription model for the specified locale is loaded and ready.
      *
-     * @param context    The application context.
-     * @param modelIndex The index of the model in the supported languages list.
+     * @param context The application context.
+     * @param locale  The locale of the target language model.
      * @throws Exception if model loading fails.
      */
-    void ensureModelLoaded(Context context, int modelIndex) throws Exception;
+    void ensureModelLoaded(Context context, Locale locale) throws Exception;
 
     /**
      * Transcribes the provided audio file.
@@ -50,13 +51,6 @@ public interface Transcriber {
      * @return The transcriber type.
      */
     TranscriberType getType();
-
-    /**
-     * Returns the resource ID for the human-readable name of the transcriber.
-     *
-     * @return The string resource ID.
-     */
-    int getNameResId();
 
     /**
      * Returns whether this transcriber provides punctuation and casing in its output.

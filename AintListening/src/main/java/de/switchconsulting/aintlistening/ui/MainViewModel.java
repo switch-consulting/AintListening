@@ -26,6 +26,7 @@ import de.switchconsulting.aintlistening.data.TranscriptionProcessor;
 import de.switchconsulting.aintlistening.transcription.TranscriptionParagraph;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import javax.inject.Inject;
 
 /**
@@ -56,12 +57,12 @@ public class MainViewModel extends ViewModel {
     /**
      * Starts the transcription process for the given audio URI.
      *
-     * @param audioUri   The URI of the audio file to transcribe.
-     * @param modelIndex The index of the language model to use.
+     * @param audioUri The URI of the audio file to transcribe.
+     * @param locale   The locale of the language model to use.
      */
-    public void startTranscription(Uri audioUri, int modelIndex) {
+    public void startTranscription(Uri audioUri, Locale locale) {
         uiStateMutable.setValue(MainUiState.loading("Preparing...", new ArrayList<>()));
-        processor.startTranscription(audioUri, modelIndex, new TranscriptionCallback() {
+        processor.startTranscription(audioUri, locale, new TranscriptionCallback() {
             @Override
             public void onStatusUpdate(String message) {
                 MainUiState current = uiStateMutable.getValue();

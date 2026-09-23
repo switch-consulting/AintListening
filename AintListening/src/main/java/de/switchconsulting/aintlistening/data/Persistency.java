@@ -40,7 +40,6 @@ public class Persistency {
     private static final String TAG = "Persistency";
     private static final String PREFS_NAME = "AintListeningPrefs";
     private static final String KEY_LAST_PARAGRAPHS_JSON = "last_paragraphs_json";
-    private static final String KEY_LAST_MODEL_INDEX = "last_model_index";
     private static final String KEY_SHOW_PLAYBACK_BUTTON = "show_playback_button";
     private static final String KEY_SHOW_COPY_BUTTON = "show_copy_button";
     private static final String KEY_SHOW_RAW_TEXT = "show_raw_text";
@@ -60,12 +59,12 @@ public class Persistency {
     }
 
     /**
-     * Saves the last transcription paragraphs and the model index used.
+     * Saves the last transcription paragraphs and the language locale used.
      *
      * @param paragraphs The list of transcription paragraphs to save.
-     * @param modelIndex The index of the model used for transcription.
+     * @param locale     The locale of the model used for transcription.
      */
-    public void saveLastMessage(List<TranscriptionParagraph> paragraphs, int modelIndex) {
+    public void saveLastMessage(List<TranscriptionParagraph> paragraphs, Locale locale) {
         try {
             JSONArray array = new JSONArray();
             for (TranscriptionParagraph p : paragraphs) {
@@ -79,7 +78,7 @@ public class Persistency {
             context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
                     .edit()
                     .putString(KEY_LAST_PARAGRAPHS_JSON, array.toString())
-                    .putInt(KEY_LAST_MODEL_INDEX, modelIndex)
+                    .putString("last_locale_tag", locale != null ? locale.toLanguageTag() : null)
                     .apply();
         } catch (Exception e) {
             Log.e(TAG, "Failed to save last message", e);

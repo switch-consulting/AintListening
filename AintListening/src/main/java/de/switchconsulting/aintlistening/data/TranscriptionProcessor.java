@@ -18,11 +18,14 @@ package de.switchconsulting.aintlistening.data;
 
 import android.content.Context;
 import android.net.Uri;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -41,16 +44,17 @@ import de.switchconsulting.aintlistening.util.OpusToWavDecoder;
 
 /**
  * Handles the end-to-end transcription process, including audio conversion,
- * speech-to-text transcription using a Vosk model, and optional smart formatting.
+ * speech-to-text transcription using a Vosk or Whisper model, and optional smart formatting.
  */
 @Singleton
 public class TranscriptionProcessor {
     private static final String TAG = "TranscriptionProcessor";
 
     private final Context context;
-    private final Persistency persistency;
+    private final TranscriptionRepository repository;
     private final TranscriberRegistry transcriberRegistry;
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
+    private final Handler mainHandler = new Handler(Looper.getMainLooper());
     private SmartFormatter smartFormatter;
     private Transcriber activeTranscriber;
 
@@ -58,64 +62,67 @@ public class TranscriptionProcessor {
      * Constructs a new TranscriptionProcessor.
      *
      * @param context             The application context.
-     * @param persistency         The persistency manager for saving results and temporary files.
+     * @param repository          The repository for state saving, loading, and temporary file cache.
      * @param transcriberRegistry The registry for transcription engines.
      */
     @Inject
-    public TranscriptionProcessor(@ApplicationContext Context context, Persistency persistency, TranscriberRegistry transcriberRegistry) {
+    public TranscriptionProcessor(@ApplicationContext Context context, TranscriptionRepository repository, TranscriberRegistry transcriberRegistry) {
         this.context = context;
-        this.persistency = persistency;
+        this.repository = repository;
         this.transcriberRegistry = transcriberRegistry;
     }
 
     /**
      * Starts an asynchronous transcription of the audio at the given URI.
      *
-     * @param audioUri   The URI of the audio file to transcribe.
-     * @param modelIndex The index of the language model to use.
-     * @param callback   The callback to receive status updates and results.
+     * @param audioUri The URI of the audio file to transcribe.
+     * @param locale   The locale of the language model to use.
+     * @param callback The callback to receive status updates and results.
      */
-    public void startTranscription(Uri audioUri, int modelIndex, TranscriptionCallback callback) {
+    public void startTranscription(Uri audioUri, Locale locale, TranscriptionCallback callback) {
         executorService.execute(() -> {
             try {
-                callback.onStatusUpdate("Converting audio...");
-                File wavFile = persistency.getIncomingWavFile();
-                persistency.clearTemporaryFiles();
+                notifyStatusUpdate(callback, "Converting audio...");
+                File wavFile = repository.getIncomingWavFile();
+                repository.clearTemporaryFiles();
 
                 boolean success = OpusToWavDecoder.decodeOpusToWav(context, audioUri, wavFile);
                 if (!success) {
-                    callback.onError("Audio conversion failed");
+                    notifyError(callback, "Audio conversion failed");
                     return;
                 }
 
-                callback.onStatusUpdate("Loading model...");
-                LanguageSupport language = ModelManager.SUPPORTED_LANGUAGES[modelIndex];
-                TranscriberType activeType = language.getActiveTranscriberType(context, persistency);
+                notifyStatusUpdate(callback, "Loading model...");
+                LanguageSupport language = ModelManager.getLanguageSupport(locale);
+                if (language == null) {
+                    throw new IllegalStateException("Unsupported language locale: " + (locale != null ? locale.getDisplayName() : "null"));
+                }
+                TranscriberType activeType = language.getActiveTranscriberType(context, repository.getPersistency());
                 activeTranscriber = transcriberRegistry.getTranscriber(activeType);
                 
                 if (activeTranscriber == null) {
                     throw new IllegalStateException("Transcriber not found for type: " + activeType);
                 }
 
-                activeTranscriber.ensureModelLoaded(context, modelIndex);
+                activeTranscriber.ensureModelLoaded(context, locale);
 
-                callback.onStatusUpdate("Transcribing...");
+                notifyStatusUpdate(callback, "Transcribing...");
                 boolean providesPunctuation = activeTranscriber.providesPunctuation();
                 List<TranscriptionParagraph> rawParagraphs = activeTranscriber.transcribe(context, wavFile, new TranscriptionListener() {
                     @Override
                     public void onPartialResult(String text) {
-                        callback.onPartialResult(parseParagraphs(text, providesPunctuation));
+                        notifyPartialResult(callback, parseParagraphs(text, providesPunctuation));
                     }
 
                     @Override
                     public void onResult(String text) {
-                        callback.onPartialResult(parseParagraphs(text, providesPunctuation));
+                        notifyPartialResult(callback, parseParagraphs(text, providesPunctuation));
                     }
 
                     @Override
                     public String onAudioChunkAvailable(byte[] pcmData, int chunkIndex) {
                         try {
-                            return persistency.saveAudioChunk(pcmData, chunkIndex);
+                            return repository.saveAudioChunk(pcmData, chunkIndex);
                         } catch (Exception e) {
                             Log.e(TAG, "Failed to save audio chunk", e);
                             return null;
@@ -123,11 +130,11 @@ public class TranscriptionProcessor {
                     }
                 });
 
-                applySmartFormatting(rawParagraphs, modelIndex, callback);
+                applySmartFormatting(rawParagraphs, locale, callback);
 
             } catch (Exception e) {
                 Log.e(TAG, "Transcription failed", e);
-                callback.onError("Transcription failed: " + e.getMessage());
+                notifyError(callback, "Transcription failed: " + e.getMessage());
             }
         });
     }
@@ -135,21 +142,21 @@ public class TranscriptionProcessor {
     /**
      * Applies smart formatting (punctuation and casing) to the transcribed paragraphs.
      *
-     * @param paragraphs     The raw transcription paragraphs.
-     * @param modelIndex     The index of the language model to use for formatting.
-     * @param callback       The callback to receive progress updates and the final result.
+     * @param paragraphs The raw transcription paragraphs.
+     * @param locale     The locale of the language model to use for formatting.
+     * @param callback   The callback to receive progress updates and the final result.
      */
-    private void applySmartFormatting(List<TranscriptionParagraph> paragraphs, int modelIndex, TranscriptionCallback callback) {
-        LanguageSupport selectedLanguage = ModelManager.SUPPORTED_LANGUAGES[modelIndex];
+    private void applySmartFormatting(List<TranscriptionParagraph> paragraphs, Locale locale, TranscriptionCallback callback) {
+        LanguageSupport selectedLanguage = ModelManager.getLanguageSupport(locale);
         List<TranscriptionParagraph> formattedParagraphs = new ArrayList<>();
 
         boolean engineProvidesPunctuation = activeTranscriber != null && activeTranscriber.providesPunctuation();
-        boolean userWantsSmart = persistency.isSmartFormattingEnabled(selectedLanguage.getLocale());
-        boolean modelAvailable = selectedLanguage.isFormattingDownloaded(context);
+        boolean userWantsSmart = selectedLanguage != null && repository.getPersistency().isSmartFormattingEnabled(selectedLanguage.getLocale());
+        boolean modelAvailable = selectedLanguage != null && selectedLanguage.isFormattingDownloaded(context);
 
         if (!engineProvidesPunctuation && userWantsSmart && modelAvailable && !paragraphs.isEmpty()) {
             try {
-                callback.onStatusUpdate("Applying smart formatting...");
+                notifyStatusUpdate(callback, "Applying smart formatting...");
                 ModelInfo targetModel = selectedLanguage.getFormattingModel();
                 if (targetModel != null) {
                     if (smartFormatter != null && !smartFormatter.getModelInfo().equals(targetModel)) {
@@ -174,7 +181,7 @@ public class TranscriptionProcessor {
                     for (int j = i + 1; j < paragraphs.size(); j++) {
                         currentDisplayList.add(paragraphs.get(j));
                     }
-                    callback.onSmartFormattingProgress(i + 1, paragraphs.size(), currentDisplayList);
+                    notifySmartFormattingProgress(callback, i + 1, paragraphs.size(), currentDisplayList);
                 }
             } catch (Exception e) {
                 Log.e(TAG, "Smart formatting failed", e);
@@ -195,8 +202,28 @@ public class TranscriptionProcessor {
             }
         }
 
-        persistency.saveLastMessage(formattedParagraphs, modelIndex);
-        callback.onComplete(formattedParagraphs);
+        repository.saveLastMessage(formattedParagraphs, locale);
+        notifyComplete(callback, formattedParagraphs);
+    }
+
+    private void notifyStatusUpdate(TranscriptionCallback callback, String message) {
+        mainHandler.post(() -> callback.onStatusUpdate(message));
+    }
+
+    private void notifyPartialResult(TranscriptionCallback callback, List<TranscriptionParagraph> paragraphs) {
+        mainHandler.post(() -> callback.onPartialResult(paragraphs));
+    }
+
+    private void notifySmartFormattingProgress(TranscriptionCallback callback, int step, int total, List<TranscriptionParagraph> paragraphs) {
+        mainHandler.post(() -> callback.onSmartFormattingProgress(step, total, paragraphs));
+    }
+
+    private void notifyComplete(TranscriptionCallback callback, List<TranscriptionParagraph> paragraphs) {
+        mainHandler.post(() -> callback.onComplete(paragraphs));
+    }
+
+    private void notifyError(TranscriptionCallback callback, String message) {
+        mainHandler.post(() -> callback.onError(message));
     }
 
     /**
@@ -221,12 +248,12 @@ public class TranscriptionProcessor {
     }
 
     /**
-     * Loads the last transcription result from persistency.
+     * Loads the last transcription result from the repository.
      *
      * @return The last list of transcription paragraphs.
      */
     public List<TranscriptionParagraph> loadLastMessage() {
-        return persistency.loadLastMessage();
+        return repository.loadLastMessage();
     }
 
     /**

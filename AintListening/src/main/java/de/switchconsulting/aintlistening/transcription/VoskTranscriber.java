@@ -31,8 +31,12 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
+import java.util.Objects;
 
-import de.switchconsulting.aintlistening.R;
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
 import de.switchconsulting.aintlistening.data.LanguageSupport;
 import de.switchconsulting.aintlistening.data.ModelInfo;
 import de.switchconsulting.aintlistening.data.ModelManager;
@@ -40,22 +44,27 @@ import de.switchconsulting.aintlistening.data.ModelManager;
 /**
  * Handles the speech-to-text transcription process using the Vosk library.
  */
+@Singleton
 public class VoskTranscriber implements Transcriber {
     private static final String TAG = "VoskTranscriber";
 
     private Model model;
-    private int loadedModelIndex = -1;
+    private Locale loadedLocale;
+
+    @Inject
+    public VoskTranscriber() {
+    }
 
     /**
      * Ensures that the Vosk model for the specified language is loaded into memory.
      *
-     * @param context    The application context.
-     * @param modelIndex The index of the language in ModelManager.SUPPORTED_LANGUAGES.
+     * @param context The application context.
+     * @param locale  The locale of the language to load.
      * @throws Exception If the model loading fails.
      */
     @Override
-    public void ensureModelLoaded(Context context, int modelIndex) throws Exception {
-        if (model != null && loadedModelIndex == modelIndex) {
+    public void ensureModelLoaded(Context context, Locale locale) throws Exception {
+        if (model != null && Objects.equals(loadedLocale, locale)) {
             return;
         }
 
@@ -63,9 +72,9 @@ public class VoskTranscriber implements Transcriber {
             model.close();
         }
 
-        LanguageSupport language = ModelManager.SUPPORTED_LANGUAGES[modelIndex];
-        if (!language.isDownloaded(context, getType())) {
-            throw new IllegalStateException("Vosk model not found for language: " + language.getLocale().getDisplayName());
+        LanguageSupport language = ModelManager.getLanguageSupport(locale);
+        if (language == null || !language.isDownloaded(context, getType())) {
+            throw new IllegalStateException("Vosk model not found for language: " + (locale != null ? locale.getDisplayName() : "null"));
         }
 
         ModelInfo modelInfo = language.getModel(getType());
@@ -76,7 +85,7 @@ public class VoskTranscriber implements Transcriber {
         File modelDir = new File(context.getFilesDir(), modelInfo.name);
         Log.i(TAG, "Loading Vosk model from: " + modelDir.getAbsolutePath());
         model = new Model(modelDir.getAbsolutePath());
-        loadedModelIndex = modelIndex;
+        loadedLocale = locale;
     }
 
     /**
@@ -210,11 +219,6 @@ public class VoskTranscriber implements Transcriber {
     }
 
     @Override
-    public int getNameResId() {
-        return R.string.engine_vosk;
-    }
-
-    @Override
     public boolean providesPunctuation() {
         return false;
     }
@@ -232,6 +236,6 @@ public class VoskTranscriber implements Transcriber {
             }
             model = null;
         }
-        loadedModelIndex = -1;
+        loadedLocale = null;
     }
 }
