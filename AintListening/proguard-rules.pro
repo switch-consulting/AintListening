@@ -15,6 +15,41 @@
 # Add project specific ProGuard rules here.
 # You can control the set of applied configuration files using the
 # proguardFiles setting in build.gradle.
-#
-# For more details, see
-#   http://developer.android.com/guide/developing/tools/proguard.html
+
+# Hilt
+-keep,allowobfuscation @dagger.hilt.android.AndroidEntryPoint class *
+-keep,allowobfuscation @dagger.hilt.android.HiltAndroidApp class *
+-keep,allowobfuscation @dagger.hilt.android.lifecycle.HiltViewModel class *
+-keep class dagger.hilt.android.internal.managers.ViewComponentManager$FragmentContextWrapper { *; }
+
+# Retain all native method signatures
+-keepclasseswithmembernames class * {
+    native <methods>;
+}
+
+# Prevent stripping of JNI interface classes
+-keep class com.facebook.jni.** { *; }
+
+# ONNX Runtime Native rules
+-keep class ai.onnxruntime.** { *; }
+-dontwarn ai.onnxruntime.**
+
+# HuggingFace / Deep Java Library (DJL) Tokenizer rules
+-keep class ai.djl.huggingface.tokenizers.** { *; }
+-keep class ai.djl.android.** { *; }
+-dontwarn ai.djl.**
+
+# WhisperCore C++ Wrapper rules
+-keep class com.redravencomputing.whispercore.** { *; }
+-dontwarn com.redravencomputing.whispercore.**
+
+# Vosk Speech-to-Text Engine rules
+-keep class com.alphacephei.vosk.** { *; }
+-keep class org.kaldi.** { *; }
+-keep class org.vosk.** { *; }
+-dontwarn org.vosk.**
+-dontwarn com.alphacephei.vosk.**
+-dontwarn org.kaldi.**
+
+# Apache Commons (used in archive extraction / compress)
+-dontwarn org.apache.commons.**

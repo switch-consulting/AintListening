@@ -112,6 +112,19 @@
         android:clipToPadding="false"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         app:layout_constraintTop_toBottomOf="@id/statusTextView"
+        app:layout_constraintBottom_toTopOf="@id/aboutButton"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/aboutButton"
+        style="@style/Widget.Material3.Button.OutlinedButton"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="8dp"
+        android:text="@string/menu_about"
         app:layout_constraintBottom_toTopOf="@id/closeButton"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
@@ -121,7 +134,9 @@
         style="@style/Widget.Material3.Button"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_margin="16dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
         android:text="@string/button_done"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"

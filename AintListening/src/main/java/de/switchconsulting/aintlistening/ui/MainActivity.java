@@ -80,12 +80,14 @@ public class MainActivity extends AppCompatActivity {
 
         MaterialButton configureButton = findViewById(R.id.configureButton);
         MaterialButton closeButton = findViewById(R.id.closeButton);
+        MaterialButton aboutButton = findViewById(R.id.aboutButton);
 
         closeButton.setOnClickListener(v -> finish());
         configureButton.setOnClickListener(v -> {
             Intent intent = new Intent(MainActivity.this, ModelManagementActivity.class);
             startActivity(intent);
         });
+        aboutButton.setOnClickListener(v -> showAboutDialog());
 
         viewModel.uiState.observe(this, this::handleUiState);
 
@@ -262,6 +264,25 @@ public class MainActivity extends AppCompatActivity {
                 .setNegativeButton(R.string.button_cancel, (dialog, which) -> {
                     statusTextView.setText(R.string.intro_instruction);
                     statusTextView.setVisibility(View.VISIBLE);
+                })
+                .show();
+    }
+
+    /**
+     * Displays the About and Licenses dialog with author info, links, and open-source attributions.
+     */
+    private void showAboutDialog() {
+        new MaterialAlertDialogBuilder(this)
+                .setTitle(R.string.dialog_about_title)
+                .setMessage(R.string.dialog_about_message)
+                .setPositiveButton(R.string.button_close, (dialog, which) -> dialog.dismiss())
+                .setNeutralButton(R.string.button_visit_website, (dialog, which) -> {
+                    Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://switch-consulting.de/"));
+                    startActivity(intent);
+                })
+                .setNegativeButton(R.string.button_visit_github, (dialog, which) -> {
+                    Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/switch-consulting/AintListening"));
+                    startActivity(intent);
                 })
                 .show();
     }
