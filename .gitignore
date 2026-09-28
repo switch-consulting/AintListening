@@ -1,33 +1,21 @@
 *.iml
 .gradle
-/local.properties
 /.idea/
 .artifacts/
 .DS_Store
-/build
 /captures
 .externalNativeBuild
-.cxx
 local.properties
-/AintListening/build/
 /gradle/gradle-daemon-jvm.properties
-# Model Prep folders
+
+# Build outputs
+/build
+/AintListening/build/
+/buildSrc/build/
+release/
+
+# Model preparation outputs
+onnx_export/
+onnx_quantized/
 model-prep/onnx_export/
 model-prep/onnx_quantized/
-
-# Temporary and generated files
-*_list.html
-*_metadata.xml
-tokenizers-*.pom
-/onnx_export/
-/onnx_quantized/
-/apk_unzipped/
-/hf_list.html
-/android_list.html
-/maven_list.html
-/tn_list.html
-/onnx_list.html
-/core_metadata.xml
-/tn_metadata.xml
-/tokenizers-0.36.0.pom
-/buildSrc/build/
