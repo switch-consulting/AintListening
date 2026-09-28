@@ -25,6 +25,7 @@ import android.content.Context;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import java.util.List;
 
@@ -76,5 +77,29 @@ public class TranscriptionProcessorTest {
 
         assertEquals("Paragraph two.", result.get(1).getRawText());
         assertEquals("Paragraph two.", result.get(1).getFormattedText());
+    }
+
+    @Test
+    public void testLoadLastMessageDelegatesToRepository() {
+        TranscriptionRepository repository = mock(TranscriptionRepository.class);
+        TranscriberRegistry registry = mock(TranscriberRegistry.class);
+        Context context = mock(Context.class);
+
+        TranscriptionProcessor proc = new TranscriptionProcessor(context, repository, registry);
+        proc.loadLastMessage();
+
+        Mockito.verify(repository).loadLastMessage();
+    }
+
+    @Test
+    public void testReleaseClosesRegistry() {
+        TranscriptionRepository repository = mock(TranscriptionRepository.class);
+        TranscriberRegistry registry = mock(TranscriberRegistry.class);
+        Context context = mock(Context.class);
+
+        TranscriptionProcessor proc = new TranscriptionProcessor(context, repository, registry);
+        proc.release();
+
+        Mockito.verify(registry).closeAll();
     }
 }

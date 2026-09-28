@@ -20,6 +20,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.Locale;
@@ -65,5 +66,16 @@ public class ModelInfoTest {
         assertEquals("45MB", info.size());
         assertEquals(TranscriberType.VOSK, info.type());
         assertTrue(info.isZip());
+    }
+
+    @Test
+    public void testEqualsAndHashCode() {
+        ModelInfo info1 = new ModelInfo("name", "url", Locale.GERMAN, "10MB", TranscriberType.VOSK, true);
+        ModelInfo info2 = new ModelInfo("name", "url", Locale.GERMAN, "10MB", TranscriberType.VOSK, true);
+        ModelInfo info3 = new ModelInfo("other", "url", Locale.GERMAN, "10MB", TranscriberType.VOSK, true);
+
+        assertEquals(info1, info2);
+        assertEquals(info1.hashCode(), info2.hashCode());
+        Assert.assertNotEquals(info1, info3);
     }
 }

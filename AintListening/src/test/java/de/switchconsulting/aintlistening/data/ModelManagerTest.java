@@ -104,4 +104,32 @@ public class ModelManagerTest {
         // Now downloaded
         assertTrue(ModelManager.INSTANCE.isModelDownloaded(context, binModel));
     }
+
+    @Test
+    public void testIsModelDownloadedNull() {
+        Context context = mock(Context.class);
+        assertFalse(ModelManager.INSTANCE.isModelDownloaded(context, null));
+    }
+
+    @Test
+    public void testDeleteModelNull() {
+        Context context = mock(Context.class);
+        assertFalse(ModelManager.deleteModel(context, null));
+    }
+
+    @Test
+    public void testDeleteModelFileAndDir() throws IOException {
+        Context context = mock(Context.class);
+        File filesDir = temporaryFolder.newFolder("filesDirForDelete");
+        when(context.getFilesDir()).thenReturn(filesDir);
+
+        ModelInfo model = new ModelInfo("model-to-delete", "http://example.com", Locale.GERMAN, "10MB", TranscriberType.VOSK, true);
+        File dir = new File(filesDir, "model-to-delete");
+        assertTrue(dir.mkdir());
+        File subFile = new File(dir, "data.txt");
+        assertTrue(subFile.createNewFile());
+
+        assertTrue(ModelManager.deleteModel(context, model));
+        assertFalse(dir.exists());
+    }
 }

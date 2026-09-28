@@ -23,6 +23,7 @@ import static org.mockito.Mockito.mockStatic;
 import android.text.TextUtils;
 
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.MockedStatic;
@@ -96,16 +97,46 @@ public class SmartFormatterTest {
      * Tests acronym handling.
      */
     @Test
-    public void testReconstructTextBadCode_Acronyms() {
-        String[] tokens = {" die", " usa"};
-        long[] prePreds = new long[2];
-        long[] postPreds = {0, 1}; // Acronym marker on "usa"
+    public void testIsSpecialToken() {
+        Assert.assertTrue(OnnxSmartFormatter.isSpecialToken("<s>"));
+        Assert.assertTrue(OnnxSmartFormatter.isSpecialToken("</s>"));
+        Assert.assertTrue(OnnxSmartFormatter.isSpecialToken("<pad>"));
+        Assert.assertTrue(OnnxSmartFormatter.isSpecialToken("[CLS]"));
+        Assert.assertTrue(OnnxSmartFormatter.isSpecialToken("[SEP]"));
+        Assert.assertTrue(OnnxSmartFormatter.isSpecialToken("<unk>"));
+        Assert.assertFalse(OnnxSmartFormatter.isSpecialToken(" hello"));
+    }
+
+    @Test
+    public void testIsNewWord() {
+        Assert.assertTrue(OnnxSmartFormatter.isNewWord(" hello"));
+        Assert.assertTrue(OnnxSmartFormatter.isNewWord("▁hello"));
+        Assert.assertFalse(OnnxSmartFormatter.isNewWord("hello"));
+    }
+
+    @Test
+    public void testIsSentenceEnding() {
+        Assert.assertTrue(OnnxSmartFormatter.isSentenceEnding("."));
+        Assert.assertTrue(OnnxSmartFormatter.isSentenceEnding("?"));
+        Assert.assertTrue(OnnxSmartFormatter.isSentenceEnding(":"));
+        Assert.assertFalse(OnnxSmartFormatter.isSentenceEnding(","));
+        Assert.assertFalse(OnnxSmartFormatter.isSentenceEnding(";"));
+    }
+
+    @Test
+    public void testReconstructTextBadCode_PrePunctuation() {
+        String[] tokens = {"<s>", " wie", " geht", " es", " dir"};
+        long[] prePreds = {0, 1, 0, 0, 0}; // 1 = "¿"
+        long[] postPreds = {0, 0, 0, 0, 4}; // 4 = "?"
         long[][] capPreds = {
-            {0, 0, 0, 0},
-            {1, 1, 1, 1} // All caps for " usa"
+            {0},
+            {1, 0, 0, 0},
+            {0, 0, 0, 0, 0},
+            {0, 0, 0},
+            {0, 0, 0, 0}
         };
 
         String result = OnnxSmartFormatter.reconstructTextBadCode(tokens, prePreds, postPreds, capPreds, null);
-        assertEquals("Die U.S.A.", result);
+        assertEquals("¿Wie geht es dir?", result);
     }
 }
