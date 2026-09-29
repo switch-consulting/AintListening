@@ -30,6 +30,12 @@ public class TranscriberRegistry {
 
     private final Map<TranscriberType, Transcriber> transcribers = new EnumMap<>(TranscriberType.class);
 
+    /**
+     * Constructs a new TranscriberRegistry and registers the available transcription engines.
+     *
+     * @param voskTranscriber    The Vosk transcriber engine.
+     * @param whisperTranscriber The Whisper transcriber engine.
+     */
     @Inject
     public TranscriberRegistry(VoskTranscriber voskTranscriber, WhisperTranscriber whisperTranscriber) {
         transcribers.put(TranscriberType.VOSK, voskTranscriber);

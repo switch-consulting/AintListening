@@ -207,22 +207,54 @@ public class TranscriptionProcessor {
         notifyComplete(callback, formattedParagraphs);
     }
 
+    /**
+     * Posts a status update notification to the callback on the main thread.
+     *
+     * @param callback The callback listener.
+     * @param message  The status update message.
+     */
     private void notifyStatusUpdate(TranscriptionCallback callback, String message) {
         mainHandler.post(() -> callback.onStatusUpdate(message));
     }
 
+    /**
+     * Posts partial transcription results to the callback on the main thread.
+     *
+     * @param callback   The callback listener.
+     * @param paragraphs The partial transcription paragraphs.
+     */
     private void notifyPartialResult(TranscriptionCallback callback, List<TranscriptionParagraph> paragraphs) {
         mainHandler.post(() -> callback.onPartialResult(paragraphs));
     }
 
+    /**
+     * Posts smart formatting progress updates to the callback on the main thread.
+     *
+     * @param callback   The callback listener.
+     * @param step       The current step count.
+     * @param total      The total steps.
+     * @param paragraphs The current paragraphs list.
+     */
     private void notifySmartFormattingProgress(TranscriptionCallback callback, int step, int total, List<TranscriptionParagraph> paragraphs) {
         mainHandler.post(() -> callback.onSmartFormattingProgress(step, total, paragraphs));
     }
 
+    /**
+     * Posts completion results to the callback on the main thread.
+     *
+     * @param callback   The callback listener.
+     * @param paragraphs The final completed transcription paragraphs.
+     */
     private void notifyComplete(TranscriptionCallback callback, List<TranscriptionParagraph> paragraphs) {
         mainHandler.post(() -> callback.onComplete(paragraphs));
     }
 
+    /**
+     * Posts error messages to the callback on the main thread.
+     *
+     * @param callback The callback listener.
+     * @param message  The error description string.
+     */
     private void notifyError(TranscriptionCallback callback, String message) {
         mainHandler.post(() -> callback.onError(message));
     }

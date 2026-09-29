@@ -51,6 +51,9 @@ public class VoskTranscriber implements Transcriber {
     private Model model;
     private Locale loadedLocale;
 
+    /**
+     * Constructs a new VoskTranscriber instance.
+     */
     @Inject
     public VoskTranscriber() {
     }

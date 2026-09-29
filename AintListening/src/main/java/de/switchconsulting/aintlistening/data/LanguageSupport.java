@@ -157,6 +157,12 @@ public class LanguageSupport {
         return false;
     }
 
+    /**
+     * Compares this LanguageSupport instance with another object based on locale identity.
+     *
+     * @param o The object to compare with.
+     * @return True if the specified object is a LanguageSupport instance with an equal locale.
+     */
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -165,6 +171,11 @@ public class LanguageSupport {
         return Objects.equals(locale, that.locale);
     }
 
+    /**
+     * Returns a hash code value for this LanguageSupport instance based on locale identity.
+     *
+     * @return The hash code.
+     */
     @Override
     public int hashCode() {
         return Objects.hash(locale);

@@ -43,9 +43,13 @@ import java.util.zip.ZipInputStream;
  */
 public class ModelDownloader {
 
+    /** Log tag for debugging. */
     private static final String TAG = "ModelDownloader";
+    /** Single-threaded background executor for download and extraction tasks. */
     private static final ExecutorService executor = Executors.newSingleThreadExecutor();
+    /** Future handle for tracking and cancelling the current active background task. */
     private Future<?> currentFuture;
+    /** Flag indicating whether the active download/extraction task has been cancelled. */
     private volatile boolean isCancelled = false;
 
     /**

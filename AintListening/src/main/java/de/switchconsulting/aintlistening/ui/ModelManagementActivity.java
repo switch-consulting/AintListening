@@ -90,6 +90,9 @@ public class ModelManagementActivity extends AppCompatActivity {
         updateModelStatusUI();
     }
 
+    /**
+     * Initializes global UI settings switches and listeners for display preferences.
+     */
     private void setupUISettings() {
         SwitchMaterial switchPlayback = findViewById(R.id.switchPlayback);
         SwitchMaterial switchCopy = findViewById(R.id.switchCopy);
@@ -125,6 +128,9 @@ public class ModelManagementActivity extends AppCompatActivity {
         updateSmartFormattingSwitchState();
     }
 
+    /**
+     * Updates the enabled state of the smart formatting switch based on whether formatting models are downloaded.
+     */
     private void updateSmartFormattingSwitchState() {
         boolean isFormattingAvailable = false;
         for (LanguageSupport lang : ModelManager.SUPPORTED_LANGUAGES) {
@@ -148,6 +154,9 @@ public class ModelManagementActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Configures the RecyclerView and its adapter to display language model items.
+     */
     private void setupRecyclerView() {
         List<LanguageSupport> languages = Arrays.asList(ModelManager.SUPPORTED_LANGUAGES);
 
@@ -185,6 +194,11 @@ public class ModelManagementActivity extends AppCompatActivity {
         recyclerView.setAdapter(adapter);
     }
 
+    /**
+     * Handles changes in download state and updates the progress indicator and adapter accordingly.
+     *
+     * @param state The current download state.
+     */
     private void handleDownloadState(DownloadState state) {
         if (state == null) return;
         switch (state.status) {
@@ -214,6 +228,11 @@ public class ModelManagementActivity extends AppCompatActivity {
         updateModelStatusUI();
     }
 
+    /**
+     * Initiates the download process for the specified speech or formatting model.
+     *
+     * @param info The model metadata.
+     */
     private void startDownload(ModelInfo info) {
         if (!NetworkUtils.isOnline(this)) {
             Toast.makeText(this, R.string.error_no_internet, Toast.LENGTH_LONG).show();
@@ -223,6 +242,9 @@ public class ModelManagementActivity extends AppCompatActivity {
         viewModel.startDownload(info);
     }
 
+    /**
+     * Refreshes the UI status of model list items and toggle switches.
+     */
     private void updateModelStatusUI() {
         DownloadState currentState = viewModel.downloadState.getValue();
         boolean isBusy = currentState != null && currentState.status != DownloadStatus.IDLE;
@@ -234,6 +256,11 @@ public class ModelManagementActivity extends AppCompatActivity {
         updateSmartFormattingSwitchState();
     }
 
+    /**
+     * Displays a confirmation dialog before deleting an installed speech model.
+     *
+     * @param info The model information to delete.
+     */
     private void confirmDelete(ModelInfo info) {
         new MaterialAlertDialogBuilder(this)
                 .setTitle(R.string.dialog_confirm_delete_title)

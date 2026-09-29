@@ -20,6 +20,8 @@ package de.switchconsulting.aintlistening.transcription;
  * Supported transcription engines.
  */
 public enum TranscriberType {
+    /** Vosk speech recognition engine. */
     VOSK,
+    /** Whisper.cpp speech recognition engine. */
     WHISPER
 }

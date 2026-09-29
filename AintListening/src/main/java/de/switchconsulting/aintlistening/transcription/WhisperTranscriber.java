@@ -56,6 +56,9 @@ public class WhisperTranscriber implements Transcriber {
     public static final int INCREMENTAL_UPDATE_POLLING_INTERVALL_MS = 100;
     public static final int SILENCE_GAP_MS = 100;
 
+    /**
+     * Constructs a new WhisperTranscriber instance.
+     */
     @Inject
     public WhisperTranscriber() {
     }
@@ -188,6 +191,13 @@ public class WhisperTranscriber implements Transcriber {
         return transcriptionContext.paragraphs;
     }
 
+    /**
+     * Parses timestamped output lines from Whisper log updates and aggregates segments into paragraphs.
+     *
+     * @param lines   The log lines containing timestamps and transcribed text.
+     * @param ctx     The ongoing transcription state context.
+     * @param isFinal True if this is the final processing pass.
+     */
     private void processTranscriptionLines(List<String> lines, TranscriptionContext ctx, boolean isFinal) {
         for (String line : lines) {
             Matcher matcher = TIMESTAMP_PATTERN.matcher(line);
@@ -257,6 +267,11 @@ public class WhisperTranscriber implements Transcriber {
         }
     }
 
+    /**
+     * Finalizes any remaining paragraph text in the transcription context upon completion.
+     *
+     * @param ctx The transcription context.
+     */
     private void finalizeRemaining(TranscriptionContext ctx) {
         if (!TextUtils.isEmpty(ctx.currentParaText)) {
             processParagraph(ctx.currentParaText.toString(), ctx.currentParaStartMs, ctx.currentParaEndMs, ctx.wavFile, ctx.chunkIndex, ctx.paragraphs, ctx.fullText, ctx.listener);
@@ -265,6 +280,18 @@ public class WhisperTranscriber implements Transcriber {
         }
     }
 
+    /**
+     * Extracts PCM audio for a paragraph time window, saves the audio chunk, and appends the paragraph.
+     *
+     * @param text       The paragraph text.
+     * @param startMs    The start timestamp in milliseconds.
+     * @param endMs      The end timestamp in milliseconds.
+     * @param wavFile    The source audio file.
+     * @param chunkIndex The chunk sequence index.
+     * @param paragraphs The target list of paragraphs.
+     * @param fullText   The aggregated full transcript text builder.
+     * @param listener   The transcription listener for callback events.
+     */
     private void processParagraph(String text, long startMs, long endMs, File wavFile, int chunkIndex,
                                   List<TranscriptionParagraph> paragraphs, StringBuilder fullText,
                                   TranscriptionListener listener) {
@@ -288,6 +315,12 @@ public class WhisperTranscriber implements Transcriber {
         }
     }
 
+    /**
+     * Parses a string formatted as HH:MM:SS.mmm into milliseconds.
+     *
+     * @param ts The timestamp string.
+     * @return The time duration in milliseconds.
+     */
     private long parseTimestampToMs(String ts) {
         try {
             String[] parts = ts.split(":");
@@ -303,6 +336,14 @@ public class WhisperTranscriber implements Transcriber {
         }
     }
 
+    /**
+     * Extracts PCM audio bytes for the given time interval from a WAV file.
+     *
+     * @param wavFile The WAV file.
+     * @param startMs The start time in milliseconds.
+     * @param endMs   The end time in milliseconds.
+     * @return The extracted raw PCM bytes.
+     */
     private byte[] extractPcm(File wavFile, long startMs, long endMs) {
         try (RandomAccessFile raf = new RandomAccessFile(wavFile, "r")) {
             // 16kHz, 16-bit Mono PCM = 16 samples/ms * 2 bytes/sample = 32 bytes/ms
@@ -345,19 +386,34 @@ public class WhisperTranscriber implements Transcriber {
     }
 
     /**
-     * Helper to maintain state during transcription.
+     * Helper context structure to maintain state during asynchronous Whisper log polling and line parsing.
      */
     private static class TranscriptionContext {
+        /** The source WAV audio file. */
         final File wavFile;
+        /** The transcription listener receiving callbacks. */
         final TranscriptionListener listener;
+        /** List accumulating finalized transcription paragraphs. */
         final List<TranscriptionParagraph> paragraphs = new ArrayList<>();
+        /** StringBuilder accumulating the full aggregated transcript text. */
         final StringBuilder fullText = new StringBuilder();
+        /** StringBuilder accumulating text for the current pending paragraph. */
         final StringBuilder currentParaText = new StringBuilder();
+        /** Start timestamp in milliseconds for the current paragraph, or -1 if uninitialized. */
         long currentParaStartMs = -1;
+        /** End timestamp in milliseconds for the current paragraph. */
         long currentParaEndMs = -1;
+        /** End timestamp in milliseconds of the last processed speech segment. */
         long lastSegmentEndMs = -1;
+        /** Counter index for audio chunk creation. */
         int chunkIndex = 0;
 
+        /**
+         * Constructs a new TranscriptionContext.
+         *
+         * @param wavFile  The WAV audio file being transcribed.
+         * @param listener The listener for transcription updates.
+         */
         TranscriptionContext(File wavFile, TranscriptionListener listener) {
             this.wavFile = wavFile;
             this.listener = listener;

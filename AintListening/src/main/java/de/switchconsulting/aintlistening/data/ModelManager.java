@@ -77,6 +77,15 @@ public class ModelManager {
         };
     }
 
+    /**
+     * Helper method to construct a {@link LanguageSupport} mapping for a specified locale, formatting model,
+     * and array of transcription models.
+     *
+     * @param locale              The locale of the language.
+     * @param formatting          The formatting model info, or null if not available.
+     * @param transcriptionModels The transcription models supported for this language.
+     * @return A configured LanguageSupport instance.
+     */
     private static LanguageSupport createLanguageSupport(Locale locale, ModelInfo formatting, ModelInfo... transcriptionModels) {
         Map<TranscriberType, ModelInfo> map = new EnumMap<>(TranscriberType.class);
         for (ModelInfo model : transcriptionModels) {

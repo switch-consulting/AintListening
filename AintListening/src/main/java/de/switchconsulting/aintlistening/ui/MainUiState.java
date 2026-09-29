@@ -47,18 +47,47 @@ public record MainUiState(boolean isLoading, boolean isIndeterminate, int progre
     public MainUiState {
     }
 
+    /**
+     * Creates an idle MainUiState displaying the provided list of paragraphs.
+     *
+     * @param paragraphs The paragraphs to display.
+     * @return A new idle MainUiState instance.
+     */
     public static MainUiState idle(List<TranscriptionParagraph> paragraphs) {
         return new MainUiState(false, false, 0, 0, null, paragraphs, null);
     }
 
+    /**
+     * Creates an indeterminate loading MainUiState with a status message.
+     *
+     * @param message    The loading status message.
+     * @param paragraphs The currently available paragraphs.
+     * @return A new loading MainUiState instance.
+     */
     public static MainUiState loading(String message, List<TranscriptionParagraph> paragraphs) {
         return new MainUiState(true, true, 0, 0, message, paragraphs, null);
     }
 
+    /**
+     * Creates a progress-tracking MainUiState.
+     *
+     * @param message    The status message describing the current progress.
+     * @param progress   The current progress count.
+     * @param max        The maximum progress count.
+     * @param paragraphs The currently available paragraphs.
+     * @return A new progress MainUiState instance.
+     */
     public static MainUiState progress(String message, int progress, int max, List<TranscriptionParagraph> paragraphs) {
         return new MainUiState(true, false, progress, max, message, paragraphs, null);
     }
 
+    /**
+     * Creates an error MainUiState with an error message.
+     *
+     * @param message    The error message.
+     * @param paragraphs The currently available paragraphs.
+     * @return A new error MainUiState instance.
+     */
     public static MainUiState error(String message, List<TranscriptionParagraph> paragraphs) {
         return new MainUiState(false, false, 0, 0, message, paragraphs, message);
     }

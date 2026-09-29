@@ -43,6 +43,12 @@ public class TranscriptionViewHolder extends RecyclerView.ViewHolder {
     private final MaterialButtonToggleGroup toggleGroup;
     private final TranscriptionAdapter adapter;
 
+    /**
+     * Constructs a new TranscriptionViewHolder.
+     *
+     * @param view    The root view of the paragraph item layout.
+     * @param adapter The parent TranscriptionAdapter managing this ViewHolder.
+     */
     public TranscriptionViewHolder(View view, TranscriptionAdapter adapter) {
         super(view);
         this.textView = view.findViewById(R.id.paragraphText);
@@ -54,6 +60,12 @@ public class TranscriptionViewHolder extends RecyclerView.ViewHolder {
         this.adapter = adapter;
     }
 
+    /**
+     * Binds a transcription paragraph data item and position to the view hierarchy.
+     *
+     * @param paragraph The transcription paragraph to display.
+     * @param position  The item position in the adapter.
+     */
     void bind(TranscriptionParagraph paragraph, int position) {
         textView.setText(paragraph.getDisplayText());
 

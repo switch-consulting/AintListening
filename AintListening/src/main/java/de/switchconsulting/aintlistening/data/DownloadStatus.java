@@ -20,9 +20,14 @@ package de.switchconsulting.aintlistening.data;
  * Enumeration of possible statuses for a download operation.
  */
 public enum DownloadStatus {
+    /** No download operation is currently active. */
     IDLE,
+    /** The model archive or file is actively downloading. */
     DOWNLOADING,
+    /** The downloaded archive is being extracted. */
     EXTRACTING,
+    /** The download and extraction process completed successfully. */
     SUCCESS,
+    /** An error occurred during the download or extraction operation. */
     ERROR
 }

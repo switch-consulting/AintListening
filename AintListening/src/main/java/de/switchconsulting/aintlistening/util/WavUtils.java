@@ -40,6 +40,12 @@ public class WavUtils {
         }
     }
 
+    /**
+     * Creates a 44-byte WAV header for 16kHz, 16-bit, Mono PCM audio.
+     *
+     * @param pcmDataLength The length of the raw PCM payload in bytes.
+     * @return The populated 44-byte header array.
+     */
     private static byte[] createWavHeader(int pcmDataLength) {
         int totalDataLen = pcmDataLength + 36;
         int sampleRate = 16000;

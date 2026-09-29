@@ -48,11 +48,13 @@ public class OnnxSmartFormatter implements SmartFormatter {
     private HuggingFaceTokenizer tokenizer;
     private final ModelInfo modelInfo;
 
-    // 1-800-BAD-CODE XLM-RoBERTa multi-head mappings
+    /** Pre-punctuation prediction label map (e.g. inverted question/exclamation marks for Spanish). */
     static final String[] PRE_PUNC_LABELS = {"", "¿", "¡"};
+    /** Post-punctuation prediction label map for various punctuation characters across supported languages. */
     static final String[] POST_PUNC_LABELS = {
             "", "", ".", ",", "?", "？", "，", "。", "、", "・", "।", "؟", "፣", ";", "።", "፣", "፧"
     };
+    /** Index in POST_PUNC_LABELS representing an acronym punctuation pattern. */
     static final int POST_PUNC_ACRONYM_INDEX = 1;
 
     /**
