@@ -404,7 +404,7 @@ public class OnnxSmartFormatter implements SmartFormatter {
      */
     static boolean isNewWord(String token) {
         // SentencePiece uses   (U+2581) or a regular space to denote the start of a word
-        return token.startsWith(" ") || token.startsWith("\u2581");
+        return token.startsWith(" ") || token.startsWith(String.valueOf((char) 0x2581));
     }
 
     /**

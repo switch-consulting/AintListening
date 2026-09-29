@@ -114,6 +114,7 @@ public class WhisperTranscriber implements Transcriber {
     }
 
     @Override
+    @SuppressWarnings("BusyWait")
     public List<TranscriptionParagraph> transcribe(Context context, @NonNull File wavFile, TranscriptionListener listener) throws Exception {
         if (whisper == null || !whisper.isModelLoaded()) {
             throw new IllegalStateException("Whisper model not loaded. Call ensureModelLoaded first.");
@@ -162,6 +163,7 @@ public class WhisperTranscriber implements Transcriber {
         if (enableIncrementalUpdates) {
             while (!future.isDone()) {
                 try {
+                    //noinspection BusyWait
                     Thread.sleep(INCREMENTAL_UPDATE_POLLING_INTERVALL_MS);
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
