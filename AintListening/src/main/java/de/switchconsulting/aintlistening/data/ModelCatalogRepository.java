@@ -50,7 +50,7 @@ public class ModelCatalogRepository {
      * @return The list of supported languages.
      */
     public List<LanguageSupport> getSupportedLanguages() {
-        return List.of(ModelManager.SUPPORTED_LANGUAGES);
+        return List.of(ModelCatalog.SUPPORTED_LANGUAGES);
     }
 
     /**
@@ -61,7 +61,7 @@ public class ModelCatalogRepository {
      */
     @Nullable
     public LanguageSupport getLanguageSupport(@Nullable Locale locale) {
-        return ModelManager.getLanguageSupport(locale);
+        return ModelCatalog.getLanguageSupport(locale);
     }
 
     /**
@@ -150,7 +150,7 @@ public class ModelCatalogRepository {
      */
     public List<String> getAvailableLanguageNames() {
         List<String> available = new ArrayList<>();
-        for (LanguageSupport language : ModelManager.SUPPORTED_LANGUAGES) {
+        for (LanguageSupport language : ModelCatalog.SUPPORTED_LANGUAGES) {
             if (!preferencesDataSource.isLanguageEnabled(language.getLocale())) {
                 continue;
             }
@@ -192,6 +192,6 @@ public class ModelCatalogRepository {
      * @return String resource ID.
      */
     public int getEngineNameResId(TranscriberType type) {
-        return ModelManager.getEngineNameResId(type);
+        return ModelCatalog.getEngineNameResId(type);
     }
 }

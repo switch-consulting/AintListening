@@ -28,29 +28,29 @@ import de.switchconsulting.aintlistening.R;
 import de.switchconsulting.aintlistening.transcription.TranscriberType;
 
 /**
- * Unit tests for {@link ModelManager}.
+ * Unit tests for {@link ModelCatalog}.
  */
-public class ModelManagerTest {
+public class ModelCatalogTest {
 
     @Test
     public void testGetEngineNameResId() {
-        assertEquals(R.string.engine_vosk, ModelManager.getEngineNameResId(TranscriberType.VOSK));
-        assertEquals(R.string.engine_whisper, ModelManager.getEngineNameResId(TranscriberType.WHISPER));
+        assertEquals(R.string.engine_vosk, ModelCatalog.getEngineNameResId(TranscriberType.VOSK));
+        assertEquals(R.string.engine_whisper, ModelCatalog.getEngineNameResId(TranscriberType.WHISPER));
     }
 
     @Test
     public void testGetLanguageSupport() {
-        LanguageSupport german = ModelManager.getLanguageSupport(Locale.GERMAN);
+        LanguageSupport german = ModelCatalog.getLanguageSupport(Locale.GERMAN);
         assertNotNull(german);
         assertEquals(Locale.GERMAN, german.getLocale());
 
-        LanguageSupport english = ModelManager.getLanguageSupport(Locale.ENGLISH);
+        LanguageSupport english = ModelCatalog.getLanguageSupport(Locale.ENGLISH);
         assertNotNull(english);
         assertEquals(Locale.ENGLISH, english.getLocale());
 
-        LanguageSupport unsupported = ModelManager.getLanguageSupport(Locale.JAPANESE);
+        LanguageSupport unsupported = ModelCatalog.getLanguageSupport(Locale.JAPANESE);
         assertNull(unsupported);
 
-        assertNull(ModelManager.getLanguageSupport(null));
+        assertNull(ModelCatalog.getLanguageSupport(null));
     }
 }

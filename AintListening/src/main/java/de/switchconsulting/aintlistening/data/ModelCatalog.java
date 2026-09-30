@@ -24,9 +24,9 @@ import de.switchconsulting.aintlistening.R;
 import de.switchconsulting.aintlistening.transcription.TranscriberType;
 
 /**
- * Utility class providing metadata definitions for supported languages and models.
+ * Static catalog class providing metadata definitions for supported languages and models.
  */
-public class ModelManager {
+public class ModelCatalog {
 
     /** The list of languages and their associated models supported by the application. */
     public static final LanguageSupport[] SUPPORTED_LANGUAGES;
