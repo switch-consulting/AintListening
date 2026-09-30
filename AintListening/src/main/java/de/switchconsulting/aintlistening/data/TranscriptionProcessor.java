@@ -98,7 +98,7 @@ public class TranscriptionProcessor {
                 if (language == null) {
                     throw new IllegalStateException("Unsupported language locale: " + (locale != null ? locale.getDisplayName() : "null"));
                 }
-                TranscriberType activeType = language.getActiveTranscriberType(context, repository.getPersistency());
+                TranscriberType activeType = language.getActiveTranscriberType(context, repository.getPreferencesDataSource());
                 activeTranscriber = transcriberRegistry.getTranscriber(activeType);
                 
                 if (activeTranscriber == null) {
@@ -152,7 +152,7 @@ public class TranscriptionProcessor {
         List<TranscriptionParagraph> formattedParagraphs = new ArrayList<>();
 
         boolean engineProvidesPunctuation = activeTranscriber != null && activeTranscriber.providesPunctuation();
-        boolean userWantsSmart = selectedLanguage != null && repository.getPersistency().isSmartFormattingEnabled(selectedLanguage.getLocale());
+        boolean userWantsSmart = selectedLanguage != null && repository.getPreferencesDataSource().isSmartFormattingEnabled(selectedLanguage.getLocale());
         boolean modelAvailable = selectedLanguage != null && selectedLanguage.isFormattingDownloaded(context);
 
         if (!engineProvidesPunctuation && userWantsSmart && modelAvailable && !paragraphs.isEmpty()) {

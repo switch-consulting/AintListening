@@ -91,12 +91,12 @@ public class LanguageSupport {
      * Resolves the effectively active transcriber type for this language.
      * Respects user preference if the model is downloaded, otherwise falls back to first available.
      *
-     * @param context     Application context.
-     * @param persistency Persistency for user preferences.
+     * @param context               Application context.
+     * @param preferencesDataSource PreferencesDataSource for user preferences.
      * @return The active TranscriberType.
      */
-    public TranscriberType getActiveTranscriberType(Context context, Persistency persistency) {
-        TranscriberType preferred = persistency.getTranscriberType(locale);
+    public TranscriberType getActiveTranscriberType(Context context, PreferencesDataSource preferencesDataSource) {
+        TranscriberType preferred = preferencesDataSource.getTranscriberType(locale);
         if (isDownloaded(context, preferred)) {
             return preferred;
         }
@@ -109,7 +109,7 @@ public class LanguageSupport {
         }
 
         // Default if nothing is downloaded (though UI should prevent this state being critical)
-        return persistency.getDefaultTranscriberType();
+        return preferencesDataSource.getDefaultTranscriberType();
     }
 
     /**

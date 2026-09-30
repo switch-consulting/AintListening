@@ -65,9 +65,7 @@ public class ModelManager {
                 createLanguageSupport(Locale.forLanguageTag("es"),
                         new ModelInfo(SHARED_PUNC_MODEL_NAME, SHARED_PUNC_MODEL_URL, Locale.forLanguageTag("es"), SHARED_PUNC_MODEL_SIZE),
                         new ModelInfo("vosk-model-small-es-0.42", "https://alphacephei.com/vosk/models/vosk-model-small-es-0.42.zip", Locale.forLanguageTag("es"), "39MB"),
-                        new ModelInfo(WHISPER_TINY_NAME, WHISPER_TINY_URL, Locale.forLanguageTag("es"), WHISPER_TINY_SIZE, TranscriberType.WHISPER, false)),
-                createLanguageSupport(Locale.FRENCH,
-                        new ModelInfo(SHARED_PUNC_MODEL_NAME, SHARED_PUNC_MODEL_URL, Locale.FRENCH, SHARED_PUNC_MODEL_SIZE),
+                        new ModelInfo(WHISPER_TINY_NAME, WHISPER_TINY_URL, Locale.FRENCH, SHARED_PUNC_MODEL_SIZE),
                         new ModelInfo("vosk-model-small-fr-0.22", "https://alphacephei.com/vosk/models/vosk-model-small-fr-0.22.zip", Locale.FRENCH, "41MB"),
                         new ModelInfo(WHISPER_TINY_NAME, WHISPER_TINY_URL, Locale.FRENCH, WHISPER_TINY_SIZE, TranscriberType.WHISPER, false)),
                 createLanguageSupport(Locale.ITALIAN,
@@ -144,14 +142,14 @@ public class ModelManager {
      * Returns a list of language display names for all languages where at least one transcription model is downloaded
      * AND the language is enabled in settings.
      *
-     * @param context The context.
+     * @param context               The context.
+     * @param preferencesDataSource PreferencesDataSource for language enabled checks.
      * @return A list of available language display names.
      */
-    public static List<String> getAvailableLanguageNames(Context context) {
-        Persistency persistency = new Persistency(context);
+    public static List<String> getAvailableLanguageNames(Context context, PreferencesDataSource preferencesDataSource) {
         List<String> available = new ArrayList<>();
         for (LanguageSupport language : SUPPORTED_LANGUAGES) {
-            if (!persistency.isLanguageEnabled(language.getLocale())) {
+            if (!preferencesDataSource.isLanguageEnabled(language.getLocale())) {
                 continue;
             }
             if (language.hasTranscriptionModelDownloaded(context)) {

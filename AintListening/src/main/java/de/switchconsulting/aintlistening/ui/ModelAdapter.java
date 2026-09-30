@@ -27,6 +27,7 @@ import java.util.List;
 
 import de.switchconsulting.aintlistening.R;
 import de.switchconsulting.aintlistening.data.LanguageSupport;
+import de.switchconsulting.aintlistening.data.PreferencesDataSource;
 import de.switchconsulting.aintlistening.transcription.TranscriberRegistry;
 
 /**
@@ -37,19 +38,22 @@ public class ModelAdapter extends RecyclerView.Adapter<ModelViewHolder> {
 
     private final List<LanguageSupport> languages;
     private final TranscriberRegistry transcriberRegistry;
+    private final PreferencesDataSource preferencesDataSource;
     private final ModelInteractionListener listener;
     private boolean isBusy = false;
 
     /**
      * Constructs a new ModelAdapter.
      *
-     * @param languages           The list of supported languages to display.
-     * @param transcriberRegistry The registry for transcription engines.
-     * @param listener            The listener for interaction events.
+     * @param languages             The list of supported languages to display.
+     * @param transcriberRegistry   The registry for transcription engines.
+     * @param preferencesDataSource The preferences data source.
+     * @param listener              The listener for interaction events.
      */
-    public ModelAdapter(List<LanguageSupport> languages, TranscriberRegistry transcriberRegistry, ModelInteractionListener listener) {
+    public ModelAdapter(List<LanguageSupport> languages, TranscriberRegistry transcriberRegistry, PreferencesDataSource preferencesDataSource, ModelInteractionListener listener) {
         this.languages = languages;
         this.transcriberRegistry = transcriberRegistry;
+        this.preferencesDataSource = preferencesDataSource;
         this.listener = listener;
     }
 
@@ -83,7 +87,7 @@ public class ModelAdapter extends RecyclerView.Adapter<ModelViewHolder> {
     @Override
     public void onBindViewHolder(@NonNull ModelViewHolder holder, int position) {
         LanguageSupport language = languages.get(position);
-        holder.bind(language, transcriberRegistry, isBusy, listener);
+        holder.bind(language, transcriberRegistry, preferencesDataSource, isBusy, listener);
     }
 
     @Override

@@ -41,10 +41,10 @@ import dagger.hilt.android.AndroidEntryPoint;
 import de.switchconsulting.aintlistening.R;
 import de.switchconsulting.aintlistening.data.LanguageSupport;
 import de.switchconsulting.aintlistening.data.ModelManager;
-import de.switchconsulting.aintlistening.data.Persistency;
+import de.switchconsulting.aintlistening.data.PreferencesDataSource;
 
 /**
- * The main activity of the application that handles audio transcription using Vosk.
+ * The main activity of the application that handles audio transcription using Vosk or Whisper.
  * It processes incoming audio shares (Intents) and displays the resulting transcript.
  */
 @AndroidEntryPoint
@@ -56,7 +56,7 @@ public class MainActivity extends AppCompatActivity {
     private MainViewModel viewModel;
 
     @Inject
-    Persistency persistency;
+    PreferencesDataSource preferencesDataSource;
 
     /**
      * Called when the activity is first created. Initializes the UI and ViewModel.
@@ -150,16 +150,16 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * Creates a UiDisplaySettings instance reflecting current persistency preferences.
+     * Creates a UiDisplaySettings instance reflecting current preferences.
      *
      * @return Current UiDisplaySettings.
      */
     private UiDisplaySettings getUiDisplaySettings() {
         return new UiDisplaySettings(
-                persistency.isShowPlaybackButton(),
-                persistency.isShowCopyButton(),
-                persistency.isShowRawText(),
-                persistency.isShowSmartText()
+                preferencesDataSource.isShowPlaybackButton(),
+                preferencesDataSource.isShowCopyButton(),
+                preferencesDataSource.isShowRawText(),
+                preferencesDataSource.isShowSmartText()
         );
     }
 
@@ -168,7 +168,7 @@ public class MainActivity extends AppCompatActivity {
      */
     private void updateAvailableLanguagesUI() {
         TextView supportedLanguagesText = findViewById(R.id.supportedLanguagesText);
-        List<String> available = ModelManager.getAvailableLanguageNames(this);
+        List<String> available = ModelManager.getAvailableLanguageNames(this, preferencesDataSource);
 
         if (available.isEmpty()) {
             supportedLanguagesText.setText(R.string.status_no_models_installed);
@@ -227,7 +227,7 @@ public class MainActivity extends AppCompatActivity {
     private void checkModelsAndProceed(Uri audioUri) {
         List<LanguageSupport> availableLanguages = new ArrayList<>();
         for (LanguageSupport lang : ModelManager.SUPPORTED_LANGUAGES) {
-            boolean isEnabled = persistency.isLanguageEnabled(lang.getLocale());
+            boolean isEnabled = preferencesDataSource.isLanguageEnabled(lang.getLocale());
             boolean isDownloaded = lang.hasTranscriptionModelDownloaded(this);
             if (isEnabled && isDownloaded) {
                 availableLanguages.add(lang);

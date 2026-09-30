@@ -98,24 +98,24 @@ public class LanguageSupportTest {
 
     @Test
     public void testGetActiveTranscriberTypeUsesPreferredWhenDownloaded() {
-        Persistency persistency = mock(Persistency.class);
-        when(persistency.getTranscriberType(Locale.GERMAN)).thenReturn(TranscriberType.WHISPER);
+        PreferencesDataSource preferencesDataSource = mock(PreferencesDataSource.class);
+        when(preferencesDataSource.getTranscriberType(Locale.GERMAN)).thenReturn(TranscriberType.WHISPER);
 
         when(modelManager.isModelDownloaded(any(), eq(whisperModel))).thenReturn(true);
 
-        TranscriberType active = languageSupport.getActiveTranscriberType(context, persistency);
+        TranscriberType active = languageSupport.getActiveTranscriberType(context, preferencesDataSource);
         assertEquals(TranscriberType.WHISPER, active);
     }
 
     @Test
     public void testGetActiveTranscriberTypeFallsBackToFirstDownloadedWhenPreferredNotDownloaded() {
-        Persistency persistency = mock(Persistency.class);
-        when(persistency.getTranscriberType(Locale.GERMAN)).thenReturn(TranscriberType.WHISPER);
+        PreferencesDataSource preferencesDataSource = mock(PreferencesDataSource.class);
+        when(preferencesDataSource.getTranscriberType(Locale.GERMAN)).thenReturn(TranscriberType.WHISPER);
 
         when(modelManager.isModelDownloaded(any(), eq(whisperModel))).thenReturn(false);
         when(modelManager.isModelDownloaded(any(), eq(voskModel))).thenReturn(true);
 
-        TranscriberType active = languageSupport.getActiveTranscriberType(context, persistency);
+        TranscriberType active = languageSupport.getActiveTranscriberType(context, preferencesDataSource);
         assertEquals(TranscriberType.VOSK, active);
     }
 

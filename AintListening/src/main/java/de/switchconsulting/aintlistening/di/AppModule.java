@@ -22,7 +22,9 @@ import dagger.Provides;
 import dagger.hilt.InstallIn;
 import dagger.hilt.android.qualifiers.ApplicationContext;
 import dagger.hilt.components.SingletonComponent;
-import de.switchconsulting.aintlistening.data.Persistency;
+import de.switchconsulting.aintlistening.data.AudioStorageManager;
+import de.switchconsulting.aintlistening.data.PreferencesDataSource;
+import de.switchconsulting.aintlistening.data.TranscriptionLocalDataSource;
 import de.switchconsulting.aintlistening.transcription.TranscriberRegistry;
 import de.switchconsulting.aintlistening.transcription.VoskTranscriber;
 import de.switchconsulting.aintlistening.transcription.WhisperTranscriber;
@@ -37,15 +39,39 @@ import javax.inject.Singleton;
 public class AppModule {
 
     /**
-     * Provides the singleton instance of Persistency.
+     * Provides the singleton instance of PreferencesDataSource.
      *
      * @param context The application context.
-     * @return The Persistency instance.
+     * @return The PreferencesDataSource instance.
      */
     @Provides
     @Singleton
-    public static Persistency providePersistency(@ApplicationContext Context context) {
-        return new Persistency(context);
+    public static PreferencesDataSource providePreferencesDataSource(@ApplicationContext Context context) {
+        return new PreferencesDataSource(context);
+    }
+
+    /**
+     * Provides the singleton instance of AudioStorageManager.
+     *
+     * @param context The application context.
+     * @return The AudioStorageManager instance.
+     */
+    @Provides
+    @Singleton
+    public static AudioStorageManager provideAudioStorageManager(@ApplicationContext Context context) {
+        return new AudioStorageManager(context);
+    }
+
+    /**
+     * Provides the singleton instance of TranscriptionLocalDataSource.
+     *
+     * @param context The application context.
+     * @return The TranscriptionLocalDataSource instance.
+     */
+    @Provides
+    @Singleton
+    public static TranscriptionLocalDataSource provideTranscriptionLocalDataSource(@ApplicationContext Context context) {
+        return new TranscriptionLocalDataSource(context);
     }
 
     /**

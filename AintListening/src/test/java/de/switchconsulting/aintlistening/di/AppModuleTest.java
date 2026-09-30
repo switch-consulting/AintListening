@@ -23,7 +23,9 @@ import android.content.Context;
 
 import org.junit.Test;
 
-import de.switchconsulting.aintlistening.data.Persistency;
+import de.switchconsulting.aintlistening.data.AudioStorageManager;
+import de.switchconsulting.aintlistening.data.PreferencesDataSource;
+import de.switchconsulting.aintlistening.data.TranscriptionLocalDataSource;
 import de.switchconsulting.aintlistening.transcription.TranscriberRegistry;
 import de.switchconsulting.aintlistening.transcription.VoskTranscriber;
 import de.switchconsulting.aintlistening.transcription.WhisperTranscriber;
@@ -34,10 +36,24 @@ import de.switchconsulting.aintlistening.transcription.WhisperTranscriber;
 public class AppModuleTest {
 
     @Test
-    public void testProvidePersistency() {
+    public void testProvidePreferencesDataSource() {
         Context context = mock(Context.class);
-        Persistency persistency = AppModule.providePersistency(context);
-        assertNotNull(persistency);
+        PreferencesDataSource source = AppModule.providePreferencesDataSource(context);
+        assertNotNull(source);
+    }
+
+    @Test
+    public void testProvideAudioStorageManager() {
+        Context context = mock(Context.class);
+        AudioStorageManager manager = AppModule.provideAudioStorageManager(context);
+        assertNotNull(manager);
+    }
+
+    @Test
+    public void testProvideTranscriptionLocalDataSource() {
+        Context context = mock(Context.class);
+        TranscriptionLocalDataSource source = AppModule.provideTranscriptionLocalDataSource(context);
+        assertNotNull(source);
     }
 
     @Test

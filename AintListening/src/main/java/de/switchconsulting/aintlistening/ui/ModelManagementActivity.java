@@ -43,7 +43,7 @@ import de.switchconsulting.aintlistening.R;
 import de.switchconsulting.aintlistening.data.LanguageSupport;
 import de.switchconsulting.aintlistening.data.ModelInfo;
 import de.switchconsulting.aintlistening.data.ModelManager;
-import de.switchconsulting.aintlistening.data.Persistency;
+import de.switchconsulting.aintlistening.data.PreferencesDataSource;
 import de.switchconsulting.aintlistening.transcription.TranscriberRegistry;
 import de.switchconsulting.aintlistening.transcription.TranscriberType;
 import de.switchconsulting.aintlistening.util.NetworkUtils;
@@ -62,7 +62,7 @@ public class ModelManagementActivity extends AppCompatActivity {
     private ModelManagementViewModel viewModel;
 
     @Inject
-    Persistency persistency;
+    PreferencesDataSource preferencesDataSource;
 
     @Inject
     TranscriberRegistry transcriberRegistry;
@@ -99,20 +99,20 @@ public class ModelManagementActivity extends AppCompatActivity {
         switchRaw = findViewById(R.id.switchRaw);
         switchSmart = findViewById(R.id.switchSmart);
 
-        switchPlayback.setChecked(persistency.isShowPlaybackButton());
-        switchCopy.setChecked(persistency.isShowCopyButton());
-        switchRaw.setChecked(persistency.isShowRawText());
-        switchSmart.setChecked(persistency.isShowSmartText());
+        switchPlayback.setChecked(preferencesDataSource.isShowPlaybackButton());
+        switchCopy.setChecked(preferencesDataSource.isShowCopyButton());
+        switchRaw.setChecked(preferencesDataSource.isShowRawText());
+        switchSmart.setChecked(preferencesDataSource.isShowSmartText());
 
-        switchPlayback.setOnCheckedChangeListener((buttonView, isChecked) -> persistency.setShowPlaybackButton(isChecked));
-        switchCopy.setOnCheckedChangeListener((buttonView, isChecked) -> persistency.setShowCopyButton(isChecked));
+        switchPlayback.setOnCheckedChangeListener((buttonView, isChecked) -> preferencesDataSource.setShowPlaybackButton(isChecked));
+        switchCopy.setOnCheckedChangeListener((buttonView, isChecked) -> preferencesDataSource.setShowCopyButton(isChecked));
 
         switchRaw.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (!isChecked && !switchSmart.isChecked()) {
                 switchRaw.setChecked(true);
                 Toast.makeText(this, R.string.message_at_least_one_mode, Toast.LENGTH_SHORT).show();
             } else {
-                persistency.setShowRawText(isChecked);
+                preferencesDataSource.setShowRawText(isChecked);
             }
         });
 
@@ -121,7 +121,7 @@ public class ModelManagementActivity extends AppCompatActivity {
                 switchSmart.setChecked(true);
                 Toast.makeText(this, R.string.message_at_least_one_mode, Toast.LENGTH_SHORT).show();
             } else {
-                persistency.setShowSmartText(isChecked);
+                preferencesDataSource.setShowSmartText(isChecked);
             }
         });
 
@@ -143,12 +143,12 @@ public class ModelManagementActivity extends AppCompatActivity {
         if (!isFormattingAvailable) {
             if (!switchRaw.isChecked()) {
                 switchRaw.setChecked(true);
-                persistency.setShowRawText(true);
+                preferencesDataSource.setShowRawText(true);
             }
 
             switchSmart.setChecked(false);
             switchSmart.setEnabled(false);
-            persistency.setShowSmartText(false);
+            preferencesDataSource.setShowSmartText(false);
         } else {
             switchSmart.setEnabled(true);
         }
@@ -161,7 +161,7 @@ public class ModelManagementActivity extends AppCompatActivity {
         List<LanguageSupport> languages = Arrays.asList(ModelManager.SUPPORTED_LANGUAGES);
 
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        adapter = new ModelAdapter(languages, transcriberRegistry, new ModelInteractionListener() {
+        adapter = new ModelAdapter(languages, transcriberRegistry, preferencesDataSource, new ModelInteractionListener() {
             @Override
             public void onDownloadClicked(ModelInfo info) {
                 Toast.makeText(ModelManagementActivity.this, getString(R.string.message_starting_download, info.locale().getDisplayName()), Toast.LENGTH_SHORT).show();
@@ -175,19 +175,19 @@ public class ModelManagementActivity extends AppCompatActivity {
 
             @Override
             public void onLanguageEnabledChanged(LanguageSupport language, boolean enabled) {
-                persistency.setLanguageEnabled(language.getLocale(), enabled);
+                preferencesDataSource.setLanguageEnabled(language.getLocale(), enabled);
                 updateModelStatusUI();
             }
 
             @Override
             public void onTranscriberSelected(LanguageSupport language, TranscriberType type) {
-                persistency.setTranscriberType(language.getLocale(), type);
+                preferencesDataSource.setTranscriberType(language.getLocale(), type);
                 updateModelStatusUI();
             }
 
             @Override
             public void onSmartFormattingToggled(LanguageSupport language, boolean enabled) {
-                persistency.setSmartFormattingEnabled(language.getLocale(), enabled);
+                preferencesDataSource.setSmartFormattingEnabled(language.getLocale(), enabled);
                 updateModelStatusUI();
             }
         });

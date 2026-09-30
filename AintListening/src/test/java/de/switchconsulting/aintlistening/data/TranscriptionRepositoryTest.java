@@ -37,61 +37,65 @@ import de.switchconsulting.aintlistening.transcription.TranscriptionParagraph;
  */
 public class TranscriptionRepositoryTest {
 
-    private Persistency persistency;
+    private TranscriptionLocalDataSource localDataSource;
+    private AudioStorageManager audioStorageManager;
+    private PreferencesDataSource preferencesDataSource;
     private TranscriptionRepository repository;
 
     @Before
     public void setUp() {
-        persistency = mock(Persistency.class);
-        repository = new TranscriptionRepository(persistency);
+        localDataSource = mock(TranscriptionLocalDataSource.class);
+        audioStorageManager = mock(AudioStorageManager.class);
+        preferencesDataSource = mock(PreferencesDataSource.class);
+        repository = new TranscriptionRepository(localDataSource, audioStorageManager, preferencesDataSource);
     }
 
     @Test
-    public void testLoadLastMessageDelegatesToPersistency() {
+    public void testLoadLastMessageDelegatesToLocalDataSource() {
         List<TranscriptionParagraph> expected = Collections.singletonList(new TranscriptionParagraph("raw", "formatted"));
-        when(persistency.loadLastMessage()).thenReturn(expected);
+        when(localDataSource.loadLastMessage()).thenReturn(expected);
 
         List<TranscriptionParagraph> actual = repository.loadLastMessage();
         assertEquals(expected, actual);
-        verify(persistency).loadLastMessage();
+        verify(localDataSource).loadLastMessage();
     }
 
     @Test
-    public void testSaveLastMessageDelegatesToPersistency() {
+    public void testSaveLastMessageDelegatesToLocalDataSource() {
         List<TranscriptionParagraph> paragraphs = Collections.singletonList(new TranscriptionParagraph("raw", "formatted"));
         repository.saveLastMessage(paragraphs, Locale.GERMAN);
 
-        verify(persistency).saveLastMessage(paragraphs, Locale.GERMAN);
+        verify(localDataSource).saveLastMessage(paragraphs, Locale.GERMAN);
     }
 
     @Test
-    public void testGetIncomingWavFileDelegatesToPersistency() {
+    public void testGetIncomingWavFileDelegatesToAudioStorageManager() {
         File expectedFile = new File("/tmp/test.wav");
-        when(persistency.getIncomingWavFile()).thenReturn(expectedFile);
+        when(audioStorageManager.getIncomingWavFile()).thenReturn(expectedFile);
 
         File actualFile = repository.getIncomingWavFile();
         assertEquals(expectedFile, actualFile);
-        verify(persistency).getIncomingWavFile();
+        verify(audioStorageManager).getIncomingWavFile();
     }
 
     @Test
-    public void testClearTemporaryFilesDelegatesToPersistency() {
+    public void testClearTemporaryFilesDelegatesToAudioStorageManager() {
         repository.clearTemporaryFiles();
-        verify(persistency).clearTemporaryFiles();
+        verify(audioStorageManager).clearTemporaryFiles();
     }
 
     @Test
-    public void testSaveAudioChunkDelegatesToPersistency() throws IOException {
+    public void testSaveAudioChunkDelegatesToAudioStorageManager() throws IOException {
         byte[] pcm = new byte[]{1, 2, 3};
-        when(persistency.saveAudioChunk(pcm, 1)).thenReturn("/path/chunk_1.wav");
+        when(audioStorageManager.saveAudioChunk(pcm, 1)).thenReturn("/path/chunk_1.wav");
 
         String path = repository.saveAudioChunk(pcm, 1);
         assertEquals("/path/chunk_1.wav", path);
-        verify(persistency).saveAudioChunk(pcm, 1);
+        verify(audioStorageManager).saveAudioChunk(pcm, 1);
     }
 
     @Test
-    public void testGetPersistencyReturnsInstance() {
-        assertEquals(persistency, repository.getPersistency());
+    public void testGetPreferencesDataSourceReturnsInstance() {
+        assertEquals(preferencesDataSource, repository.getPreferencesDataSource());
     }
 }

@@ -17,29 +17,23 @@
 package de.switchconsulting.aintlistening.data;
 
 import android.content.Context;
-import android.util.Log;
+import android.content.SharedPreferences;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Locale;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
+import dagger.hilt.android.qualifiers.ApplicationContext;
 import de.switchconsulting.aintlistening.transcription.TranscriberType;
-import de.switchconsulting.aintlistening.transcription.TranscriptionParagraph;
-import de.switchconsulting.aintlistening.util.WavUtils;
 
 /**
- * Handles persistence of transcription data.
+ * Handles key-value preference storage using {@link SharedPreferences}.
  */
-public class Persistency {
+@Singleton
+public class PreferencesDataSource {
 
-    private static final String TAG = "Persistency";
     private static final String PREFS_NAME = "AintListeningPrefs";
-    private static final String KEY_LAST_PARAGRAPHS_JSON = "last_paragraphs_json";
     private static final String KEY_SHOW_PLAYBACK_BUTTON = "show_playback_button";
     private static final String KEY_SHOW_COPY_BUTTON = "show_copy_button";
     private static final String KEY_SHOW_RAW_TEXT = "show_raw_text";
@@ -50,70 +44,13 @@ public class Persistency {
     private final Context context;
 
     /**
-     * Constructs a new Persistency instance.
+     * Constructs a new PreferencesDataSource instance.
      *
      * @param context The application context.
      */
-    public Persistency(Context context) {
+    @Inject
+    public PreferencesDataSource(@ApplicationContext Context context) {
         this.context = context.getApplicationContext();
-    }
-
-    /**
-     * Saves the last transcription paragraphs and the language locale used.
-     *
-     * @param paragraphs The list of transcription paragraphs to save.
-     * @param locale     The locale of the model used for transcription.
-     */
-    public void saveLastMessage(List<TranscriptionParagraph> paragraphs, Locale locale) {
-        try {
-            JSONArray array = new JSONArray();
-            for (TranscriptionParagraph p : paragraphs) {
-                JSONObject obj = new JSONObject();
-                obj.put("raw", p.getRawText());
-                obj.put("formatted", p.getFormattedText());
-                obj.put("showFormatted", p.isShowFormatted());
-                obj.put("audioPath", p.getAudioFilePath());
-                array.put(obj);
-            }
-            context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-                    .edit()
-                    .putString(KEY_LAST_PARAGRAPHS_JSON, array.toString())
-                    .putString("last_locale_tag", locale != null ? locale.toLanguageTag() : null)
-                    .apply();
-        } catch (Exception e) {
-            Log.e(TAG, "Failed to save last message", e);
-        }
-    }
-
-    /**
-     * Loads the last transcription paragraphs.
-     *
-     * @return The list of last saved transcription paragraphs, or null if none exist.
-     */
-    public List<TranscriptionParagraph> loadLastMessage() {
-        String json = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-                .getString(KEY_LAST_PARAGRAPHS_JSON, null);
-
-        if (json != null) {
-            try {
-                JSONArray array = new JSONArray(json);
-                List<TranscriptionParagraph> paragraphs = new ArrayList<>();
-                for (int i = 0; i < array.length(); i++) {
-                    JSONObject obj = array.getJSONObject(i);
-                    TranscriptionParagraph p = new TranscriptionParagraph(
-                            obj.getString("raw"),
-                            obj.has("formatted") && !obj.isNull("formatted") ? obj.getString("formatted") : null,
-                            obj.has("audioPath") && !obj.isNull("audioPath") ? obj.getString("audioPath") : null
-                    );
-                    p.setShowFormatted(obj.optBoolean("showFormatted", p.isShowFormatted()));
-                    paragraphs.add(p);
-                }
-                return paragraphs;
-            } catch (Exception e) {
-                Log.e(TAG, "Failed to load last message", e);
-            }
-        }
-        return null;
     }
 
     /**
@@ -153,7 +90,7 @@ public class Persistency {
     }
 
     /**
-     * @return True if the raw text should be shown by default.
+     * @return True if raw text should be shown by default.
      */
     public boolean isShowRawText() {
         return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
@@ -171,7 +108,7 @@ public class Persistency {
     }
 
     /**
-     * @return True if the smart formatted text should be shown by default.
+     * @return True if smart formatted text should be shown by default.
      */
     public boolean isShowSmartText() {
         return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
@@ -269,66 +206,5 @@ public class Persistency {
                 .edit()
                 .putBoolean(KEY_LANGUAGE_ENABLED_PREFIX + locale.toLanguageTag(), enabled)
                 .apply();
-    }
-
-    /**
-     * @return The file object for the main temporary incoming audio WAV.
-     */
-    public File getIncomingWavFile() {
-        return new File(context.getCacheDir(), "incoming_audio_16k_mono.wav");
-    }
-
-    /**
-     * @return The directory for storing audio chunks.
-     */
-    public File getAudioChunksDir() {
-        File chunksDir = new File(context.getFilesDir(), "audio_chunks");
-        if (!chunksDir.exists()) {
-            if (!chunksDir.mkdirs()) {
-                Log.w(TAG, "Failed to create chunks directory: " + chunksDir.getAbsolutePath());
-            }
-        }
-        return chunksDir;
-    }
-
-    /**
-     * Saves raw PCM data as a WAV chunk.
-     *
-     * @param pcmData The raw PCM data.
-     * @param index   The chunk index.
-     * @return The absolute path to the saved chunk file.
-     * @throws IOException If saving fails.
-     */
-    public String saveAudioChunk(byte[] pcmData, int index) throws IOException {
-        File chunksDir = getAudioChunksDir();
-        File chunkFile = new File(chunksDir, "chunk_" + index + ".wav");
-        WavUtils.savePcmAsWav(pcmData, chunkFile);
-        return chunkFile.getAbsolutePath();
-    }
-
-    /**
-     * Deletes all temporary audio files and chunks.
-     */
-    public void clearTemporaryFiles() {
-        // Delete incoming wav
-        File incomingWav = getIncomingWavFile();
-        if (incomingWav.exists()) {
-            if (incomingWav.delete()) {
-                Log.d(TAG, "Deleted incoming WAV: " + incomingWav.getAbsolutePath());
-            }
-        }
-
-        // Delete chunks
-        File chunksDir = new File(context.getFilesDir(), "audio_chunks");
-        if (chunksDir.exists() && chunksDir.isDirectory()) {
-            File[] files = chunksDir.listFiles();
-            if (files != null) {
-                for (File f : files) {
-                    if (f.delete()) {
-                        Log.d(TAG, "Deleted chunk: " + f.getAbsolutePath());
-                    }
-                }
-            }
-        }
     }
 }

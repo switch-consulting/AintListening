@@ -28,21 +28,31 @@ import de.switchconsulting.aintlistening.transcription.TranscriptionParagraph;
 
 /**
  * Repository for managing transcription state persistence, temporary audio cache files,
- * and audio chunk storage.
+ * audio chunk storage, and user preferences.
  */
 @Singleton
 public class TranscriptionRepository {
 
-    private final Persistency persistency;
+    private final TranscriptionLocalDataSource localDataSource;
+    private final AudioStorageManager audioStorageManager;
+    private final PreferencesDataSource preferencesDataSource;
 
     /**
-     * Constructs a new TranscriptionRepository with injected Persistency.
+     * Constructs a new TranscriptionRepository with injected data sources.
      *
-     * @param persistency The persistency manager.
+     * @param localDataSource       The transcription local data source.
+     * @param audioStorageManager    The audio storage manager.
+     * @param preferencesDataSource The preferences data source.
      */
     @Inject
-    public TranscriptionRepository(Persistency persistency) {
-        this.persistency = persistency;
+    public TranscriptionRepository(
+            TranscriptionLocalDataSource localDataSource,
+            AudioStorageManager audioStorageManager,
+            PreferencesDataSource preferencesDataSource
+    ) {
+        this.localDataSource = localDataSource;
+        this.audioStorageManager = audioStorageManager;
+        this.preferencesDataSource = preferencesDataSource;
     }
 
     /**
@@ -51,7 +61,7 @@ public class TranscriptionRepository {
      * @return List of transcription paragraphs, or null if none exist.
      */
     public List<TranscriptionParagraph> loadLastMessage() {
-        return persistency.loadLastMessage();
+        return localDataSource.loadLastMessage();
     }
 
     /**
@@ -61,7 +71,7 @@ public class TranscriptionRepository {
      * @param locale     The language locale used for transcription.
      */
     public void saveLastMessage(List<TranscriptionParagraph> paragraphs, Locale locale) {
-        persistency.saveLastMessage(paragraphs, locale);
+        localDataSource.saveLastMessage(paragraphs, locale);
     }
 
     /**
@@ -70,14 +80,14 @@ public class TranscriptionRepository {
      * @return The File object for the incoming audio.
      */
     public File getIncomingWavFile() {
-        return persistency.getIncomingWavFile();
+        return audioStorageManager.getIncomingWavFile();
     }
 
     /**
      * Clears temporary audio files and chunk directories.
      */
     public void clearTemporaryFiles() {
-        persistency.clearTemporaryFiles();
+        audioStorageManager.clearTemporaryFiles();
     }
 
     /**
@@ -89,15 +99,15 @@ public class TranscriptionRepository {
      * @throws IOException If saving fails.
      */
     public String saveAudioChunk(byte[] pcmData, int index) throws IOException {
-        return persistency.saveAudioChunk(pcmData, index);
+        return audioStorageManager.saveAudioChunk(pcmData, index);
     }
 
     /**
-     * Returns the underlying Persistency instance for UI configuration checks.
+     * Returns the underlying PreferencesDataSource instance for UI and configuration checks.
      *
-     * @return The persistency manager.
+     * @return The preferences data source.
      */
-    public Persistency getPersistency() {
-        return persistency;
+    public PreferencesDataSource getPreferencesDataSource() {
+        return preferencesDataSource;
     }
 }
