@@ -23,6 +23,7 @@ import dagger.hilt.InstallIn;
 import dagger.hilt.android.qualifiers.ApplicationContext;
 import dagger.hilt.components.SingletonComponent;
 import de.switchconsulting.aintlistening.data.AudioStorageManager;
+import de.switchconsulting.aintlistening.data.ModelCatalogRepository;
 import de.switchconsulting.aintlistening.data.PreferencesDataSource;
 import de.switchconsulting.aintlistening.data.TranscriptionLocalDataSource;
 import de.switchconsulting.aintlistening.transcription.TranscriberRegistry;
@@ -72,6 +73,19 @@ public class AppModule {
     @Singleton
     public static TranscriptionLocalDataSource provideTranscriptionLocalDataSource(@ApplicationContext Context context) {
         return new TranscriptionLocalDataSource(context);
+    }
+
+    /**
+     * Provides the singleton instance of ModelCatalogRepository.
+     *
+     * @param context               The application context.
+     * @param preferencesDataSource The PreferencesDataSource instance.
+     * @return The ModelCatalogRepository instance.
+     */
+    @Provides
+    @Singleton
+    public static ModelCatalogRepository provideModelCatalogRepository(@ApplicationContext Context context, PreferencesDataSource preferencesDataSource) {
+        return new ModelCatalogRepository(context, preferencesDataSource);
     }
 
     /**

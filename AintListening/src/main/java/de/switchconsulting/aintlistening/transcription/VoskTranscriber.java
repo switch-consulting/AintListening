@@ -38,8 +38,8 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import de.switchconsulting.aintlistening.data.LanguageSupport;
+import de.switchconsulting.aintlistening.data.ModelCatalogRepository;
 import de.switchconsulting.aintlistening.data.ModelInfo;
-import de.switchconsulting.aintlistening.data.ModelManager;
 
 /**
  * Handles the speech-to-text transcription process using the Vosk library.
@@ -48,14 +48,18 @@ import de.switchconsulting.aintlistening.data.ModelManager;
 public class VoskTranscriber implements Transcriber {
     private static final String TAG = "VoskTranscriber";
 
+    private final ModelCatalogRepository modelRepository;
     private Model model;
     private Locale loadedLocale;
 
     /**
      * Constructs a new VoskTranscriber instance.
+     *
+     * @param modelRepository The repository for model metadata and disk checks.
      */
     @Inject
-    public VoskTranscriber() {
+    public VoskTranscriber(ModelCatalogRepository modelRepository) {
+        this.modelRepository = modelRepository;
     }
 
     /**
@@ -75,8 +79,8 @@ public class VoskTranscriber implements Transcriber {
             model.close();
         }
 
-        LanguageSupport language = ModelManager.getLanguageSupport(locale);
-        if (language == null || !language.isDownloaded(context, getType())) {
+        LanguageSupport language = modelRepository.getLanguageSupport(locale);
+        if (language == null || !modelRepository.isDownloaded(language, getType())) {
             throw new IllegalStateException("Vosk model not found for language: " + (locale != null ? locale.getDisplayName() : "null"));
         }
 

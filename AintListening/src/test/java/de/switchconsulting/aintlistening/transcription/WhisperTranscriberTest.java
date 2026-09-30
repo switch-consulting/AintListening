@@ -27,6 +27,8 @@ import org.junit.Test;
 
 import java.util.Locale;
 
+import de.switchconsulting.aintlistening.data.ModelCatalogRepository;
+
 /**
  * Unit tests for {@link WhisperTranscriber}.
  */
@@ -36,7 +38,8 @@ public class WhisperTranscriberTest {
 
     @Before
     public void setUp() {
-        transcriber = new WhisperTranscriber();
+        ModelCatalogRepository modelRepository = mock(ModelCatalogRepository.class);
+        transcriber = new WhisperTranscriber(modelRepository);
     }
 
     @Test

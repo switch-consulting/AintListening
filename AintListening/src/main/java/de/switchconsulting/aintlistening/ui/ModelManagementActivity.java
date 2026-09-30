@@ -31,18 +31,17 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.progressindicator.LinearProgressIndicator;
 import com.google.android.material.switchmaterial.SwitchMaterial;
 
-import java.util.Arrays;
 import java.util.List;
 
 import javax.inject.Inject;
 
 import dagger.hilt.android.AndroidEntryPoint;
+import de.switchconsulting.aintlistening.R;
 import de.switchconsulting.aintlistening.data.DownloadState;
 import de.switchconsulting.aintlistening.data.DownloadStatus;
-import de.switchconsulting.aintlistening.R;
 import de.switchconsulting.aintlistening.data.LanguageSupport;
+import de.switchconsulting.aintlistening.data.ModelCatalogRepository;
 import de.switchconsulting.aintlistening.data.ModelInfo;
-import de.switchconsulting.aintlistening.data.ModelManager;
 import de.switchconsulting.aintlistening.data.PreferencesDataSource;
 import de.switchconsulting.aintlistening.transcription.TranscriberRegistry;
 import de.switchconsulting.aintlistening.transcription.TranscriberType;
@@ -63,6 +62,9 @@ public class ModelManagementActivity extends AppCompatActivity {
 
     @Inject
     PreferencesDataSource preferencesDataSource;
+
+    @Inject
+    ModelCatalogRepository modelRepository;
 
     @Inject
     TranscriberRegistry transcriberRegistry;
@@ -133,8 +135,8 @@ public class ModelManagementActivity extends AppCompatActivity {
      */
     private void updateSmartFormattingSwitchState() {
         boolean isFormattingAvailable = false;
-        for (LanguageSupport lang : ModelManager.SUPPORTED_LANGUAGES) {
-            if (lang.isFormattingDownloaded(this)) {
+        for (LanguageSupport lang : modelRepository.getSupportedLanguages()) {
+            if (modelRepository.isFormattingDownloaded(lang)) {
                 isFormattingAvailable = true;
                 break;
             }
@@ -158,10 +160,10 @@ public class ModelManagementActivity extends AppCompatActivity {
      * Configures the RecyclerView and its adapter to display language model items.
      */
     private void setupRecyclerView() {
-        List<LanguageSupport> languages = Arrays.asList(ModelManager.SUPPORTED_LANGUAGES);
+        List<LanguageSupport> languages = modelRepository.getSupportedLanguages();
 
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        adapter = new ModelAdapter(languages, transcriberRegistry, preferencesDataSource, new ModelInteractionListener() {
+        adapter = new ModelAdapter(languages, modelRepository, transcriberRegistry, preferencesDataSource, new ModelInteractionListener() {
             @Override
             public void onDownloadClicked(ModelInfo info) {
                 Toast.makeText(ModelManagementActivity.this, getString(R.string.message_starting_download, info.locale().getDisplayName()), Toast.LENGTH_SHORT).show();
@@ -266,7 +268,7 @@ public class ModelManagementActivity extends AppCompatActivity {
                 .setTitle(R.string.dialog_confirm_delete_title)
                 .setMessage(getString(R.string.dialog_confirm_delete_message, info.locale().getDisplayName()))
                 .setPositiveButton(R.string.button_remove, (dialog, which) -> {
-                    if (ModelManager.deleteModel(this, info)) {
+                    if (modelRepository.deleteModel(info)) {
                         updateModelStatusUI();
                         Toast.makeText(this, R.string.message_model_removed, Toast.LENGTH_SHORT).show();
                     }

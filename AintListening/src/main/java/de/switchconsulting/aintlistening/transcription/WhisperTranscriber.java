@@ -43,8 +43,8 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import de.switchconsulting.aintlistening.data.LanguageSupport;
+import de.switchconsulting.aintlistening.data.ModelCatalogRepository;
 import de.switchconsulting.aintlistening.data.ModelInfo;
-import de.switchconsulting.aintlistening.data.ModelManager;
 import kotlin.Unit;
 
 /**
@@ -56,18 +56,22 @@ public class WhisperTranscriber implements Transcriber {
     public static final int INCREMENTAL_UPDATE_POLLING_INTERVALL_MS = 100;
     public static final int SILENCE_GAP_MS = 100;
 
-    /**
-     * Constructs a new WhisperTranscriber instance.
-     */
-    @Inject
-    public WhisperTranscriber() {
-    }
-
+    private final ModelCatalogRepository modelRepository;
     private Whisper whisper;
     private Locale loadedLocale;
     private boolean enableIncrementalUpdates = true;
 
     private static final Pattern TIMESTAMP_PATTERN = Pattern.compile("\\[(\\d{2}:\\d{2}:\\d{2}\\.\\d{3})\\s*-->\\s*(\\d{2}:\\d{2}:\\d{2}\\.\\d{3})]\\s*(.*)");
+
+    /**
+     * Constructs a new WhisperTranscriber instance.
+     *
+     * @param modelRepository The repository for model metadata and disk checks.
+     */
+    @Inject
+    public WhisperTranscriber(ModelCatalogRepository modelRepository) {
+        this.modelRepository = modelRepository;
+    }
 
     /**
      * Sets whether to enable incremental transcription updates via log polling.
@@ -84,12 +88,12 @@ public class WhisperTranscriber implements Transcriber {
             return;
         }
 
-        LanguageSupport language = ModelManager.getLanguageSupport(locale);
+        LanguageSupport language = modelRepository.getLanguageSupport(locale);
         if (language == null) {
             throw new IllegalStateException("Unsupported language locale: " + (locale != null ? locale.getDisplayName() : "null"));
         }
         ModelInfo modelInfo = language.getModel(getType());
-        if (!language.isDownloaded(context, getType()) || modelInfo == null) {
+        if (!modelRepository.isDownloaded(language, getType()) || modelInfo == null) {
             throw new IllegalStateException("Whisper model not found for language: " + language.getLocale().getDisplayName());
         }
 

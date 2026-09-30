@@ -17,21 +17,11 @@
 package de.switchconsulting.aintlistening.data;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
-import android.content.Context;
-
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.Locale;
 
 import de.switchconsulting.aintlistening.R;
@@ -41,9 +31,6 @@ import de.switchconsulting.aintlistening.transcription.TranscriberType;
  * Unit tests for {@link ModelManager}.
  */
 public class ModelManagerTest {
-
-    @Rule
-    public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
     @Test
     public void testGetEngineNameResId() {
@@ -65,71 +52,5 @@ public class ModelManagerTest {
         assertNull(unsupported);
 
         assertNull(ModelManager.getLanguageSupport(null));
-    }
-
-    @Test
-    public void testIsModelDownloadedZipModel() throws IOException {
-        Context context = mock(Context.class);
-        File filesDir = temporaryFolder.newFolder("filesDir");
-        when(context.getFilesDir()).thenReturn(filesDir);
-
-        ModelInfo zipModel = new ModelInfo("vosk-model-de", "http://example.com", Locale.GERMAN, "45MB", TranscriberType.VOSK, true);
-
-        // Not downloaded yet
-        assertFalse(ModelManager.INSTANCE.isModelDownloaded(context, zipModel));
-
-        // Create folder for model
-        File modelDir = new File(filesDir, "vosk-model-de");
-        assertTrue(modelDir.mkdir());
-
-        // Now downloaded
-        assertTrue(ModelManager.INSTANCE.isModelDownloaded(context, zipModel));
-    }
-
-    @Test
-    public void testIsModelDownloadedNonZipModel() throws IOException {
-        Context context = mock(Context.class);
-        File filesDir = temporaryFolder.newFolder("filesDir");
-        when(context.getFilesDir()).thenReturn(filesDir);
-
-        ModelInfo binModel = new ModelInfo("ggml-tiny.bin", "http://example.com", Locale.GERMAN, "75MB", TranscriberType.WHISPER, false);
-
-        // Not downloaded yet
-        assertFalse(ModelManager.INSTANCE.isModelDownloaded(context, binModel));
-
-        // Create single file for model
-        File modelFile = new File(filesDir, "ggml-tiny.bin");
-        assertTrue(modelFile.createNewFile());
-
-        // Now downloaded
-        assertTrue(ModelManager.INSTANCE.isModelDownloaded(context, binModel));
-    }
-
-    @Test
-    public void testIsModelDownloadedNull() {
-        Context context = mock(Context.class);
-        assertFalse(ModelManager.INSTANCE.isModelDownloaded(context, null));
-    }
-
-    @Test
-    public void testDeleteModelNull() {
-        Context context = mock(Context.class);
-        assertFalse(ModelManager.deleteModel(context, null));
-    }
-
-    @Test
-    public void testDeleteModelFileAndDir() throws IOException {
-        Context context = mock(Context.class);
-        File filesDir = temporaryFolder.newFolder("filesDirForDelete");
-        when(context.getFilesDir()).thenReturn(filesDir);
-
-        ModelInfo model = new ModelInfo("model-to-delete", "http://example.com", Locale.GERMAN, "10MB", TranscriberType.VOSK, true);
-        File dir = new File(filesDir, "model-to-delete");
-        assertTrue(dir.mkdir());
-        File subFile = new File(dir, "data.txt");
-        assertTrue(subFile.createNewFile());
-
-        assertTrue(ModelManager.deleteModel(context, model));
-        assertFalse(dir.exists());
     }
 }

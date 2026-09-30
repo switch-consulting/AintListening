@@ -34,8 +34,8 @@ import com.google.android.material.radiobutton.MaterialRadioButton;
 
 import de.switchconsulting.aintlistening.R;
 import de.switchconsulting.aintlistening.data.LanguageSupport;
+import de.switchconsulting.aintlistening.data.ModelCatalogRepository;
 import de.switchconsulting.aintlistening.data.ModelInfo;
-import de.switchconsulting.aintlistening.data.ModelManager;
 import de.switchconsulting.aintlistening.data.PreferencesDataSource;
 import de.switchconsulting.aintlistening.transcription.Transcriber;
 import de.switchconsulting.aintlistening.transcription.TranscriberRegistry;
@@ -69,18 +69,19 @@ public class ModelViewHolder extends RecyclerView.ViewHolder {
      * Binds language support data to the view.
      *
      * @param language              The language support information.
+     * @param modelRepository       The repository for model metadata and status queries.
      * @param transcriberRegistry   The registry for transcription engines.
      * @param preferencesDataSource The preferences data source.
      * @param isBusy                Whether the adapter is currently busy.
      * @param listener              The listener for interaction events.
      */
-    public void bind(LanguageSupport language, TranscriberRegistry transcriberRegistry, PreferencesDataSource preferencesDataSource, boolean isBusy, ModelInteractionListener listener) {
+    public void bind(LanguageSupport language, ModelCatalogRepository modelRepository, TranscriberRegistry transcriberRegistry, PreferencesDataSource preferencesDataSource, boolean isBusy, ModelInteractionListener listener) {
         languageNameText.setText(language.getLocale().getDisplayName());
 
         Context context = itemView.getContext();
         boolean isEnabled = preferencesDataSource.isLanguageEnabled(language.getLocale());
-        boolean hasTranscription = language.hasTranscriptionModelDownloaded(context);
-        TranscriberType activeType = language.getActiveTranscriberType(context, preferencesDataSource);
+        boolean hasTranscription = modelRepository.hasTranscriptionModelDownloaded(language);
+        TranscriberType activeType = modelRepository.getActiveTranscriberType(language);
 
         languageEnabledSwitch.setOnCheckedChangeListener(null);
         languageEnabledSwitch.setChecked(isEnabled && hasTranscription);
@@ -100,7 +101,7 @@ public class ModelViewHolder extends RecyclerView.ViewHolder {
                 row = inflater.inflate(R.layout.item_model_status, transcriberModelsContainer, false);
                 transcriberModelsContainer.addView(row);
             }
-            bindModelRow(language, row, transcriptionInfo, activeType, true, isBusy, transcriberRegistry, preferencesDataSource, listener);
+            bindModelRow(language, row, transcriptionInfo, activeType, true, isBusy, modelRepository, transcriberRegistry, preferencesDataSource, listener);
             index++;
         }
 
@@ -112,7 +113,7 @@ public class ModelViewHolder extends RecyclerView.ViewHolder {
         if (language.getFormattingModel() != null) {
             formattingRow.setVisibility(View.VISIBLE);
             formattingNotSupportedText.setVisibility(View.GONE);
-            bindModelRow(language, formattingRow, language.getFormattingModel(), activeType, false, isBusy, transcriberRegistry, preferencesDataSource, listener);
+            bindModelRow(language, formattingRow, language.getFormattingModel(), activeType, false, isBusy, modelRepository, transcriberRegistry, preferencesDataSource, listener);
         } else {
             formattingRow.setVisibility(View.GONE);
             formattingNotSupportedText.setVisibility(View.VISIBLE);
@@ -128,11 +129,12 @@ public class ModelViewHolder extends RecyclerView.ViewHolder {
      * @param activeType            The currently active transcriber type for this language.
      * @param isTranscriber         Whether this row is for a transcriber (vs formatting).
      * @param isBusy                Whether the adapter is currently busy.
+     * @param modelRepository       The repository for model metadata and disk checks.
      * @param transcriberRegistry   The registry for transcription engines.
      * @param preferencesDataSource The preferences data source.
      * @param listener              The listener for user interactions.
      */
-    private void bindModelRow(LanguageSupport language, View rowView, ModelInfo info, TranscriberType activeType, boolean isTranscriber, boolean isBusy, TranscriberRegistry transcriberRegistry, PreferencesDataSource preferencesDataSource, ModelInteractionListener listener) {
+    private void bindModelRow(LanguageSupport language, View rowView, ModelInfo info, TranscriberType activeType, boolean isTranscriber, boolean isBusy, ModelCatalogRepository modelRepository, TranscriberRegistry transcriberRegistry, PreferencesDataSource preferencesDataSource, ModelInteractionListener listener) {
         Context context = rowView.getContext();
         ImageView icon = rowView.findViewById(R.id.modelStatusIcon);
         MaterialRadioButton radioButton = rowView.findViewById(R.id.modelSelectedRadio);
@@ -142,10 +144,10 @@ public class ModelViewHolder extends RecyclerView.ViewHolder {
         MaterialButton downloadButton = rowView.findViewById(R.id.inlineDownloadButton);
         MaterialButton deleteButton = rowView.findViewById(R.id.inlineDeleteButton);
 
-        boolean isDownloaded = ModelManager.INSTANCE.isModelDownloaded(context, info);
+        boolean isDownloaded = modelRepository.isModelDownloaded(info);
 
         if (isTranscriber) {
-            nameText.setText(ModelManager.getEngineNameResId(info.type()));
+            nameText.setText(modelRepository.getEngineNameResId(info.type()));
             radioButton.setVisibility(View.VISIBLE);
             checkBox.setVisibility(View.GONE);
 

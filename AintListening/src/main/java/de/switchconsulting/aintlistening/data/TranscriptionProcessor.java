@@ -53,6 +53,7 @@ public class TranscriptionProcessor {
 
     private final Context context;
     private final TranscriptionRepository repository;
+    private final ModelCatalogRepository modelRepository;
     private final TranscriberRegistry transcriberRegistry;
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
     private final Handler mainHandler = new Handler(Looper.getMainLooper());
@@ -64,12 +65,17 @@ public class TranscriptionProcessor {
      *
      * @param context             The application context.
      * @param repository          The repository for state saving, loading, and temporary file cache.
+     * @param modelRepository     The repository for model metadata and disk availability.
      * @param transcriberRegistry The registry for transcription engines.
      */
     @Inject
-    public TranscriptionProcessor(@ApplicationContext Context context, TranscriptionRepository repository, TranscriberRegistry transcriberRegistry) {
+    public TranscriptionProcessor(@ApplicationContext Context context,
+                                  TranscriptionRepository repository,
+                                  ModelCatalogRepository modelRepository,
+                                  TranscriberRegistry transcriberRegistry) {
         this.context = context;
         this.repository = repository;
+        this.modelRepository = modelRepository;
         this.transcriberRegistry = transcriberRegistry;
     }
 
@@ -94,11 +100,11 @@ public class TranscriptionProcessor {
                 }
 
                 notifyStatusUpdate(callback, "Loading model...");
-                LanguageSupport language = ModelManager.getLanguageSupport(locale);
+                LanguageSupport language = modelRepository.getLanguageSupport(locale);
                 if (language == null) {
                     throw new IllegalStateException("Unsupported language locale: " + (locale != null ? locale.getDisplayName() : "null"));
                 }
-                TranscriberType activeType = language.getActiveTranscriberType(context, repository.getPreferencesDataSource());
+                TranscriberType activeType = modelRepository.getActiveTranscriberType(language);
                 activeTranscriber = transcriberRegistry.getTranscriber(activeType);
                 
                 if (activeTranscriber == null) {
@@ -148,12 +154,12 @@ public class TranscriptionProcessor {
      * @param callback   The callback to receive progress updates and the final result.
      */
     private void applySmartFormatting(List<TranscriptionParagraph> paragraphs, Locale locale, TranscriptionCallback callback) {
-        LanguageSupport selectedLanguage = ModelManager.getLanguageSupport(locale);
+        LanguageSupport selectedLanguage = modelRepository.getLanguageSupport(locale);
         List<TranscriptionParagraph> formattedParagraphs = new ArrayList<>();
 
         boolean engineProvidesPunctuation = activeTranscriber != null && activeTranscriber.providesPunctuation();
         boolean userWantsSmart = selectedLanguage != null && repository.getPreferencesDataSource().isSmartFormattingEnabled(selectedLanguage.getLocale());
-        boolean modelAvailable = selectedLanguage != null && selectedLanguage.isFormattingDownloaded(context);
+        boolean modelAvailable = selectedLanguage != null && modelRepository.isFormattingDownloaded(selectedLanguage);
 
         if (!engineProvidesPunctuation && userWantsSmart && modelAvailable && !paragraphs.isEmpty()) {
             try {

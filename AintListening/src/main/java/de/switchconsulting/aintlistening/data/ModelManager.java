@@ -16,11 +16,7 @@
 
 package de.switchconsulting.aintlistening.data;
 
-import android.content.Context;
-import java.io.File;
-import java.util.ArrayList;
 import java.util.EnumMap;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -28,12 +24,9 @@ import de.switchconsulting.aintlistening.R;
 import de.switchconsulting.aintlistening.transcription.TranscriberType;
 
 /**
- * Utility class for managing speech models. Provides metadata for supported models
- * and helper methods to check their installation status and perform file operations.
+ * Utility class providing metadata definitions for supported languages and models.
  */
 public class ModelManager {
-    /** The singleton instance of the manager. */
-    public static final ModelManager INSTANCE = new ModelManager();
 
     /** The list of languages and their associated models supported by the application. */
     public static final LanguageSupport[] SUPPORTED_LANGUAGES;
@@ -75,15 +68,6 @@ public class ModelManager {
         };
     }
 
-    /**
-     * Helper method to construct a {@link LanguageSupport} mapping for a specified locale, formatting model,
-     * and array of transcription models.
-     *
-     * @param locale              The locale of the language.
-     * @param formatting          The formatting model info, or null if not available.
-     * @param transcriptionModels The transcription models supported for this language.
-     * @return A configured LanguageSupport instance.
-     */
     private static LanguageSupport createLanguageSupport(Locale locale, ModelInfo formatting, ModelInfo... transcriptionModels) {
         Map<TranscriberType, ModelInfo> map = new EnumMap<>(TranscriberType.class);
         for (ModelInfo model : transcriptionModels) {
@@ -91,7 +75,7 @@ public class ModelManager {
                 map.put(model.type(), model);
             }
         }
-        return new LanguageSupport(locale, map, formatting, INSTANCE);
+        return new LanguageSupport(locale, map, formatting);
     }
 
     /**
@@ -119,74 +103,5 @@ public class ModelManager {
             }
         }
         return null;
-    }
-
-    /**
-     * Checks if a model is already downloaded and present on the device.
-     *
-     * @param context The context.
-     * @param info    The model information.
-     * @return True if the model directory exists and is a directory, false otherwise.
-     */
-    public boolean isModelDownloaded(Context context, ModelInfo info) {
-        if (info == null) return false;
-        File modelFile = new File(context.getFilesDir(), info.name());
-        if (info.isZip()) {
-            return modelFile.exists() && modelFile.isDirectory();
-        } else {
-            return modelFile.exists() && modelFile.isFile();
-        }
-    }
-
-    /**
-     * Returns a list of language display names for all languages where at least one transcription model is downloaded
-     * AND the language is enabled in settings.
-     *
-     * @param context               The context.
-     * @param preferencesDataSource PreferencesDataSource for language enabled checks.
-     * @return A list of available language display names.
-     */
-    public static List<String> getAvailableLanguageNames(Context context, PreferencesDataSource preferencesDataSource) {
-        List<String> available = new ArrayList<>();
-        for (LanguageSupport language : SUPPORTED_LANGUAGES) {
-            if (!preferencesDataSource.isLanguageEnabled(language.getLocale())) {
-                continue;
-            }
-            if (language.hasTranscriptionModelDownloaded(context)) {
-                available.add(language.getLocale().getDisplayName());
-            }
-        }
-        return available;
-    }
-
-    /**
-     * Deletes the model files for the specified model.
-     *
-     * @param context The context.
-     * @param info    The model information to delete.
-     * @return True if the model was successfully deleted, false otherwise.
-     */
-    public static boolean deleteModel(Context context, ModelInfo info) {
-        if (info == null) return false;
-        File modelDir = new File(context.getFilesDir(), info.name());
-        return deleteRecursive(modelDir);
-    }
-
-    /**
-     * Recursively deletes a file or directory and all its contents.
-     *
-     * @param fileOrDirectory The file or directory to delete.
-     * @return True if the deletion was successful.
-     */
-    private static boolean deleteRecursive(File fileOrDirectory) {
-        if (fileOrDirectory.isDirectory()) {
-            File[] children = fileOrDirectory.listFiles();
-            if (children != null) {
-                for (File child : children) {
-                    deleteRecursive(child);
-                }
-            }
-        }
-        return fileOrDirectory.delete();
     }
 }

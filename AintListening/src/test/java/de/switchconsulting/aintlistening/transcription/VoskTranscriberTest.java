@@ -27,6 +27,8 @@ import org.junit.Test;
 
 import java.util.Locale;
 
+import de.switchconsulting.aintlistening.data.ModelCatalogRepository;
+
 /**
  * Unit tests for {@link VoskTranscriber}.
  */
@@ -36,7 +38,8 @@ public class VoskTranscriberTest {
 
     @Before
     public void setUp() {
-        transcriber = new VoskTranscriber();
+        ModelCatalogRepository modelRepository = mock(ModelCatalogRepository.class);
+        transcriber = new VoskTranscriber(modelRepository);
     }
 
     @Test

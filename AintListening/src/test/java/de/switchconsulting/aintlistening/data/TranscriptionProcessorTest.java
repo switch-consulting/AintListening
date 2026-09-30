@@ -43,8 +43,9 @@ public class TranscriptionProcessorTest {
     public void setUp() {
         Context context = mock(Context.class);
         TranscriptionRepository repository = mock(TranscriptionRepository.class);
+        ModelCatalogRepository modelRepository = mock(ModelCatalogRepository.class);
         TranscriberRegistry registry = mock(TranscriberRegistry.class);
-        processor = new TranscriptionProcessor(context, repository, registry);
+        processor = new TranscriptionProcessor(context, repository, modelRepository, registry);
     }
 
     @Test
@@ -82,10 +83,11 @@ public class TranscriptionProcessorTest {
     @Test
     public void testLoadLastMessageDelegatesToRepository() {
         TranscriptionRepository repository = mock(TranscriptionRepository.class);
+        ModelCatalogRepository modelRepository = mock(ModelCatalogRepository.class);
         TranscriberRegistry registry = mock(TranscriberRegistry.class);
         Context context = mock(Context.class);
 
-        TranscriptionProcessor proc = new TranscriptionProcessor(context, repository, registry);
+        TranscriptionProcessor proc = new TranscriptionProcessor(context, repository, modelRepository, registry);
         proc.loadLastMessage();
 
         Mockito.verify(repository).loadLastMessage();
@@ -94,10 +96,11 @@ public class TranscriptionProcessorTest {
     @Test
     public void testReleaseClosesRegistry() {
         TranscriptionRepository repository = mock(TranscriptionRepository.class);
+        ModelCatalogRepository modelRepository = mock(ModelCatalogRepository.class);
         TranscriberRegistry registry = mock(TranscriberRegistry.class);
         Context context = mock(Context.class);
 
-        TranscriptionProcessor proc = new TranscriptionProcessor(context, repository, registry);
+        TranscriptionProcessor proc = new TranscriptionProcessor(context, repository, modelRepository, registry);
         proc.release();
 
         Mockito.verify(registry).closeAll();

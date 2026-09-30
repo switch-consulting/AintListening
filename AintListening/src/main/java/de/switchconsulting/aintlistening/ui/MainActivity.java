@@ -40,7 +40,7 @@ import javax.inject.Inject;
 import dagger.hilt.android.AndroidEntryPoint;
 import de.switchconsulting.aintlistening.R;
 import de.switchconsulting.aintlistening.data.LanguageSupport;
-import de.switchconsulting.aintlistening.data.ModelManager;
+import de.switchconsulting.aintlistening.data.ModelCatalogRepository;
 import de.switchconsulting.aintlistening.data.PreferencesDataSource;
 
 /**
@@ -57,6 +57,9 @@ public class MainActivity extends AppCompatActivity {
 
     @Inject
     PreferencesDataSource preferencesDataSource;
+
+    @Inject
+    ModelCatalogRepository modelRepository;
 
     /**
      * Called when the activity is first created. Initializes the UI and ViewModel.
@@ -168,7 +171,7 @@ public class MainActivity extends AppCompatActivity {
      */
     private void updateAvailableLanguagesUI() {
         TextView supportedLanguagesText = findViewById(R.id.supportedLanguagesText);
-        List<String> available = ModelManager.getAvailableLanguageNames(this, preferencesDataSource);
+        List<String> available = modelRepository.getAvailableLanguageNames();
 
         if (available.isEmpty()) {
             supportedLanguagesText.setText(R.string.status_no_models_installed);
@@ -226,9 +229,9 @@ public class MainActivity extends AppCompatActivity {
      */
     private void checkModelsAndProceed(Uri audioUri) {
         List<LanguageSupport> availableLanguages = new ArrayList<>();
-        for (LanguageSupport lang : ModelManager.SUPPORTED_LANGUAGES) {
+        for (LanguageSupport lang : modelRepository.getSupportedLanguages()) {
             boolean isEnabled = preferencesDataSource.isLanguageEnabled(lang.getLocale());
-            boolean isDownloaded = lang.hasTranscriptionModelDownloaded(this);
+            boolean isDownloaded = modelRepository.hasTranscriptionModelDownloaded(lang);
             if (isEnabled && isDownloaded) {
                 availableLanguages.add(lang);
             }

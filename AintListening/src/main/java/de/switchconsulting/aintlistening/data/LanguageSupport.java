@@ -16,7 +16,6 @@
 
 package de.switchconsulting.aintlistening.data;
 
-import android.content.Context;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
@@ -31,7 +30,6 @@ import de.switchconsulting.aintlistening.transcription.TranscriberType;
 /**
  * Container class that groups all model information for a specific language.
  * It includes the transcription model and an optional formatting model.
- * It uses a {@link ModelManager} to check for model availability.
  */
 public class LanguageSupport {
     /** The locale of the language, serving as the primary key. */
@@ -40,25 +38,20 @@ public class LanguageSupport {
     private final Map<TranscriberType, ModelInfo> transcriptionModels = new EnumMap<>(TranscriberType.class);
     /** The metadata for the smart formatting (punctuation) model. */
     private final ModelInfo formattingModel;
-    /** The manager used to check for model presence. */
-    private final ModelManager modelManager;
 
     /**
      * Constructs a new LanguageSupport instance.
      *
-     * @param locale          The locale of the language (primary key).
+     * @param locale              The locale of the language (primary key).
      * @param transcriptionModels The map of transcription models.
-     * @param formattingModel The formatting model information, or null if not supported.
-     * @param modelManager    The manager to delegate model checks to.
+     * @param formattingModel     The formatting model information, or null if not supported.
      */
     public LanguageSupport(@NonNull Locale locale,
-                    @NonNull Map<TranscriberType, ModelInfo> transcriptionModels,
-                    @Nullable ModelInfo formattingModel,
-                    @NonNull ModelManager modelManager) {
+                           @NonNull Map<TranscriberType, ModelInfo> transcriptionModels,
+                           @Nullable ModelInfo formattingModel) {
         this.locale = locale;
         this.transcriptionModels.putAll(transcriptionModels);
         this.formattingModel = formattingModel;
-        this.modelManager = modelManager;
     }
 
     /**
@@ -88,73 +81,11 @@ public class LanguageSupport {
     }
 
     /**
-     * Resolves the effectively active transcriber type for this language.
-     * Respects user preference if the model is downloaded, otherwise falls back to first available.
-     *
-     * @param context               Application context.
-     * @param preferencesDataSource PreferencesDataSource for user preferences.
-     * @return The active TranscriberType.
-     */
-    public TranscriberType getActiveTranscriberType(Context context, PreferencesDataSource preferencesDataSource) {
-        TranscriberType preferred = preferencesDataSource.getTranscriberType(locale);
-        if (isDownloaded(context, preferred)) {
-            return preferred;
-        }
-
-        // Fallback to the first available transcription model
-        for (Map.Entry<TranscriberType, ModelInfo> entry : transcriptionModels.entrySet()) {
-            if (isDownloaded(context, entry.getKey())) {
-                return entry.getKey();
-            }
-        }
-
-        // Default if nothing is downloaded (though UI should prevent this state being critical)
-        return preferencesDataSource.getDefaultTranscriberType();
-    }
-
-    /**
      * @return The formatting model information, or null if not supported for this language.
      */
     @Nullable
     public ModelInfo getFormattingModel() {
         return formattingModel;
-    }
-
-    /**
-     * Checks if the model for the specified transcriber type is downloaded.
-     *
-     * @param context The context.
-     * @param type    The transcriber type.
-     * @return True if downloaded, false otherwise.
-     */
-    public boolean isDownloaded(@NonNull Context context, TranscriberType type) {
-        ModelInfo info = transcriptionModels.get(type);
-        return info != null && modelManager.isModelDownloaded(context, info);
-    }
-
-    /**
-     * Checks if the formatting model for this language is downloaded.
-     *
-     * @param context The context.
-     * @return True if downloaded, false otherwise (e.g. if not supported).
-     */
-    public boolean isFormattingDownloaded(@NonNull Context context) {
-        return modelManager.isModelDownloaded(context, formattingModel);
-    }
-
-    /**
-     * Checks if any transcription model is downloaded for this language.
-     *
-     * @param context The context.
-     * @return True if at least one transcription model is downloaded.
-     */
-    public boolean hasTranscriptionModelDownloaded(@NonNull Context context) {
-        for (TranscriberType type : TranscriberType.values()) {
-            if (isDownloaded(context, type)) {
-                return true;
-            }
-        }
-        return false;
     }
 
     /**
