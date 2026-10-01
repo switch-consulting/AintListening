@@ -34,8 +34,8 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import dagger.hilt.android.qualifiers.ApplicationContext;
-import de.switchconsulting.aintlistening.formatting.OnnxSmartFormatter;
 import de.switchconsulting.aintlistening.formatting.SmartFormatter;
+import de.switchconsulting.aintlistening.formatting.SmartFormatterFactory;
 import de.switchconsulting.aintlistening.transcription.Transcriber;
 import de.switchconsulting.aintlistening.transcription.TranscriberRegistry;
 import de.switchconsulting.aintlistening.transcription.TranscriberType;
@@ -55,6 +55,7 @@ public class TranscriptionProcessor {
     private final TranscriptionRepository repository;
     private final ModelCatalogRepository modelRepository;
     private final TranscriberRegistry transcriberRegistry;
+    private final SmartFormatterFactory smartFormatterFactory;
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
     private final Handler mainHandler = new Handler(Looper.getMainLooper());
     private SmartFormatter smartFormatter;
@@ -63,20 +64,23 @@ public class TranscriptionProcessor {
     /**
      * Constructs a new TranscriptionProcessor.
      *
-     * @param context             The application context.
-     * @param repository          The repository for state saving, loading, and temporary file cache.
-     * @param modelRepository     The repository for model metadata and disk availability.
-     * @param transcriberRegistry The registry for transcription engines.
+     * @param context               The application context.
+     * @param repository            The repository for state saving, loading, and temporary file cache.
+     * @param modelRepository       The repository for model metadata and disk availability.
+     * @param transcriberRegistry   The registry for transcription engines.
+     * @param smartFormatterFactory The factory for creating smart formatters.
      */
     @Inject
     public TranscriptionProcessor(@ApplicationContext Context context,
                                   TranscriptionRepository repository,
                                   ModelCatalogRepository modelRepository,
-                                  TranscriberRegistry transcriberRegistry) {
+                                  TranscriberRegistry transcriberRegistry,
+                                  SmartFormatterFactory smartFormatterFactory) {
         this.context = context;
         this.repository = repository;
         this.modelRepository = modelRepository;
         this.transcriberRegistry = transcriberRegistry;
+        this.smartFormatterFactory = smartFormatterFactory;
     }
 
     /**
@@ -171,7 +175,7 @@ public class TranscriptionProcessor {
                         smartFormatter = null;
                     }
                     if (smartFormatter == null) {
-                        smartFormatter = new OnnxSmartFormatter(context, targetModel);
+                        smartFormatter = smartFormatterFactory.create(targetModel);
                     }
                 }
 

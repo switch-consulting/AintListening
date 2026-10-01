@@ -29,6 +29,7 @@ import org.mockito.Mockito;
 
 import java.util.List;
 
+import de.switchconsulting.aintlistening.formatting.SmartFormatterFactory;
 import de.switchconsulting.aintlistening.transcription.TranscriberRegistry;
 import de.switchconsulting.aintlistening.transcription.TranscriptionParagraph;
 
@@ -45,7 +46,8 @@ public class TranscriptionProcessorTest {
         TranscriptionRepository repository = mock(TranscriptionRepository.class);
         ModelCatalogRepository modelRepository = mock(ModelCatalogRepository.class);
         TranscriberRegistry registry = mock(TranscriberRegistry.class);
-        processor = new TranscriptionProcessor(context, repository, modelRepository, registry);
+        SmartFormatterFactory formatterFactory = mock(SmartFormatterFactory.class);
+        processor = new TranscriptionProcessor(context, repository, modelRepository, registry, formatterFactory);
     }
 
     @Test
@@ -85,9 +87,10 @@ public class TranscriptionProcessorTest {
         TranscriptionRepository repository = mock(TranscriptionRepository.class);
         ModelCatalogRepository modelRepository = mock(ModelCatalogRepository.class);
         TranscriberRegistry registry = mock(TranscriberRegistry.class);
+        SmartFormatterFactory formatterFactory = mock(SmartFormatterFactory.class);
         Context context = mock(Context.class);
 
-        TranscriptionProcessor proc = new TranscriptionProcessor(context, repository, modelRepository, registry);
+        TranscriptionProcessor proc = new TranscriptionProcessor(context, repository, modelRepository, registry, formatterFactory);
         proc.loadLastMessage();
 
         Mockito.verify(repository).loadLastMessage();
@@ -98,9 +101,10 @@ public class TranscriptionProcessorTest {
         TranscriptionRepository repository = mock(TranscriptionRepository.class);
         ModelCatalogRepository modelRepository = mock(ModelCatalogRepository.class);
         TranscriberRegistry registry = mock(TranscriberRegistry.class);
+        SmartFormatterFactory formatterFactory = mock(SmartFormatterFactory.class);
         Context context = mock(Context.class);
 
-        TranscriptionProcessor proc = new TranscriptionProcessor(context, repository, modelRepository, registry);
+        TranscriptionProcessor proc = new TranscriptionProcessor(context, repository, modelRepository, registry, formatterFactory);
         proc.release();
 
         Mockito.verify(registry).closeAll();
