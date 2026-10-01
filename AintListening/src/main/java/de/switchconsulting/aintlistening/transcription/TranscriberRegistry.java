@@ -18,6 +18,7 @@ package de.switchconsulting.aintlistening.transcription;
 
 import java.util.EnumMap;
 import java.util.Map;
+import java.util.Set;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -31,15 +32,17 @@ public class TranscriberRegistry {
     private final Map<TranscriberType, Transcriber> transcribers = new EnumMap<>(TranscriberType.class);
 
     /**
-     * Constructs a new TranscriberRegistry and registers the available transcription engines.
+     * Constructs a new TranscriberRegistry and registers the available transcription engines from the injected set.
      *
-     * @param voskTranscriber    The Vosk transcriber engine.
-     * @param whisperTranscriber The Whisper transcriber engine.
+     * @param transcriberSet Set of available transcriber implementations provided by Hilt multibindings.
      */
     @Inject
-    public TranscriberRegistry(VoskTranscriber voskTranscriber, WhisperTranscriber whisperTranscriber) {
-        transcribers.put(TranscriberType.VOSK, voskTranscriber);
-        transcribers.put(TranscriberType.WHISPER, whisperTranscriber);
+    public TranscriberRegistry(Set<Transcriber> transcriberSet) {
+        for (Transcriber transcriber : transcriberSet) {
+            if (transcriber.getType() != null) {
+                transcribers.put(transcriber.getType(), transcriber);
+            }
+        }
     }
 
     /**

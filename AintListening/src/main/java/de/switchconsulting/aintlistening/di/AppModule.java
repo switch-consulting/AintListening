@@ -17,6 +17,9 @@
 package de.switchconsulting.aintlistening.di;
 
 import android.content.Context;
+
+import javax.inject.Singleton;
+
 import dagger.Module;
 import dagger.Provides;
 import dagger.hilt.InstallIn;
@@ -26,11 +29,6 @@ import de.switchconsulting.aintlistening.data.AudioStorageManager;
 import de.switchconsulting.aintlistening.data.ModelCatalogRepository;
 import de.switchconsulting.aintlistening.data.PreferencesDataSource;
 import de.switchconsulting.aintlistening.data.TranscriptionLocalDataSource;
-import de.switchconsulting.aintlistening.transcription.TranscriberRegistry;
-import de.switchconsulting.aintlistening.transcription.VoskTranscriber;
-import de.switchconsulting.aintlistening.transcription.WhisperTranscriber;
-
-import javax.inject.Singleton;
 
 /**
  * Hilt module for providing dependencies that have a singleton scope.
@@ -86,18 +84,5 @@ public class AppModule {
     @Singleton
     public static ModelCatalogRepository provideModelCatalogRepository(@ApplicationContext Context context, PreferencesDataSource preferencesDataSource) {
         return new ModelCatalogRepository(context, preferencesDataSource);
-    }
-
-    /**
-     * Provides the singleton instance of the TranscriberRegistry.
-     *
-     * @param voskTranscriber    The Vosk transcriber instance.
-     * @param whisperTranscriber The Whisper transcriber instance.
-     * @return The TranscriberRegistry instance.
-     */
-    @Provides
-    @Singleton
-    public static TranscriberRegistry provideTranscriberRegistry(VoskTranscriber voskTranscriber, WhisperTranscriber whisperTranscriber) {
-        return new TranscriberRegistry(voskTranscriber, whisperTranscriber);
     }
 }

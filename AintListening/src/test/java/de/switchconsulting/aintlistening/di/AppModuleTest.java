@@ -26,9 +26,6 @@ import org.junit.Test;
 import de.switchconsulting.aintlistening.data.AudioStorageManager;
 import de.switchconsulting.aintlistening.data.PreferencesDataSource;
 import de.switchconsulting.aintlistening.data.TranscriptionLocalDataSource;
-import de.switchconsulting.aintlistening.transcription.TranscriberRegistry;
-import de.switchconsulting.aintlistening.transcription.VoskTranscriber;
-import de.switchconsulting.aintlistening.transcription.WhisperTranscriber;
 
 /**
  * Unit tests for {@link AppModule}.
@@ -54,14 +51,5 @@ public class AppModuleTest {
         Context context = mock(Context.class);
         TranscriptionLocalDataSource source = AppModule.provideTranscriptionLocalDataSource(context);
         assertNotNull(source);
-    }
-
-    @Test
-    public void testProvideTranscriberRegistry() {
-        VoskTranscriber voskTranscriber = mock(VoskTranscriber.class);
-        WhisperTranscriber whisperTranscriber = mock(WhisperTranscriber.class);
-
-        TranscriberRegistry registry = AppModule.provideTranscriberRegistry(voskTranscriber, whisperTranscriber);
-        assertNotNull(registry);
     }
 }

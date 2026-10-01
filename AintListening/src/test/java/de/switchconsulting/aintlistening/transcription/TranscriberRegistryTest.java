@@ -19,9 +19,14 @@ package de.switchconsulting.aintlistening.transcription;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import org.junit.Before;
 import org.junit.Test;
+
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Unit tests for {@link TranscriberRegistry}.
@@ -36,7 +41,11 @@ public class TranscriberRegistryTest {
     public void setUp() {
         voskTranscriber = mock(VoskTranscriber.class);
         whisperTranscriber = mock(WhisperTranscriber.class);
-        registry = new TranscriberRegistry(voskTranscriber, whisperTranscriber);
+        when(voskTranscriber.getType()).thenReturn(TranscriberType.VOSK);
+        when(whisperTranscriber.getType()).thenReturn(TranscriberType.WHISPER);
+
+        Set<Transcriber> set = new HashSet<>(Arrays.asList(voskTranscriber, whisperTranscriber));
+        registry = new TranscriberRegistry(set);
     }
 
     @Test
