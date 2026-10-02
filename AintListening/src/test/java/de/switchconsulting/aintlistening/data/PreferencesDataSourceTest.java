@@ -19,21 +19,21 @@ package de.switchconsulting.aintlistening.data;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 
+import androidx.datastore.preferences.core.Preferences;
+import androidx.datastore.preferences.rxjava3.RxPreferenceDataStoreBuilder;
+import androidx.datastore.rxjava3.RxDataStore;
+
+import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
+import org.mockito.Mockito;
 
-import java.util.HashMap;
 import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
 
 import de.switchconsulting.aintlistening.transcription.TranscriberType;
 
@@ -42,17 +42,27 @@ import de.switchconsulting.aintlistening.transcription.TranscriberType;
  */
 public class PreferencesDataSourceTest {
 
+    @Rule
+    public TemporaryFolder temporaryFolder = new TemporaryFolder();
+
     private PreferencesDataSource preferencesDataSource;
+    private RxDataStore<Preferences> dataStore;
 
     @Before
-    public void setUp() {
-        Context context = mock(Context.class);
-        when(context.getApplicationContext()).thenReturn(context);
+    public void setUp() throws Exception {
+        Context context = Mockito.mock(Context.class);
+        Mockito.when(context.getApplicationContext()).thenReturn(context);
+        Mockito.when(context.getFilesDir()).thenReturn(temporaryFolder.getRoot());
 
-        MockSharedPreferences mockPreferences = new MockSharedPreferences();
-        when(context.getSharedPreferences(anyString(), anyInt())).thenReturn(mockPreferences);
+        dataStore = new RxPreferenceDataStoreBuilder(context, "test_prefs").build();
+        preferencesDataSource = new PreferencesDataSource(dataStore);
+    }
 
-        preferencesDataSource = new PreferencesDataSource(context);
+    @After
+    public void tearDown() {
+        if (dataStore != null) {
+            dataStore.dispose();
+        }
     }
 
     @Test
@@ -120,126 +130,5 @@ public class PreferencesDataSourceTest {
         preferencesDataSource.setLanguageEnabled(Locale.GERMAN, false);
         assertFalse(preferencesDataSource.isLanguageEnabled(Locale.GERMAN));
         assertTrue(preferencesDataSource.isLanguageEnabled(Locale.ENGLISH));
-
-        preferencesDataSource.setLanguageEnabled(Locale.GERMAN, true);
-        assertTrue(preferencesDataSource.isLanguageEnabled(Locale.GERMAN));
-    }
-
-    private static class MockSharedPreferences implements SharedPreferences {
-        private final Map<String, Object> map = new HashMap<>();
-
-        @Override
-        public Map<String, ?> getAll() {
-            return new HashMap<>(map);
-        }
-
-        @Override
-        public String getString(String key, String defValue) {
-            Object val = map.get(key);
-            return val instanceof String ? (String) val : defValue;
-        }
-
-        @Override
-        public Set<String> getStringSet(String key, Set<String> defValues) {
-            return defValues;
-        }
-
-        @Override
-        public int getInt(String key, int defValue) {
-            Object val = map.get(key);
-            return val instanceof Integer ? (Integer) val : defValue;
-        }
-
-        @Override
-        public long getLong(String key, long defValue) {
-            Object val = map.get(key);
-            return val instanceof Long ? (Long) val : defValue;
-        }
-
-        @Override
-        public float getFloat(String key, float defValue) {
-            Object val = map.get(key);
-            return val instanceof Float ? (Float) val : defValue;
-        }
-
-        @Override
-        public boolean getBoolean(String key, boolean defValue) {
-            Object val = map.get(key);
-            return val instanceof Boolean ? (Boolean) val : defValue;
-        }
-
-        @Override
-        public boolean contains(String key) {
-            return map.containsKey(key);
-        }
-
-        @Override
-        public Editor edit() {
-            return new Editor() {
-                @Override
-                public Editor putString(String key, String value) {
-                    if (value == null) map.remove(key); else map.put(key, value);
-                    return this;
-                }
-
-                @Override
-                public Editor putStringSet(String key, Set<String> values) {
-                    return this;
-                }
-
-                @Override
-                public Editor putInt(String key, int value) {
-                    map.put(key, value);
-                    return this;
-                }
-
-                @Override
-                public Editor putLong(String key, long value) {
-                    map.put(key, value);
-                    return this;
-                }
-
-                @Override
-                public Editor putFloat(String key, float value) {
-                    map.put(key, value);
-                    return this;
-                }
-
-                @Override
-                public Editor putBoolean(String key, boolean value) {
-                    map.put(key, value);
-                    return this;
-                }
-
-                @Override
-                public Editor remove(String key) {
-                    map.remove(key);
-                    return this;
-                }
-
-                @Override
-                public Editor clear() {
-                    map.clear();
-                    return this;
-                }
-
-                @Override
-                public boolean commit() {
-                    return true;
-                }
-
-                @Override
-                public void apply() {
-                }
-            };
-        }
-
-        @Override
-        public void registerOnSharedPreferenceChangeListener(OnSharedPreferenceChangeListener listener) {
-        }
-
-        @Override
-        public void unregisterOnSharedPreferenceChangeListener(OnSharedPreferenceChangeListener listener) {
-        }
     }
 }

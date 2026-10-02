@@ -26,6 +26,7 @@ import org.junit.Test;
 import de.switchconsulting.aintlistening.data.AudioStorageManager;
 import de.switchconsulting.aintlistening.data.PreferencesDataSource;
 import de.switchconsulting.aintlistening.data.TranscriptionLocalDataSource;
+import de.switchconsulting.aintlistening.data.db.TranscriptionDao;
 
 /**
  * Unit tests for {@link AppModule}.
@@ -48,8 +49,8 @@ public class AppModuleTest {
 
     @Test
     public void testProvideTranscriptionLocalDataSource() {
-        Context context = mock(Context.class);
-        TranscriptionLocalDataSource source = AppModule.provideTranscriptionLocalDataSource(context);
+        TranscriptionDao dao = mock(TranscriptionDao.class);
+        TranscriptionLocalDataSource source = AppModule.provideTranscriptionLocalDataSource(dao);
         assertNotNull(source);
     }
 }

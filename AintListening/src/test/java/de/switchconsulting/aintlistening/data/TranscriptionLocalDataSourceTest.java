@@ -20,24 +20,20 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-
-import android.content.Context;
-import android.content.SharedPreferences;
 
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
 
+import de.switchconsulting.aintlistening.data.db.ParagraphEntity;
+import de.switchconsulting.aintlistening.data.db.TranscriptionDao;
+import de.switchconsulting.aintlistening.data.db.TranscriptionEntity;
 import de.switchconsulting.aintlistening.transcription.TranscriptionParagraph;
 
 /**
@@ -45,17 +41,13 @@ import de.switchconsulting.aintlistening.transcription.TranscriptionParagraph;
  */
 public class TranscriptionLocalDataSourceTest {
 
+    private TranscriptionDao transcriptionDao;
     private TranscriptionLocalDataSource dataSource;
 
     @Before
     public void setUp() {
-        Context context = mock(Context.class);
-        when(context.getApplicationContext()).thenReturn(context);
-
-        MockSharedPreferences mockPreferences = new MockSharedPreferences();
-        when(context.getSharedPreferences(anyString(), anyInt())).thenReturn(mockPreferences);
-
-        dataSource = new TranscriptionLocalDataSource(context);
+        transcriptionDao = mock(TranscriptionDao.class);
+        dataSource = new TranscriptionLocalDataSource(transcriptionDao);
     }
 
     @Test
@@ -68,6 +60,18 @@ public class TranscriptionLocalDataSourceTest {
 
         paragraphs.add(p1);
         paragraphs.add(p2);
+
+        when(transcriptionDao.insertTranscription(any())).thenReturn(1L);
+
+        List<ParagraphEntity> mockEntities = new ArrayList<>();
+        mockEntities.add(new ParagraphEntity(1L, "raw1", "formatted1", true, "/path/1.wav"));
+        mockEntities.add(new ParagraphEntity(1L, "raw2", null, false, null));
+
+        TranscriptionEntity session = new TranscriptionEntity(System.currentTimeMillis(), "de");
+        session.id = 1L;
+
+        when(transcriptionDao.getLatestTranscriptionSession()).thenReturn(session);
+        when(transcriptionDao.getParagraphsForSession(1L)).thenReturn(mockEntities);
 
         dataSource.saveLastMessage(paragraphs, Locale.GERMAN);
 
@@ -87,124 +91,7 @@ public class TranscriptionLocalDataSourceTest {
 
     @Test
     public void testLoadLastMessageWhenEmpty() {
+        when(transcriptionDao.getLatestTranscriptionSession()).thenReturn(null);
         assertNull(dataSource.loadLastMessage());
-    }
-
-    private static class MockSharedPreferences implements SharedPreferences {
-        private final Map<String, Object> map = new HashMap<>();
-
-        @Override
-        public Map<String, ?> getAll() {
-            return new HashMap<>(map);
-        }
-
-        @Override
-        public String getString(String key, String defValue) {
-            Object val = map.get(key);
-            return val instanceof String ? (String) val : defValue;
-        }
-
-        @Override
-        public Set<String> getStringSet(String key, Set<String> defValues) {
-            return defValues;
-        }
-
-        @Override
-        public int getInt(String key, int defValue) {
-            Object val = map.get(key);
-            return val instanceof Integer ? (Integer) val : defValue;
-        }
-
-        @Override
-        public long getLong(String key, long defValue) {
-            Object val = map.get(key);
-            return val instanceof Long ? (Long) val : defValue;
-        }
-
-        @Override
-        public float getFloat(String key, float defValue) {
-            Object val = map.get(key);
-            return val instanceof Float ? (Float) val : defValue;
-        }
-
-        @Override
-        public boolean getBoolean(String key, boolean defValue) {
-            Object val = map.get(key);
-            return val instanceof Boolean ? (Boolean) val : defValue;
-        }
-
-        @Override
-        public boolean contains(String key) {
-            return map.containsKey(key);
-        }
-
-        @Override
-        public Editor edit() {
-            return new Editor() {
-                @Override
-                public Editor putString(String key, String value) {
-                    if (value == null) map.remove(key); else map.put(key, value);
-                    return this;
-                }
-
-                @Override
-                public Editor putStringSet(String key, Set<String> values) {
-                    return this;
-                }
-
-                @Override
-                public Editor putInt(String key, int value) {
-                    map.put(key, value);
-                    return this;
-                }
-
-                @Override
-                public Editor putLong(String key, long value) {
-                    map.put(key, value);
-                    return this;
-                }
-
-                @Override
-                public Editor putFloat(String key, float value) {
-                    map.put(key, value);
-                    return this;
-                }
-
-                @Override
-                public Editor putBoolean(String key, boolean value) {
-                    map.put(key, value);
-                    return this;
-                }
-
-                @Override
-                public Editor remove(String key) {
-                    map.remove(key);
-                    return this;
-                }
-
-                @Override
-                public Editor clear() {
-                    map.clear();
-                    return this;
-                }
-
-                @Override
-                public boolean commit() {
-                    return true;
-                }
-
-                @Override
-                public void apply() {
-                }
-            };
-        }
-
-        @Override
-        public void registerOnSharedPreferenceChangeListener(OnSharedPreferenceChangeListener listener) {
-        }
-
-        @Override
-        public void unregisterOnSharedPreferenceChangeListener(OnSharedPreferenceChangeListener listener) {
-        }
     }
 }

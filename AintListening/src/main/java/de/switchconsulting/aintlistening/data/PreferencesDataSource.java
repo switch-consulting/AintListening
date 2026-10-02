@@ -17,7 +17,12 @@
 package de.switchconsulting.aintlistening.data;
 
 import android.content.Context;
-import android.content.SharedPreferences;
+
+import androidx.datastore.preferences.core.MutablePreferences;
+import androidx.datastore.preferences.core.Preferences;
+import androidx.datastore.preferences.core.PreferencesKeys;
+import androidx.datastore.preferences.rxjava3.RxPreferenceDataStoreBuilder;
+import androidx.datastore.rxjava3.RxDataStore;
 
 import java.util.Locale;
 
@@ -26,9 +31,10 @@ import javax.inject.Singleton;
 
 import dagger.hilt.android.qualifiers.ApplicationContext;
 import de.switchconsulting.aintlistening.transcription.TranscriberType;
+import io.reactivex.rxjava3.core.Single;
 
 /**
- * Handles key-value preference storage using {@link SharedPreferences}.
+ * Handles key-value preference storage using Jetpack Preferences DataStore with RxJava3.
  */
 @Singleton
 public class PreferencesDataSource {
@@ -41,7 +47,7 @@ public class PreferencesDataSource {
     private static final String KEY_TRANSCRIBER_TYPE = "transcriber_type";
     private static final String KEY_LANGUAGE_ENABLED_PREFIX = "lang_enabled_";
 
-    private final Context context;
+    private final RxDataStore<Preferences> dataStore;
 
     /**
      * Constructs a new PreferencesDataSource instance.
@@ -50,79 +56,111 @@ public class PreferencesDataSource {
      */
     @Inject
     public PreferencesDataSource(@ApplicationContext Context context) {
-        this.context = context.getApplicationContext();
+        this.dataStore = new RxPreferenceDataStoreBuilder(context, PREFS_NAME).build();
+    }
+
+    /**
+     * Constructs a new PreferencesDataSource instance with a custom DataStore (for testing).
+     *
+     * @param dataStore The RxDataStore instance.
+     */
+    public PreferencesDataSource(RxDataStore<Preferences> dataStore) {
+        this.dataStore = dataStore;
+    }
+
+    private boolean getBoolean(String key, boolean defaultValue) {
+        try {
+            Preferences.Key<Boolean> prefKey = PreferencesKeys.booleanKey(key);
+            Preferences prefs = dataStore.data().firstOrError().blockingGet();
+            Boolean val = prefs.get(prefKey);
+            return val != null ? val : defaultValue;
+        } catch (Exception e) {
+            return defaultValue;
+        }
+    }
+
+    private void setBoolean(String key, boolean value) {
+        Preferences.Key<Boolean> prefKey = PreferencesKeys.booleanKey(key);
+        dataStore.updateDataAsync(prefs -> {
+            MutablePreferences mutable = prefs.toMutablePreferences();
+            mutable.set(prefKey, value);
+            return Single.just(mutable);
+        }).ignoreElement().blockingAwait();
+    }
+
+    private String getString(String key) {
+        try {
+            Preferences.Key<String> prefKey = PreferencesKeys.stringKey(key);
+            Preferences prefs = dataStore.data().firstOrError().blockingGet();
+            return prefs.get(prefKey);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    private void setString(String key, String value) {
+        Preferences.Key<String> prefKey = PreferencesKeys.stringKey(key);
+        dataStore.updateDataAsync(prefs -> {
+            MutablePreferences mutable = prefs.toMutablePreferences();
+            mutable.set(prefKey, value);
+            return Single.just(mutable);
+        }).ignoreElement().blockingAwait();
     }
 
     /**
      * @return True if the playback button should be shown.
      */
     public boolean isShowPlaybackButton() {
-        return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-                .getBoolean(KEY_SHOW_PLAYBACK_BUTTON, true);
+        return getBoolean(KEY_SHOW_PLAYBACK_BUTTON, true);
     }
 
     /**
      * @param show True to show the playback button.
      */
     public void setShowPlaybackButton(boolean show) {
-        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-                .edit()
-                .putBoolean(KEY_SHOW_PLAYBACK_BUTTON, show)
-                .apply();
+        setBoolean(KEY_SHOW_PLAYBACK_BUTTON, show);
     }
 
     /**
      * @return True if the copy button should be shown.
      */
     public boolean isShowCopyButton() {
-        return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-                .getBoolean(KEY_SHOW_COPY_BUTTON, true);
+        return getBoolean(KEY_SHOW_COPY_BUTTON, true);
     }
 
     /**
      * @param show True to show the copy button.
      */
     public void setShowCopyButton(boolean show) {
-        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-                .edit()
-                .putBoolean(KEY_SHOW_COPY_BUTTON, show)
-                .apply();
+        setBoolean(KEY_SHOW_COPY_BUTTON, show);
     }
 
     /**
      * @return True if raw text should be shown by default.
      */
     public boolean isShowRawText() {
-        return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-                .getBoolean(KEY_SHOW_RAW_TEXT, true);
+        return getBoolean(KEY_SHOW_RAW_TEXT, true);
     }
 
     /**
      * @param show True to show raw text by default.
      */
     public void setShowRawText(boolean show) {
-        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-                .edit()
-                .putBoolean(KEY_SHOW_RAW_TEXT, show)
-                .apply();
+        setBoolean(KEY_SHOW_RAW_TEXT, show);
     }
 
     /**
      * @return True if smart formatted text should be shown by default.
      */
     public boolean isShowSmartText() {
-        return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-                .getBoolean(KEY_SHOW_SMART_TEXT, true);
+        return getBoolean(KEY_SHOW_SMART_TEXT, true);
     }
 
     /**
      * @param show True to show smart formatted text by default.
      */
     public void setShowSmartText(boolean show) {
-        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-                .edit()
-                .putBoolean(KEY_SHOW_SMART_TEXT, show)
-                .apply();
+        setBoolean(KEY_SHOW_SMART_TEXT, show);
     }
 
     /**
@@ -131,8 +169,7 @@ public class PreferencesDataSource {
      */
     public boolean isSmartFormattingEnabled(Locale locale) {
         String key = KEY_SHOW_SMART_TEXT + "_" + locale.toLanguageTag();
-        return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-                .getBoolean(key, isShowSmartText());
+        return getBoolean(key, isShowSmartText());
     }
 
     /**
@@ -141,10 +178,7 @@ public class PreferencesDataSource {
      */
     public void setSmartFormattingEnabled(Locale locale, boolean enabled) {
         String key = KEY_SHOW_SMART_TEXT + "_" + locale.toLanguageTag();
-        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-                .edit()
-                .putBoolean(key, enabled)
-                .apply();
+        setBoolean(key, enabled);
     }
 
     /**
@@ -160,8 +194,7 @@ public class PreferencesDataSource {
      */
     public TranscriberType getTranscriberType(Locale locale) {
         String key = KEY_TRANSCRIBER_TYPE + "_" + locale.toLanguageTag();
-        String typeName = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-                .getString(key, null);
+        String typeName = getString(key);
         if (typeName == null) {
             return getDefaultTranscriberType();
         }
@@ -178,10 +211,7 @@ public class PreferencesDataSource {
      */
     public void setTranscriberType(Locale locale, TranscriberType type) {
         String key = KEY_TRANSCRIBER_TYPE + "_" + locale.toLanguageTag();
-        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-                .edit()
-                .putString(key, type.name())
-                .apply();
+        setString(key, type.name());
     }
 
     /**
@@ -191,8 +221,7 @@ public class PreferencesDataSource {
      * @return True if enabled, false otherwise. Defaults to true.
      */
     public boolean isLanguageEnabled(Locale locale) {
-        return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-                .getBoolean(KEY_LANGUAGE_ENABLED_PREFIX + locale.toLanguageTag(), true);
+        return getBoolean(KEY_LANGUAGE_ENABLED_PREFIX + locale.toLanguageTag(), true);
     }
 
     /**
@@ -202,9 +231,6 @@ public class PreferencesDataSource {
      * @param enabled True to enable, false to disable.
      */
     public void setLanguageEnabled(Locale locale, boolean enabled) {
-        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-                .edit()
-                .putBoolean(KEY_LANGUAGE_ENABLED_PREFIX + locale.toLanguageTag(), enabled)
-                .apply();
+        setBoolean(KEY_LANGUAGE_ENABLED_PREFIX + locale.toLanguageTag(), enabled);
     }
 }

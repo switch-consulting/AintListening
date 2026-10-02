@@ -18,6 +18,8 @@ package de.switchconsulting.aintlistening.di;
 
 import android.content.Context;
 
+import androidx.room.Room;
+
 import javax.inject.Singleton;
 
 import dagger.Module;
@@ -29,6 +31,8 @@ import de.switchconsulting.aintlistening.data.AudioStorageManager;
 import de.switchconsulting.aintlistening.data.ModelCatalogRepository;
 import de.switchconsulting.aintlistening.data.PreferencesDataSource;
 import de.switchconsulting.aintlistening.data.TranscriptionLocalDataSource;
+import de.switchconsulting.aintlistening.data.db.AppDatabase;
+import de.switchconsulting.aintlistening.data.db.TranscriptionDao;
 
 /**
  * Hilt module for providing dependencies that have a singleton scope.
@@ -36,6 +40,8 @@ import de.switchconsulting.aintlistening.data.TranscriptionLocalDataSource;
 @Module
 @InstallIn(SingletonComponent.class)
 public class AppModule {
+
+    private static final String DATABASE_NAME = "aint_listening.db";
 
     /**
      * Provides the singleton instance of PreferencesDataSource.
@@ -62,15 +68,39 @@ public class AppModule {
     }
 
     /**
-     * Provides the singleton instance of TranscriptionLocalDataSource.
+     * Provides the singleton instance of AppDatabase.
      *
      * @param context The application context.
+     * @return The AppDatabase instance.
+     */
+    @Provides
+    @Singleton
+    public static AppDatabase provideAppDatabase(@ApplicationContext Context context) {
+        return Room.databaseBuilder(context, AppDatabase.class, DATABASE_NAME).build();
+    }
+
+    /**
+     * Provides the singleton instance of TranscriptionDao.
+     *
+     * @param database The AppDatabase instance.
+     * @return The TranscriptionDao instance.
+     */
+    @Provides
+    @Singleton
+    public static TranscriptionDao provideTranscriptionDao(AppDatabase database) {
+        return database.transcriptionDao();
+    }
+
+    /**
+     * Provides the singleton instance of TranscriptionLocalDataSource.
+     *
+     * @param transcriptionDao The TranscriptionDao instance.
      * @return The TranscriptionLocalDataSource instance.
      */
     @Provides
     @Singleton
-    public static TranscriptionLocalDataSource provideTranscriptionLocalDataSource(@ApplicationContext Context context) {
-        return new TranscriptionLocalDataSource(context);
+    public static TranscriptionLocalDataSource provideTranscriptionLocalDataSource(TranscriptionDao transcriptionDao) {
+        return new TranscriptionLocalDataSource(transcriptionDao);
     }
 
     /**
