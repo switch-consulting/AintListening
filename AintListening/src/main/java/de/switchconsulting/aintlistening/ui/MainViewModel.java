@@ -101,10 +101,11 @@ public class MainViewModel extends ViewModel {
     }
 
     /**
-     * Called when the ViewModel is cleared, ensuring resources in the processor are released.
+     * Called when the ViewModel is cleared, ensuring resources in the processor are released and pending tasks cancelled.
      */
     @Override
     protected void onCleared() {
+        processor.cancelTranscription();
         processor.release();
     }
 }

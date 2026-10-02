@@ -16,8 +16,6 @@
 
 package de.switchconsulting.aintlistening.data;
 
-import android.os.Handler;
-import android.os.Looper;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -31,26 +29,56 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Scanner;
+import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
+import de.switchconsulting.aintlistening.di.BackgroundExecutor;
+import de.switchconsulting.aintlistening.di.MainExecutor;
+
 /**
  * Handles the downloading and extraction of speech model zip files.
- * Uses a single-thread executor for background processing and reports progress via callbacks.
+ * Uses a background executor for processing and posts progress via callbacks on the main thread executor.
  */
+@Singleton
 public class ModelDownloader {
 
     /** Log tag for debugging. */
     private static final String TAG = "ModelDownloader";
-    /** Single-threaded background executor for download and extraction tasks. */
-    private static final ExecutorService executor = Executors.newSingleThreadExecutor();
+    
+    private final ExecutorService backgroundExecutor;
+    private final Executor mainExecutor;
+
     /** Future handle for tracking and cancelling the current active background task. */
     private Future<?> currentFuture;
     /** Flag indicating whether the active download/extraction task has been cancelled. */
     private volatile boolean isCancelled = false;
+
+    /**
+     * Constructs a ModelDownloader with default background and main thread executors.
+     */
+    public ModelDownloader() {
+        this(Executors.newSingleThreadExecutor(), Runnable::run);
+    }
+
+    /**
+     * Constructs a ModelDownloader with injected background and main thread executors.
+     *
+     * @param backgroundExecutor Background executor service for downloading/extracting.
+     * @param mainExecutor       Main thread executor for dispatching callbacks.
+     */
+    @Inject
+    public ModelDownloader(@BackgroundExecutor ExecutorService backgroundExecutor,
+                           @MainExecutor Executor mainExecutor) {
+        this.backgroundExecutor = backgroundExecutor;
+        this.mainExecutor = mainExecutor;
+    }
 
     /**
      * Downloads a model file from the specified URL and optionally extracts it.
@@ -59,11 +87,11 @@ public class ModelDownloader {
      * @param targetBaseDir The directory where the model should be saved/extracted.
      * @param callback      The callback to receive status updates.
      */
-    public void downloadAndExtract(@NonNull ModelInfo info, @NonNull File targetBaseDir, @NonNull ModelDownloadCallback callback) {
+    public synchronized void downloadAndExtract(@NonNull ModelInfo info, @NonNull File targetBaseDir, @NonNull ModelDownloadCallback callback) {
+        cancel();
         isCancelled = false;
-        Handler handler = new Handler(Looper.getMainLooper());
 
-        currentFuture = executor.submit(() -> {
+        currentFuture = backgroundExecutor.submit(() -> {
             Log.d(TAG, "Starting download task for: " + info.url());
             HttpURLConnection connection = null;
             File targetFile = new File(targetBaseDir, info.isZip() ? "model_temp.zip" : info.name());
@@ -71,7 +99,7 @@ public class ModelDownloader {
                 String currentUrl = info.url();
                 int redirectCount = 0;
                 while (redirectCount < 5) {
-                    if (isCancelled) throw new InterruptedException();
+                    if (isCancelled || Thread.currentThread().isInterrupted()) throw new InterruptedException();
                     
                     URL url = new URL(currentUrl);
                     connection = (HttpURLConnection) url.openConnection();
@@ -113,21 +141,21 @@ public class ModelDownloader {
                     int lastProgress = -1;
                     
                     while ((count = input.read(data)) != -1) {
-                        if (isCancelled) throw new InterruptedException();
+                        if (isCancelled || Thread.currentThread().isInterrupted()) throw new InterruptedException();
                         
                         total += count;
                         if (fileLength > 0) {
                             int progress = (int) (total * 100 / fileLength);
                             if (progress != lastProgress) {
                                 lastProgress = progress;
-                                handler.post(() -> callback.onProgress(progress));
+                                mainExecutor.execute(() -> callback.onProgress(progress));
                             }
                         }
                         output.write(data, 0, count);
                     }
                 }
 
-                if (isCancelled) throw new InterruptedException();
+                if (isCancelled || Thread.currentThread().isInterrupted()) throw new InterruptedException();
 
                 // Check if it's a Git LFS pointer
                 if (targetFile.length() < 500) {
@@ -139,7 +167,7 @@ public class ModelDownloader {
                 }
 
                 if (info.isZip()) {
-                    handler.post(callback::onExtracting);
+                    mainExecutor.execute(callback::onExtracting);
                     extractZip(targetFile, targetBaseDir);
                     
                     if (!targetFile.delete()) {
@@ -147,21 +175,21 @@ public class ModelDownloader {
                     }
                 }
 
-                if (isCancelled) throw new InterruptedException();
-                handler.post(callback::onSuccess);
+                if (isCancelled || Thread.currentThread().isInterrupted()) throw new InterruptedException();
+                mainExecutor.execute(callback::onSuccess);
 
             } catch (InterruptedException e) {
                 Log.d(TAG, "Download cancelled.");
                 if (targetFile.exists() && !targetFile.delete()) {
                     Log.w(TAG, "Failed to delete temp file after cancellation.");
                 }
-                handler.post(callback::onCancelled);
+                mainExecutor.execute(callback::onCancelled);
             } catch (Exception e) {
                 Log.e(TAG, "Download error", e);
                 if (targetFile.exists() && !targetFile.delete()) {
                     Log.w(TAG, "Failed to delete temp file after error.");
                 }
-                handler.post(() -> callback.onError(e));
+                mainExecutor.execute(() -> callback.onError(e));
             } finally {
                 if (connection != null) {
                     connection.disconnect();
@@ -173,9 +201,9 @@ public class ModelDownloader {
     /**
      * Cancels the current download and extraction task.
      */
-    public void cancel() {
+    public synchronized void cancel() {
         isCancelled = true;
-        if (currentFuture != null) {
+        if (currentFuture != null && !currentFuture.isDone()) {
             currentFuture.cancel(true);
         }
     }
@@ -192,7 +220,7 @@ public class ModelDownloader {
             ZipEntry ze;
             byte[] buffer = new byte[8192];
             while ((ze = zis.getNextEntry()) != null) {
-                if (isCancelled) throw new InterruptedException();
+                if (isCancelled || Thread.currentThread().isInterrupted()) throw new InterruptedException();
                 
                 File file = new File(targetDir, ze.getName());
                 if (ze.isDirectory()) {
@@ -207,7 +235,7 @@ public class ModelDownloader {
                     try (FileOutputStream fos = new FileOutputStream(file)) {
                         int count;
                         while ((count = zis.read(buffer)) != -1) {
-                            if (isCancelled) throw new InterruptedException();
+                            if (isCancelled || Thread.currentThread().isInterrupted()) throw new InterruptedException();
                             fos.write(buffer, 0, count);
                         }
                     }

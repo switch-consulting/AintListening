@@ -18,8 +18,6 @@ package de.switchconsulting.aintlistening.data;
 
 import android.content.Context;
 import android.net.Uri;
-import android.os.Handler;
-import android.os.Looper;
 import android.util.Log;
 
 import java.io.File;
@@ -27,13 +25,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import dagger.hilt.android.qualifiers.ApplicationContext;
+import de.switchconsulting.aintlistening.di.BackgroundExecutor;
+import de.switchconsulting.aintlistening.di.MainExecutor;
 import de.switchconsulting.aintlistening.formatting.SmartFormatter;
 import de.switchconsulting.aintlistening.formatting.SmartFormatterFactory;
 import de.switchconsulting.aintlistening.transcription.Transcriber;
@@ -56,8 +57,10 @@ public class TranscriptionProcessor {
     private final ModelCatalogRepository modelRepository;
     private final TranscriberRegistry transcriberRegistry;
     private final SmartFormatterFactory smartFormatterFactory;
-    private final ExecutorService executorService = Executors.newSingleThreadExecutor();
-    private final Handler mainHandler = new Handler(Looper.getMainLooper());
+    private final ExecutorService backgroundExecutor;
+    private final Executor mainExecutor;
+
+    private Future<?> activeTask;
     private SmartFormatter smartFormatter;
     private Transcriber activeTranscriber;
 
@@ -69,18 +72,33 @@ public class TranscriptionProcessor {
      * @param modelRepository       The repository for model metadata and disk availability.
      * @param transcriberRegistry   The registry for transcription engines.
      * @param smartFormatterFactory The factory for creating smart formatters.
+     * @param backgroundExecutor    The background executor service.
+     * @param mainExecutor          The main thread executor.
      */
     @Inject
     public TranscriptionProcessor(@ApplicationContext Context context,
                                   TranscriptionRepository repository,
                                   ModelCatalogRepository modelRepository,
                                   TranscriberRegistry transcriberRegistry,
-                                  SmartFormatterFactory smartFormatterFactory) {
+                                  SmartFormatterFactory smartFormatterFactory,
+                                  @BackgroundExecutor ExecutorService backgroundExecutor,
+                                  @MainExecutor Executor mainExecutor) {
         this.context = context;
         this.repository = repository;
         this.modelRepository = modelRepository;
         this.transcriberRegistry = transcriberRegistry;
         this.smartFormatterFactory = smartFormatterFactory;
+        this.backgroundExecutor = backgroundExecutor;
+        this.mainExecutor = mainExecutor;
+    }
+
+    /**
+     * Cancels any ongoing transcription task.
+     */
+    public synchronized void cancelTranscription() {
+        if (activeTask != null && !activeTask.isDone()) {
+            activeTask.cancel(true);
+        }
     }
 
     /**
@@ -90,19 +108,25 @@ public class TranscriptionProcessor {
      * @param locale   The locale of the language model to use.
      * @param callback The callback to receive status updates and results.
      */
-    public void startTranscription(Uri audioUri, Locale locale, TranscriptionCallback callback) {
-        executorService.execute(() -> {
+    public synchronized void startTranscription(Uri audioUri, Locale locale, TranscriptionCallback callback) {
+        cancelTranscription();
+
+        activeTask = backgroundExecutor.submit(() -> {
             try {
+                if (Thread.currentThread().isInterrupted()) return;
                 notifyStatusUpdate(callback, "Converting audio...");
                 File wavFile = repository.getIncomingWavFile();
                 repository.clearTemporaryFiles();
 
                 boolean success = OpusToWavDecoder.decodeOpusToWav(context, audioUri, wavFile);
-                if (!success) {
-                    notifyError(callback, "Audio conversion failed");
+                if (!success || Thread.currentThread().isInterrupted()) {
+                    if (!Thread.currentThread().isInterrupted()) {
+                        notifyError(callback, "Audio conversion failed");
+                    }
                     return;
                 }
 
+                if (Thread.currentThread().isInterrupted()) return;
                 notifyStatusUpdate(callback, "Loading model...");
                 LanguageSupport language = modelRepository.getLanguageSupport(locale);
                 if (language == null) {
@@ -117,21 +141,27 @@ public class TranscriptionProcessor {
 
                 activeTranscriber.ensureModelLoaded(context, locale);
 
+                if (Thread.currentThread().isInterrupted()) return;
                 notifyStatusUpdate(callback, "Transcribing...");
                 boolean providesPunctuation = activeTranscriber.providesPunctuation();
                 List<TranscriptionParagraph> rawParagraphs = activeTranscriber.transcribe(context, wavFile, new TranscriptionListener() {
                     @Override
                     public void onPartialResult(String text) {
-                        notifyPartialResult(callback, parseParagraphs(text, providesPunctuation));
+                        if (!Thread.currentThread().isInterrupted()) {
+                            notifyPartialResult(callback, parseParagraphs(text, providesPunctuation));
+                        }
                     }
 
                     @Override
                     public void onResult(String text) {
-                        notifyPartialResult(callback, parseParagraphs(text, providesPunctuation));
+                        if (!Thread.currentThread().isInterrupted()) {
+                            notifyPartialResult(callback, parseParagraphs(text, providesPunctuation));
+                        }
                     }
 
                     @Override
                     public String onAudioChunkAvailable(byte[] pcmData, int chunkIndex) {
+                        if (Thread.currentThread().isInterrupted()) return null;
                         try {
                             return repository.saveAudioChunk(pcmData, chunkIndex);
                         } catch (Exception e) {
@@ -141,11 +171,16 @@ public class TranscriptionProcessor {
                     }
                 });
 
+                if (Thread.currentThread().isInterrupted()) return;
                 applySmartFormatting(rawParagraphs, locale, callback);
 
             } catch (Exception e) {
-                Log.e(TAG, "Transcription failed", e);
-                notifyError(callback, "Transcription failed: " + e.getMessage());
+                if (Thread.currentThread().isInterrupted()) {
+                    Log.d(TAG, "Transcription job interrupted/cancelled");
+                } else {
+                    Log.e(TAG, "Transcription failed", e);
+                    notifyError(callback, "Transcription failed: " + e.getMessage());
+                }
             }
         });
     }
@@ -180,6 +215,7 @@ public class TranscriptionProcessor {
                 }
 
                 for (int i = 0; i < paragraphs.size(); i++) {
+                    if (Thread.currentThread().isInterrupted()) return;
                     TranscriptionParagraph p = paragraphs.get(i);
                     String rawPara = p.getRawText();
                     if (rawPara.trim().isEmpty()) continue;
@@ -195,6 +231,9 @@ public class TranscriptionProcessor {
                     notifySmartFormattingProgress(callback, i + 1, paragraphs.size(), currentDisplayList);
                 }
             } catch (Exception e) {
+                if (Thread.currentThread().isInterrupted()) {
+                    return;
+                }
                 Log.e(TAG, "Smart formatting failed", e);
                 formattedParagraphs.clear();
                 formattedParagraphs.addAll(paragraphs);
@@ -213,6 +252,7 @@ public class TranscriptionProcessor {
             }
         }
 
+        if (Thread.currentThread().isInterrupted()) return;
         repository.saveLastMessage(formattedParagraphs, locale);
         notifyComplete(callback, formattedParagraphs);
     }
@@ -224,7 +264,7 @@ public class TranscriptionProcessor {
      * @param message  The status update message.
      */
     private void notifyStatusUpdate(TranscriptionCallback callback, String message) {
-        mainHandler.post(() -> callback.onStatusUpdate(message));
+        mainExecutor.execute(() -> callback.onStatusUpdate(message));
     }
 
     /**
@@ -234,7 +274,7 @@ public class TranscriptionProcessor {
      * @param paragraphs The partial transcription paragraphs.
      */
     private void notifyPartialResult(TranscriptionCallback callback, List<TranscriptionParagraph> paragraphs) {
-        mainHandler.post(() -> callback.onPartialResult(paragraphs));
+        mainExecutor.execute(() -> callback.onPartialResult(paragraphs));
     }
 
     /**
@@ -246,7 +286,7 @@ public class TranscriptionProcessor {
      * @param paragraphs The current paragraphs list.
      */
     private void notifySmartFormattingProgress(TranscriptionCallback callback, int step, int total, List<TranscriptionParagraph> paragraphs) {
-        mainHandler.post(() -> callback.onSmartFormattingProgress(step, total, paragraphs));
+        mainExecutor.execute(() -> callback.onSmartFormattingProgress(step, total, paragraphs));
     }
 
     /**
@@ -256,7 +296,7 @@ public class TranscriptionProcessor {
      * @param paragraphs The final completed transcription paragraphs.
      */
     private void notifyComplete(TranscriptionCallback callback, List<TranscriptionParagraph> paragraphs) {
-        mainHandler.post(() -> callback.onComplete(paragraphs));
+        mainExecutor.execute(() -> callback.onComplete(paragraphs));
     }
 
     /**
@@ -266,7 +306,7 @@ public class TranscriptionProcessor {
      * @param message  The error description string.
      */
     private void notifyError(TranscriptionCallback callback, String message) {
-        mainHandler.post(() -> callback.onError(message));
+        mainExecutor.execute(() -> callback.onError(message));
     }
 
     /**
@@ -300,9 +340,10 @@ public class TranscriptionProcessor {
     }
 
     /**
-     * Releases resources used by the transcriber and formatter.
+     * Releases resources used by the transcriber and formatter and cancels pending tasks.
      */
     public void release() {
+        cancelTranscription();
         transcriberRegistry.closeAll();
         if (smartFormatter != null) {
             smartFormatter.close();

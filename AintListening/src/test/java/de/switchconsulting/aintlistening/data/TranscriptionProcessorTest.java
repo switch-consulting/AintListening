@@ -28,6 +28,8 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import de.switchconsulting.aintlistening.formatting.SmartFormatterFactory;
 import de.switchconsulting.aintlistening.transcription.TranscriberRegistry;
@@ -47,7 +49,8 @@ public class TranscriptionProcessorTest {
         ModelCatalogRepository modelRepository = mock(ModelCatalogRepository.class);
         TranscriberRegistry registry = mock(TranscriberRegistry.class);
         SmartFormatterFactory formatterFactory = mock(SmartFormatterFactory.class);
-        processor = new TranscriptionProcessor(context, repository, modelRepository, registry, formatterFactory);
+        ExecutorService backgroundExecutor = Executors.newSingleThreadExecutor();
+        processor = new TranscriptionProcessor(context, repository, modelRepository, registry, formatterFactory, backgroundExecutor, Runnable::run);
     }
 
     @Test
@@ -90,7 +93,7 @@ public class TranscriptionProcessorTest {
         SmartFormatterFactory formatterFactory = mock(SmartFormatterFactory.class);
         Context context = mock(Context.class);
 
-        TranscriptionProcessor proc = new TranscriptionProcessor(context, repository, modelRepository, registry, formatterFactory);
+        TranscriptionProcessor proc = new TranscriptionProcessor(context, repository, modelRepository, registry, formatterFactory, Executors.newSingleThreadExecutor(), Runnable::run);
         proc.loadLastMessage();
 
         Mockito.verify(repository).loadLastMessage();
@@ -104,7 +107,7 @@ public class TranscriptionProcessorTest {
         SmartFormatterFactory formatterFactory = mock(SmartFormatterFactory.class);
         Context context = mock(Context.class);
 
-        TranscriptionProcessor proc = new TranscriptionProcessor(context, repository, modelRepository, registry, formatterFactory);
+        TranscriptionProcessor proc = new TranscriptionProcessor(context, repository, modelRepository, registry, formatterFactory, Executors.newSingleThreadExecutor(), Runnable::run);
         proc.release();
 
         Mockito.verify(registry).closeAll();

@@ -31,6 +31,7 @@ import org.junit.Test;
 
 import de.switchconsulting.aintlistening.data.DownloadState;
 import de.switchconsulting.aintlistening.data.DownloadStatus;
+import de.switchconsulting.aintlistening.data.ModelDownloader;
 
 /**
  * Unit tests for {@link ModelManagementViewModel}.
@@ -46,7 +47,8 @@ public class ModelManagementViewModelTest {
     public void setUp() {
         Application application = mock(Application.class);
         when(application.getApplicationContext()).thenReturn(application);
-        viewModel = new ModelManagementViewModel(application);
+        ModelDownloader modelDownloader = mock(ModelDownloader.class);
+        viewModel = new ModelManagementViewModel(application, modelDownloader);
     }
 
     @Test

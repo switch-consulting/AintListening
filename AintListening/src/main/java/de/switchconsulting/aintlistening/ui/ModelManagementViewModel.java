@@ -41,20 +41,22 @@ import de.switchconsulting.aintlistening.data.ModelInfo;
 public class ModelManagementViewModel extends AndroidViewModel {
 
     /** The model downloader responsible for fetching and extracting speech models. */
-    private final ModelDownloader modelDownloader = new ModelDownloader();
+    private final ModelDownloader modelDownloader;
     /** Mutable LiveData representing the internal download state. */
     private final MutableLiveData<DownloadState> downloadStateMutable = new MutableLiveData<>(DownloadState.idle());
     /** Observable LiveData for the current download state. */
     public final LiveData<DownloadState> downloadState = downloadStateMutable;
 
     /**
-     * Constructs a new ModelManagementViewModel.
+     * Constructs a new ModelManagementViewModel with injected dependencies.
      *
-     * @param application The application context.
+     * @param application     The application context.
+     * @param modelDownloader The model downloader instance.
      */
     @Inject
-    public ModelManagementViewModel(@NonNull Application application) {
+    public ModelManagementViewModel(@NonNull Application application, ModelDownloader modelDownloader) {
         super(application);
+        this.modelDownloader = modelDownloader;
     }
 
     /**
