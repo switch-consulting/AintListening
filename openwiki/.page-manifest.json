@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "pages": {
+    "/openwiki/architecture/overview.md": {
+      "pageVersion": "sha256:011950829411ebe4325970af33e10d322f38757c63263e2c922cdba81db9ba9d",
+      "completedBy": "openwiki/0.7.0",
+      "completedRunId": "550b45d8-0e19-46bc-ace1-9d682d7eaf82",
+      "gitHead": "0ce79a50a1843616414a1f71fbb529849d889ac3",
+      "sourceFingerprint": "sha256:2578b15f8a3f94e83ba0d915783d868b8846862fe60d26648429ba79a52133db"
+    },
+    "/openwiki/concepts/model-management.md": {
+      "pageVersion": "sha256:f0035bdfca8ebdc158fb7daba1ca452d207fbc0feeb4b4865aefb4b3a70a30d4",
+      "completedBy": "openwiki/0.7.0",
+      "completedRunId": "550b45d8-0e19-46bc-ace1-9d682d7eaf82",
+      "gitHead": "0ce79a50a1843616414a1f71fbb529849d889ac3",
+      "sourceFingerprint": "sha256:2578b15f8a3f94e83ba0d915783d868b8846862fe60d26648429ba79a52133db"
+    },
+    "/openwiki/quickstart.md": {
+      "pageVersion": "sha256:ff6e9d24a9ba959e8ba789e65fdc9b941ae6b6c2cf20623ef7d1af16a9512e98",
+      "completedBy": "openwiki/0.7.0",
+      "completedRunId": "550b45d8-0e19-46bc-ace1-9d682d7eaf82",
+      "gitHead": "0ce79a50a1843616414a1f71fbb529849d889ac3",
+      "sourceFingerprint": "sha256:2578b15f8a3f94e83ba0d915783d868b8846862fe60d26648429ba79a52133db"
+    },
+    "/openwiki/testing/guide.md": {
+      "pageVersion": "sha256:99dd4e0a7ea18cc29089518d4c0ae770cae8d18fcffc19d5f2685da35ab2a0bd",
+      "completedBy": "openwiki/0.7.0",
+      "completedRunId": "550b45d8-0e19-46bc-ace1-9d682d7eaf82",
+      "gitHead": "0ce79a50a1843616414a1f71fbb529849d889ac3",
+      "sourceFingerprint": "sha256:2578b15f8a3f94e83ba0d915783d868b8846862fe60d26648429ba79a52133db"
+    },
+    "/openwiki/workflows/transcription-pipeline.md": {
+      "pageVersion": "sha256:b1711c7837a95c113f1a11f86e637019a0c0b628414c5c7a5754ca27d4f1cf75",
+      "completedBy": "openwiki/0.7.0",
+      "completedRunId": "550b45d8-0e19-46bc-ace1-9d682d7eaf82",
+      "gitHead": "0ce79a50a1843616414a1f71fbb529849d889ac3",
+      "sourceFingerprint": "sha256:2578b15f8a3f94e83ba0d915783d868b8846862fe60d26648429ba79a52133db"
+    }
+  }
+}

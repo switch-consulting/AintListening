@@ -1,0 +1,78 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:b1711c7837a95c113f1a11f86e637019a0c0b628414c5c7a5754ca27d4f1cf75",
+  "claims": [
+    {
+      "id": "claim_8cfedf0c4cb4424285a015f11acb823b",
+      "statement": "OpusToWavDecoder decodes Opus audio files to a 16kHz, mono, PCM 16-bit WAV file compatible with Vosk and Whisper by utilizing Android's native MediaExtractor and MediaCodec.",
+      "evidence": [
+        {
+          "resource": "repo://AintListening/src/main/java/de/switchconsulting/aintlistening/util/OpusToWavDecoder.java#L163-L186",
+          "version": "repo-lines-v1:sha256:ca77b6129fb3cb59c6d3072087e9c5264a76060ceecb874b3c8661251cea757d:eyJzZWxlY3RlZExpbmVDb3VudCI6MjQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE5ZGRlZGJiZWM0YmQ4OTM4MzZkZGJiMTBlZGVjMmNmMzZhNzU4MmM1OGYwNGQ2MTdmZjE3Yzc4MGY0ZTVkZGYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdlYjcwMjU3NTkzZGEwNmY2ODJhM2RkZGE1NGE5ZDI2MGQ0ZmM1MTRmNjQ1MjM3ZjVjYTc0YjA4ZjhkYTYxYTYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjdmOGY3ZGRjODUwMjFkMGRmMmFhYjY5ZDUxNmZlNjVlNDFlYWVkN2Q4ZmM3ZmM5NzdkNTFiNzE1MDdiNmYwZmUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjU5YzE4ODYzOTJmNjIzY2JlZWM0MWY2OWQ0NzNlYjA3N2Q2NGI0OTE4YmFlN2YzMWU5NjEyOTJkMzZkMjczNjUifQ"
+        },
+        {
+          "resource": "repo://AintListening/src/main/java/de/switchconsulting/aintlistening/util/OpusToWavDecoder.java#L36-L54",
+          "version": "repo-lines-v1:sha256:f8ce3ae3e15c819889dcd4e3f3d6e193e32c7f335485eebe7c207496c0516544:eyJzZWxlY3RlZExpbmVDb3VudCI6MTksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjVjNDkyMzZkODMwZDQ4YzY5YTg4MDA0M2Q4OTVjNzY5MGZkMjRiMjY1YWJjNjBmNzg4Njk1MjM0ZmJlMDk5YWUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjY0NzQ5ZmU2ZTlkY2RmNmU1NDExZDkzY2RiZTA4YTJjYzUyYTA3M2IyYWM2N2M4ZGIxMmY1M2YyODllM2IyZGEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjAxNzgzZjkxMWE1YjkzMzAxMTU3MzBlNmFmNzZkZjk5ZmI2NmE5MTY1MWQ3NGI0ZWU3Mzk4MzNhYzIwMDFiNGUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUwYmMwMDBhMWYzNDg3OGViY2JlNTBhNGM3NmNkN2M4ZjQxMTk1YTAyNWIwMmJmNmI1MzMyNGVhNTM3YmZmZGEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_b13d95d8ba2942fc9e70cc45b6cfa192",
+      "statement": "TranscriptionProcessor manages active transcription tasks asynchronously on a background thread, ensuring any preceding running task is cancelled before starting a new one.",
+      "evidence": [
+        {
+          "resource": "repo://AintListening/src/main/java/de/switchconsulting/aintlistening/data/TranscriptionProcessor.java#L98-L127",
+          "version": "repo-lines-v1:sha256:326381c1f71ed89336f1e838e6f97a42177778d0e3a1d48d4338aeccfd27d4dc:eyJzZWxlY3RlZExpbmVDb3VudCI6MzAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjEwYmIwM2MwZTNhNmFkZjIzYzc0Zjk3YjIyN2EwYTY0MjdhOTRmNTczNzdiMTgwNDBhZGE2NTFiY2MyMmU4NGEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI2NzhiYWU3MjU2OGYzNTI0YmZmNmNlMTZiMjMzZjdjMTZlMDYwZDg3ZTY4YzYxYjYxMmYxNjY0YjkyZDZjNmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImE4MDg3ZmQzNDUwM2MwZjM0N2Y0YjA5MGI1M2NmZGYzNWFkYTc5NDQ1MjkyYjcxMGNhMTNiZmEwZjljMzg4NTQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjMyYmM3ZDQwYzRlOWRiZTczMjViZDJjMmZjZjFjZGRjZTFkN2VmYjk2ZDUxMTExMjZkYmZkODNkNmM5ZGJiMDUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_78a03d5a217644bc97be1e00285c0215",
+      "statement": "VoskTranscriber accepts streaming audio waveform buffers, publishes partial results during ingestion, and notifies the listener with chunked PCM audio data for segment storage.",
+      "evidence": [
+        {
+          "resource": "repo://AintListening/src/main/java/de/switchconsulting/aintlistening/transcription/VoskTranscriber.java#L108-L189",
+          "version": "repo-lines-v1:sha256:425d54a7a6ef63bd5616ce595b0d4e19bc908b60fce3635ea6c89d3acd7489b2:eyJzZWxlY3RlZExpbmVDb3VudCI6ODIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjBlMzU4MDk2YWEzOTU0OTA2MGVhMWViYmNiZWRmNjk1ZDQ4MTAzMGMyMGUzNGQ4YmI2NmVjZmI1ZWEzYWVmMjEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjE0MTlhNmRjYzA0ZTIxM2EzYzdhNzdhNDU2YjAxZTc2ZDFlZjc4Y2QwMGJiZWMxZDhmODE0NThmZTkzZWRjNTYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImZmMWJjM2ZlZGQ4MWE1YmJlYWVjYTlmM2U5NzFmM2ZmYzQ2MDlkMDQzZmRkMzYzZDE3NTg5YmNmMjhhYWNhMDIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImYyNjVjNTExMjI3MGEwNjlmZDFiMzU1NTFjYjI0NDVhNWM0M2M2MTBmMWE1M2Q2NzIyNzVhNjRkNDNkNDgyMGEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_ba8e79e93a9c43798812f2ef167a72f4",
+      "statement": "WhisperTranscriber transcribes audio files using whisper.cpp, parses timestamps to partition the audio into logical paragraphs, and utilizes log polling to stream incremental partial results.",
+      "evidence": [
+        {
+          "resource": "repo://AintListening/src/main/java/de/switchconsulting/aintlistening/transcription/WhisperTranscriber.java#L122-L198",
+          "version": "repo-lines-v1:sha256:60852bd32c17a65ac02db16de80bcc837a8034af2ec72151b3fe0e731c0c6261:eyJzZWxlY3RlZExpbmVDb3VudCI6NzcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjBlMzU4MDk2YWEzOTU0OTA2MGVhMWViYmNiZWRmNjk1ZDQ4MTAzMGMyMGUzNGQ4YmI2NmVjZmI1ZWEzYWVmMjEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjE0MTlhNmRjYzA0ZTIxM2EzYzdhNzdhNDU2YjAxZTc2ZDFlZjc4Y2QwMGJiZWMxZDhmODE0NThmZTkzZWRjNTYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImRmNzBjZGJkNmQ2ZmEwNGNmYTY3MTVkMDc5ZTZiYzRmY2ExYjM5ZDAzMDc0ZDRhYmRhZTMwMTRjODQwYTRhNjgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijk4ZTAyOGI5ZmI2MjZhMzk0MGM5NTgyM2YxODU2NmExNTMyZWRkNGQ5OTg3MWZhMTc1NjBmODczMWJkYzRkY2QifQ"
+        },
+        {
+          "resource": "repo://AintListening/src/main/java/de/switchconsulting/aintlistening/transcription/WhisperTranscriber.java#L207-L274",
+          "version": "repo-lines-v1:sha256:18f03ec62078e093f68c814f653abe4cba0e782e66be5ab785dd9c16686207f9:eyJzZWxlY3RlZExpbmVDb3VudCI6NjgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFjOTUyYWYyNGQ0ZGFmNjMyZGNjMmMzYWUwMWYxYjJhYWZiYjFlNTJmN2ViM2Q0OTkyY2RjOTNmM2IxZWQxZDUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjE0MTlhNmRjYzA0ZTIxM2EzYzdhNzdhNDU2YjAxZTc2ZDFlZjc4Y2QwMGJiZWMxZDhmODE0NThmZTkzZWRjNTYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjQyZjdiNTJmNWJmMmQxMTBjNWYxMzgzODMyNWVhODBkMDUyZTU3N2Q5MTZjOTMwNzVkYjY0ODdmYjVlNzAxNjciLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImEwMWE2ZTQwMmExNGNjNDUxZmZlOTNjOTkzZTkzNWYxYjY2Mjc0NzQxYWFiODk5ZjVkODBjMzAxN2ViNzM3NDgifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_b6a1fa44ae9549a1af0cf8917a45d60b",
+      "statement": "OnnxSmartFormatter applies on-device post-processing for punctuation and character-level capitalization using a Hugging Face tokenizer and a multi-head ONNX model.",
+      "evidence": [
+        {
+          "resource": "repo://AintListening/src/main/java/de/switchconsulting/aintlistening/formatting/OnnxSmartFormatter.java#L135-L245",
+          "version": "repo-lines-v1:sha256:7e607f884bb0048641ba1b65ace4eb5550fa996cb46b128e64819289763feefb:eyJzZWxlY3RlZExpbmVDb3VudCI6MTExLCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiJmZDg5NjAyNmY1ZjU3ZDNjYjk5Mjk5Njg0NTdkMDE5NjQ4MTcxMzIxNTc3MWNmNDNlNTE1OTA3MTM4ZmU2YmFiIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiIxNDE5YTZkY2MwNGUyMTNhM2M3YTc3YTQ1NmIwMWU3NmQxZWY3OGNkMDBiYmVjMWQ4ZjgxNDU4ZmU5M2VkYzU2IiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiI0YzdkMWZiNzk3MDlmYzM1ZmM1NWY5MmRkMzI4NmM3OWE2MWJjOTEwZmM5MjgyOWZlZWJkYjgyN2M3M2VmMWIyIiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiJmODc5YjE0ZTFjNTQ3Y2RlYzRkNTQ2MmM3ZjcxNGFhMmZmZmM3ODJjMDI3NTY3N2U2N2ZiY2QzZWQ5MGRiZTU5In0"
+        }
+      ]
+    },
+    {
+      "id": "claim_0f8749f934e64df3abfce890055dff81",
+      "statement": "OnnxSmartFormatter's reconstruction method reconstructs lowercased text into punctuated and capitalized sentences by evaluating pre-punctuation, post-punctuation, character-level capitalization, and sentence boundary predictions per token.",
+      "evidence": [
+        {
+          "resource": "repo://AintListening/src/main/java/de/switchconsulting/aintlistening/formatting/OnnxSmartFormatter.java#L286-L384",
+          "version": "repo-lines-v1:sha256:ddc6fe444a52276929d49ba35e63878d540e9f1cad7adc3f5aa89f61539817d4:eyJzZWxlY3RlZExpbmVDb3VudCI6OTksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImViMzgzM2RmNjc0MThiMDZiMGJlYWFjNjEzZDg4OWM4Y2ExYjg2MjllMmVmNjBmNTc5OGVlOGE3Yzc4YzlhYjAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjE0MTlhNmRjYzA0ZTIxM2EzYzdhNzdhNDU2YjAxZTc2ZDFlZjc4Y2QwMGJiZWMxZDhmODE0NThmZTkzZWRjNTYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjExNjE2Yjg2MDE2NDVkYzk5ODliNTY1NTA3ODJkMGY4MmI1NjE2NDIxZWM3MjlmMDQxZjllYzFmYzYyNTE4OWMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImVkNmIwMzBmNzQ1NDk5NGQxNThjYzgwZjg0OTk4ZjJmMzUyZDJjMGE1NmQ0ZjNkMDYwZGFhZGVhNDlhNGQ0OGYifQ"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.7.0",
+    "at": "2026-10-05T15:42:00.143Z"
+  }
+}

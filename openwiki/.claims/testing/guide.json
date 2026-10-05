@@ -1,0 +1,72 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:99dd4e0a7ea18cc29089518d4c0ae770cae8d18fcffc19d5f2685da35ab2a0bd",
+  "claims": [
+    {
+      "id": "claim_df020d4dd9ab469595be8c3106098f7c",
+      "statement": "The project configures JVM unit tests in the Gradle build definition with returnDefaultValues enabled and net.bytebuddy JVM arguments to prevent 'Method not mocked' exceptions and support Mockito execution on modern JVMs.",
+      "evidence": [
+        {
+          "resource": "repo://AintListening/build.gradle#L88-L93",
+          "version": "repo-lines-v1:sha256:133d2c597f47b1c992defaa2d9a6fdb4516012df39d0d787ecda9abd179a4870:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZDRlYmJhYTg0Njg4MmFmMWY5MjM0MDA1NDI0OTg4OWVmNGE3YzJmNDU3MTg3NWY1ZTU2ZmQ5NDNlM2RjMzI4MCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDg5M2Y0MGUzNzgxZWI4OTZjODJkMDQ2YTA4MDY3YTExZTM1Y2RmMmYxZGZhZjI2ZmVhOTBiOGRiNjY3NjQxMyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiOTk5YmRlZmVlYWNhNjM0MGUwMjkwZGM4NmU4ODljODlkNWUxODlhYTViYTQ0YjU4NWIzYjcwNzM0ZjRhNjJkOCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZWZhYzljNGViYjBmZTMyMzNkYWJiMjg1ZGRmYTNlNTY0YTJiMThiOGQ1MWVlN2RhOWQ0MTQ1OTRjMDk1YjA5MCJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_3b232b787cc740cbbafa1e836ec1d6f3",
+      "statement": "Android platform dependencies such as Context and Uri are mocked using Mockito, with physical file access simulated locally via JUnit's TemporaryFolder rule.",
+      "evidence": [
+        {
+          "resource": "repo://AintListening/src/test/java/de/switchconsulting/aintlistening/data/AudioStorageManagerTest.java#L42-L59",
+          "version": "repo-lines-v1:sha256:2c68cf2611499ce63d2c10ef91dc290923b0ba9ca1e752a93b6c542d089e7d74:eyJzZWxlY3RlZExpbmVDb3VudCI6MTgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjljNmE1YTAzNjU2MTgyODg4YzM5OWMwMDliMTM1OWM5MmQ2NTI2NWZkNzdiODI1OTY1ZGZlODEzM2NhOWU4YzUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjE0MTlhNmRjYzA0ZTIxM2EzYzdhNzdhNDU2YjAxZTc2ZDFlZjc4Y2QwMGJiZWMxZDhmODE0NThmZTkzZWRjNTYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjkzNDZjZjE0YmZlZGEyZmRlYmY1NTJlYzljMzc1NjI0MmM2ODUwN2Y4ZDQ5MmU3MWQxODZjZjYyYjk4Y2MyMzAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImQ1ZTJlN2U0M2RkZGNlNWI5YTAyYmY3MTBjMmZmYTAzOTQ1MzBmN2RiY2E4NzRmYzU0ODhmNzc1Mzg0OTU1MjEifQ"
+        },
+        {
+          "resource": "repo://AintListening/src/test/java/de/switchconsulting/aintlistening/util/OpusToWavDecoderTest.java#L37-L48",
+          "version": "repo-lines-v1:sha256:01039598ea873235e3926b3e15ed03cf442fe7438be16f0cb2d91f68850f51bd:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjljNmE1YTAzNjU2MTgyODg4YzM5OWMwMDliMTM1OWM5MmQ2NTI2NWZkNzdiODI1OTY1ZGZlODEzM2NhOWU4YzUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjE0MTlhNmRjYzA0ZTIxM2EzYzdhNzdhNDU2YjAxZTc2ZDFlZjc4Y2QwMGJiZWMxZDhmODE0NThmZTkzZWRjNTYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjBkNGM2MjYzZjQ1MjE4NDliZGYyOWMyOGM3NWQyYTFkMTU3MTUwODZmMmRiYTEwY2FlZjg1MGY5NjI4Zjc1ZDUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUyMmZhYTUzNWJkMmVhM2Q1MmU3NDFlZDQ1NDQzNWI3ZmU0OWU4MzU4NmU5NDNkOThkODJiYmZiMjRkMWY1YzUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_2e77e001ce4b4dcebfab4bc834852f54",
+      "statement": "ViewModels are unit tested using AndroidX's InstantTaskExecutorRule to force all LiveData operations to complete synchronously on the caller's test thread.",
+      "evidence": [
+        {
+          "resource": "repo://AintListening/src/test/java/de/switchconsulting/aintlistening/ui/MainViewModelTest.java#L49-L53",
+          "version": "repo-lines-v1:sha256:fc35c28ac1a6faf174a6804f1cb5d18ca59921e5677cd58b7d7938e275ea2b90:eyJzZWxlY3RlZExpbmVDb3VudCI6NSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiOWM2YTVhMDM2NTYxODI4ODhjMzk5YzAwOWIxMzU5YzkyZDY1MjY1ZmQ3N2I4MjU5NjVkZmU4MTMzY2E5ZThjNSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMjhlNjg0YzAyZDQ3MGMwNzNiNGJjMzY1MWM3ZmQ3YjBkMDk1NDgwYjRiZjllOWIwNTY5N2MzMTI4MDMwMjk2NSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYWE0MjEwMjVhMWZiYTI1Y2U2NGE4NjA1MDg0ZjU5Njc3NTNiZmVlMDI3ZmRjZjVhMmMyZDkxOTkyMjNhOTgyMSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiOWMxOTg0ODNkYzhkOTQ0YmIzOTE4YjMyNGYwOTAzN2YyZmVhN2ZlZTI3YjhkYTQ4MzhiNTliNTIyNTk2NThmNiJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_dc28aaf57c5c42cbb1ad94b05b63efe4",
+      "statement": "The transcription processor pipeline handles parsing of multiline audio transcription data and delegates model operations, verified via callback progressions and mock verification.",
+      "evidence": [
+        {
+          "resource": "repo://AintListening/src/test/java/de/switchconsulting/aintlistening/data/TranscriptionProcessorTest.java#L56-L114",
+          "version": "repo-lines-v1:sha256:de014f6def737d91a9b0590df8f5bcac867450af155efc4e57998336fddf46a8:eyJzZWxlY3RlZExpbmVDb3VudCI6NTksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFjOGNlNDkwOTZmZmE2ZDY4ZjM4YzE5OTQxZjI5ZmNiYjNhY2FiMWZmYjZhZWVmYTIxZjhmZjk3OThkMGE1MjEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjE0MTlhNmRjYzA0ZTIxM2EzYzdhNzdhNDU2YjAxZTc2ZDFlZjc4Y2QwMGJiZWMxZDhmODE0NThmZTkzZWRjNTYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjJkNzc2NzFlNmNkZjZlN2I2OTFmODllOTU1ZGExMDE1ZmFiNWE4NjVkNzA0ODA0NTcyMDFkNDI4NWZmMmJlMTgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUyMmZhYTUzNWJkMmVhM2Q1MmU3NDFlZDQ1NDQzNWI3ZmU0OWU4MzU4NmU5NDNkOThkODJiYmZiMjRkMWY1YzUifQ"
+        },
+        {
+          "resource": "repo://AintListening/src/test/java/de/switchconsulting/aintlistening/ui/MainViewModelTest.java#L84-L100",
+          "version": "repo-lines-v1:sha256:1f131760b92fdbb119c039d65d01931214b1d4428097875dd153e8d9a640abcb:eyJzZWxlY3RlZExpbmVDb3VudCI6MTcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFjOGNlNDkwOTZmZmE2ZDY4ZjM4YzE5OTQxZjI5ZmNiYjNhY2FiMWZmYjZhZWVmYTIxZjhmZjk3OThkMGE1MjEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijc0ZmRlMzI0NDc4NWM2NmI3MGMyYTllNWIxNTUyMTJiYmI5NGNiZGUwYTFkZTRiNzllNDdlZjlkMGVmMzgyMzMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjRmMTUxMGEyY2MxZGRiYWQ4MjBlNTg4ZGE1MmUyNGFmYTU5NmI3YWE2NmFmODlmNzlmNjc0MDdkZWFlMWI4MDUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjYxZDMxNDc5OTA0ODJkODFiNWY2YzcwZGEyZTFmMTY2OWY5NmEyODIwMWU1MDUwZjY1YjlhMWYyMTYyOTFhNzEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_0017d8852eb340aaa722eb6366ecf5d0",
+      "statement": "On-device transcriber engines assert capabilities such as punctuation support and throw IllegalStateException on unsupported locales or missing model directories.",
+      "evidence": [
+        {
+          "resource": "repo://AintListening/src/test/java/de/switchconsulting/aintlistening/transcription/VoskTranscriberTest.java#L45-L61",
+          "version": "repo-lines-v1:sha256:95365f596a7a412bd6b5c6f049595d108e281e4a277955e2f5be664e5da42579:eyJzZWxlY3RlZExpbmVDb3VudCI6MTcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFjOGNlNDkwOTZmZmE2ZDY4ZjM4YzE5OTQxZjI5ZmNiYjNhY2FiMWZmYjZhZWVmYTIxZjhmZjk3OThkMGE1MjEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjE0MTlhNmRjYzA0ZTIxM2EzYzdhNzdhNDU2YjAxZTc2ZDFlZjc4Y2QwMGJiZWMxZDhmODE0NThmZTkzZWRjNTYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImRmZmJkYzg4Y2I4ZGUwNjVhMDI3ZDViMWVlZDFmMmVkMDEzNWQ0ZmQ1N2Q5ZDYxMmYxODI3M2I0YWE2OTc1ZWIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjE0NmU1M2RlNzlkZDZlYTMyNTFhMmVlNDRjMjM3YTRkNjIxODEwNWRkMjYyMTNlYTk0ZjQwMjZjMDU0NzZhZmIifQ"
+        },
+        {
+          "resource": "repo://AintListening/src/test/java/de/switchconsulting/aintlistening/transcription/WhisperTranscriberTest.java#L45-L68",
+          "version": "repo-lines-v1:sha256:455541d466566bce34864c5f4e49d88e55eed58a444fbec0ff8fea0916350abc:eyJzZWxlY3RlZExpbmVDb3VudCI6MjQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFjOGNlNDkwOTZmZmE2ZDY4ZjM4YzE5OTQxZjI5ZmNiYjNhY2FiMWZmYjZhZWVmYTIxZjhmZjk3OThkMGE1MjEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdlYjcwMjU3NTkzZGEwNmY2ODJhM2RkZGE1NGE5ZDI2MGQ0ZmM1MTRmNjQ1MjM3ZjVjYTc0YjA4ZjhkYTYxYTYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjE0MTQwNjBlZTkzMTRhYWViOTc0MmNlMWUwMWYzZjY1YTcyNzk2ZmQ5NTBiN2FjOTAxMzI5NzA1ZmY3NDVkMzAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImY1NDZjNDY4ODQ0YTA0NTYzZDZjNDQxYWMxZTk3MjE5ZDkyZGYxMjBhYzJjM2ZjYmI2MmYwNWM3MTA5YjNlOTMifQ"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.7.0",
+    "at": "2026-10-05T15:42:00.143Z"
+  }
+}

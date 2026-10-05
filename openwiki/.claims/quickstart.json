@@ -1,0 +1,50 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:ff6e9d24a9ba959e8ba789e65fdc9b941ae6b6c2cf20623ef7d1af16a9512e98",
+  "claims": [
+    {
+      "id": "claim_94e0fbaec3df4cd0ae4784cad8bcabfc",
+      "statement": "The Android application targets compileSdk/targetSdk 37 and minSdk 29 using the Android Gradle plugin.",
+      "evidence": [
+        {
+          "resource": "repo://AintListening/build.gradle#L24-L29",
+          "version": "repo-lines-v1:sha256:ae5150e8d4e5067bde8747c395b17b850f3abd07daccdee3a357e582fa50ffde:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZWFkNDUxNzc4ZjE0ZWMxODgwYTI1YmEwN2JkNDMxYTFkNDJiNDViY2ZjMDYwNzlkNTQxOTUxNjRhMzZhZDJiYyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiM2YxYjQwMDUyYzc0ZGU3N2EwNDI4NmZlNDdjNjJkNmZmOTAzMDNmNDI0ODgxOGU1YWQyYjE3YWI1N2Q4ZTc2MiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMWRhMTE5OGMwMWVlMTY5MDNiZjVkYTA4ZmY5OTI5N2U2ZmIwMjUwZjRhZWI0YzMzNjlmNGI5YjM2ZGMyZTMzMyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZmRmOWE5Mjg4ZmZkNzcwYzI4ZDE3NTg5MDEzMGU2MmIyZGRlYzg2MDFhNzI5ZDUzMzk5YzRhODQ5ZGQzMDMyYiJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_f0fb0300b53c4d67b3e30ae1c96a0cce",
+      "statement": "All audio transcription and text formatting occur 100% locally on the device to guarantee privacy, with network operations strictly limited to downloading optional speech recognition models.",
+      "evidence": [
+        {
+          "resource": "repo://privacy.md#L7-L14",
+          "version": "repo-lines-v1:sha256:17119d976200ae47983abe3f9f9ac82dfaa8fa775ca97b9b9aa007b9abfbb4e3:eyJzZWxlY3RlZExpbmVDb3VudCI6OCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNTFiMGYwZTAyMjY3MTY3M2IxMWRiNDVlOTEwMzM5ZjBlODk1ZWRlNTc1ZDQ2NDRkZjEwMmZlODM1YmVmNGFjMCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZTFjMzEzZTA1NzI5YWIxY2ZjNDFhYzc2Njk0ZWJkM2RkYTcyYjZlYWY0NGEwYjk0ZTMwOGZiM2JlYjI4YTEwMCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZWYwYWQ2NjFjZWQ2YjU0YjEzODRkMWE3NmExMzYzMjU4MTk0Nzc0MGNhYjI0ZWRhNjBiMDA2OTgzMDcyN2YwYSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZTYyYzEyM2E2MDcxMDg2NTQwNmZjOTkzZDRjZjAzYzgyMDZhNzdhOTJiZTI1YmIxZDI2MjFiNjA1Mzc2ZWJlOSJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_c2e560dd828a4c5d8ce0cfcf1b65ef56",
+      "statement": "The application relies on a custom Gradle task called patchDjlNativeLibs to automatically extract, patch, and package native JNI shared libraries for arm64-v8a during the build preparation stage.",
+      "evidence": [
+        {
+          "resource": "repo://AintListening/build.gradle#L140-L163",
+          "version": "repo-lines-v1:sha256:a7765dab87c71166fb86dec570615aec35bbc4ad154483974843c8d94d4d9cd9:eyJzZWxlY3RlZExpbmVDb3VudCI6MjQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY5ZmQyYTk0NDI5ZWQ4N2I2YjE4MmQ4Y2RkYjJjOTQ2MTNjYzFmMDAxNmYwMjRmYjNlZGQyMjg2NGNmYTZiNzUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjRjZDAxYzcwMGY2M2U1ZTI4OTY0ZDJhOTdjZDlmNzBlOGJkYmFiNTM3YTdlNjc1ZmEwZWQ0ZGI2YTEyYTNmZTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjZhM2NmNTE5MjM1NGY3MTYxNWFjNTEwMzRiM2U5N2MyMGVkYTk5NjQzZmNhZjViYmU2ZDQxYWQ1OWJkMTIxNjcifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_211f4d63599d4ee7ba737b3998253083",
+      "statement": "Offline speech recognition and inference are powered by native integrations with Vosk Android, ONNX Runtime, and WhisperCore libraries.",
+      "evidence": [
+        {
+          "resource": "repo://AintListening/build.gradle#L111-L115",
+          "version": "repo-lines-v1:sha256:5375519dc5d9415a3bb1f3f4798f6486b1f745a0a7307e98b3bf9f95b51b6d3f:eyJzZWxlY3RlZExpbmVDb3VudCI6NSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNDRmMjBmZWJhNTMyNWRiM2NjMDYwMzFjODY5OGFhYzY3Y2MzNGY4YzVhOThkYzhmNjQwMDA3N2ZjYzlmODMzYyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYWI5NGJjMWYwNGJiYTQxZGM5Y2FhNWFmNzkyMDVhOTg5YTRiYTJiN2FlY2NkZjRiNDEyMjBjODRiNmI2YWRlZCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiOGJmNzQwNDA0NTViZmEwNDYwYmZkODk1NzBmYjI4YTdiZmQyOTU0YWMxZGRhNDUzZTNlZGQ0MTM4MjMzNWEzYyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiM2M0MTEyZGI1NzA5M2Y3MWMyMWNlZTNkOTk2YTAyZDk1Y2I3ZTY3MTU1NTAxMDMzOWQyZDAwMGY1Y2ZkZmQ2YiJ9"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.7.0",
+    "at": "2026-10-05T15:42:00.143Z"
+  }
+}

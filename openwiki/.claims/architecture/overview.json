@@ -1,0 +1,74 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:011950829411ebe4325970af33e10d322f38757c63263e2c922cdba81db9ba9d",
+  "claims": [
+    {
+      "id": "claim_f1440166d887474ba2985c38f275b735",
+      "statement": "The application handles settings and key-value preference storage by wrapping a reactive Jetpack Preferences DataStore instance with RxJava3 (RxDataStore<Preferences>) instead of Android's legacy SharedPreferences.",
+      "evidence": [
+        {
+          "resource": "repo://AintListening/src/main/java/de/switchconsulting/aintlistening/data/PreferencesDataSource.java#L37-L60",
+          "version": "repo-lines-v1:sha256:c7766805b8b1d23ef45fcea5d2ea870115c6e64dfd098055c990c4be9767a2d9:eyJzZWxlY3RlZExpbmVDb3VudCI6MjQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVkOTljODIxNDYwZTQzOTQ3NmEwYjk2MmQzNzE3MjQ3N2E1NGM3ZDQ5OGNiMjgxYmRjZTVhMDQ3ZGNjMjZhOGIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjE0MTlhNmRjYzA0ZTIxM2EzYzdhNzdhNDU2YjAxZTc2ZDFlZjc4Y2QwMGJiZWMxZDhmODE0NThmZTkzZWRjNTYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjY4OTkxZTFkZjgxYWY3MjBmMmNkZjc3ZDA5ZWM5MGYwNjdmZDEwOWFhZTE5OWJmN2RjNDIwMTliOWMyMzAzNDMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjA3MmY2NWIwZGZjOWIzYmYzODMzZGYwNzNlN2NiMTkyODdlYzRiODI1ZTBkODczYTY5NjQ3NWFkYzI3ZWE2NDUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_985b492f5f3f47958fad6680d59835a5",
+      "statement": "Dagger Hilt registers transcription engines dynamically by using Hilt Multibindings with @Binds and @IntoSet in TranscriptionModule to collect VoskTranscriber and WhisperTranscriber into a Set<Transcriber>.",
+      "evidence": [
+        {
+          "resource": "repo://AintListening/src/main/java/de/switchconsulting/aintlistening/transcription/TranscriptionModule.java#L35-L56",
+          "version": "repo-lines-v1:sha256:c01ebfee35b2ed25cf976bd7017bb5ac08dc196b9be47f4648188facec5b7144:eyJzZWxlY3RlZExpbmVDb3VudCI6MjIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImJhMmQ4ZjQ5ZTBkNDZkMGIxOGE1MjliNTY4Zjk4M2ViMWQxNjA3YmY3YzY4ZmEwM2EwNDM3YTA3NGM4MTA5ZjAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImUyMmZhYTUzNWJkMmVhM2Q1MmU3NDFlZDQ1NDQzNWI3ZmU0OWU4MzU4NmU5NDNkOThkODJiYmZiMjRkMWY1YzUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjM1NGQ0YTA0MWI0OGEzZTgxNzJhNDE5YTE0NmQ1Y2UyNTBlMzg2MmFiMzM1NTYwYTdkZmUxNzllNTZiMTVkM2EiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_1482520a991f49eaab45e5bce3eaff13",
+      "statement": "The TranscriberRegistry receives the Hilt-injected Set<Transcriber> and maps each transcriber instance into an EnumMap<TranscriberType, Transcriber> for dynamic resolution.",
+      "evidence": [
+        {
+          "resource": "repo://AintListening/src/main/java/de/switchconsulting/aintlistening/transcription/TranscriberRegistry.java#L30-L47",
+          "version": "repo-lines-v1:sha256:f29e050c34710836bfa7e7f08c678496b684ab765c273c47c7fca5fb17d82694:eyJzZWxlY3RlZExpbmVDb3VudCI6MTgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjYwMTc2YjQ4YzBkOWE0ZDg5NmQ3YWE1OWVlZmUzZjNiOTc1NzAzNDEyZDMwODMyOTk5NWRkMTc2MzI0Y2M5NmIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdlYjcwMjU3NTkzZGEwNmY2ODJhM2RkZGE1NGE5ZDI2MGQ0ZmM1MTRmNjQ1MjM3ZjVjYTc0YjA4ZjhkYTYxYTYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjQ0MzU4OWJiMjJlMzg3NGUxZmVlNmM0YWRmNzQwNzIxZTFlNWY0OWIzMDFhZGQ5YTk4NmFmNGQ1MTg3NmQyNjYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjhjYzg1M2Q3ZDgxOGI3MDI5ZDI5NDEwZjcxYTNmYzczYWVhNjMyOTU1ZjVlNzUxNWU5ZTY1NzkxNjYxNDI0OWUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_d26e563b41c84357aed657be709769ac",
+      "statement": "The ParagraphEntity declares a foreign key to TranscriptionEntity with a cascade deletion rule (onDelete = ForeignKey.CASCADE) and an index on transcriptionId.",
+      "evidence": [
+        {
+          "resource": "repo://AintListening/src/main/java/de/switchconsulting/aintlistening/data/db/ParagraphEntity.java#L27-L37",
+          "version": "repo-lines-v1:sha256:aa557aa15c55241fc8d5d3851e845b289840d7b43b4ad0942aa0d9a9ff4b5334:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY3ZGI1NzgwZmM3NzNiZDZkNzAyZDhlZTA0OTBmYzkzN2Y5ZGMxNDUyOWM0M2Q1Y2ZjMmE1YmMxMzQ3YjQyZDIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjcwOTI0OTFhMzVhMTdmOTcxMDk3NmMxNzJkYjE2OTc2YmY5YjU2Y2IyMTUzMTU1NzAyZDlkY2MyNmYyNWI0YmYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjEyMWEzYmRkNjQ5MDI0NTQxZmI0MWNjYWFhNGE3YmJiNTQ3NjU3ZGEzYzE5MTlmZjg1YjA0NzJkODZhMTg4MjEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjA3Yjg0YWI1YTMzM2FlODg3NTA1YTY5MGI0YmFlMWE0MTE0MzljYWI2OWRmZjg1N2U5YTY5NDkzMGVkNGNjNTIifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_eee5860661794a37bf32c23daaaf4d79",
+      "statement": "The application isolates media file persistence by storing temporary decoded shared audio files under the app's cache directory and persistent audio paragraph segments under the files directory in a sub-folder named audio_chunks.",
+      "evidence": [
+        {
+          "resource": "repo://AintListening/src/main/java/de/switchconsulting/aintlistening/data/AudioStorageManager.java#L51-L70",
+          "version": "repo-lines-v1:sha256:ef2598d6fea58a6b2728de9cf4e16dd4f3bfabbc85aeaf2f095a7db8e278e352:eyJzZWxlY3RlZExpbmVDb3VudCI6MjAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImJhMmQ4ZjQ5ZTBkNDZkMGIxOGE1MjliNTY4Zjk4M2ViMWQxNjA3YmY3YzY4ZmEwM2EwNDM3YTA3NGM4MTA5ZjAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdlYjcwMjU3NTkzZGEwNmY2ODJhM2RkZGE1NGE5ZDI2MGQ0ZmM1MTRmNjQ1MjM3ZjVjYTc0YjA4ZjhkYTYxYTYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjRlNWQzMGYzOGE2ODFhOTRhZTMyNjIyMTNjNzdiYzk4NjZiNWMwNDJmZjIyNzdlMWM4Mzc1MGNmNmRkNmNhODQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijk5ZmY4MWJkYmU5MzBmMjAxZjUzMDY1NDFmNGM2NTIzOWIyYzM5Zjc4OTM4ZjZkZDgwOWQ0ZjAwNzQ1MDUzMjMifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_184e5113038d4e58aff4f5a49de12c94",
+      "statement": "TranscriptionLocalDataSource synchronizes database reads and writes using a dedicated private lock object (dbLock) to guarantee thread safety across concurrent operations.",
+      "evidence": [
+        {
+          "resource": "repo://AintListening/src/main/java/de/switchconsulting/aintlistening/data/TranscriptionLocalDataSource.java#L41-L43",
+          "version": "repo-lines-v1:sha256:3935240f36025e6e6866cacd57d7e73259ba20b16250315ba78a4e823f3cd142:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNmQ1Y2U0Y2Y5YmYwZWI4ZjUwNzM5Mjg0NjA5YjFjNzRkMmFkNzdkMWNiMmY4OGViMDllN2RkNmQwYzYzNDM2ZCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiN2ViNzAyNTc1OTNkYTA2ZjY4MmEzZGRkYTU0YTlkMjYwZDRmYzUxNGY2NDUyMzdmNWNhNzRiMDhmOGRhNjFhNiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMjhiMDljNWI1NTY2YzdjZGY5OTFiZDE4OTc5YmQwNjI1YmNmMmU2NmYxZTNmZjFhNGEwNTYwOTBkNTA0ZDI1NCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZjAwNmQ3YmZiZTIzZTExODIzMTA4MDJlYWU4Y2FhYjEzMDdlOGI5ZjAyY2JlOGY0YjQ5ZGU4ZDBjMWY2Mzg1YyJ9"
+        },
+        {
+          "resource": "repo://AintListening/src/main/java/de/switchconsulting/aintlistening/data/TranscriptionLocalDataSource.java#L60-L62",
+          "version": "repo-lines-v1:sha256:f26969c8b5b2066b4452b8599b38c2a4a3eaea1d5d34d0aa69c8cc825612f4b1:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiOWJiMTExYzBjYzQyMzUyODRkMDg5YzJjOGI5ODIyYWYxZjNkMzVmYWY0Njc0Njc4OWZhZjI0NDdkZjg0NzNlNyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNmQ5ZjUyYmVlN2FlZWI3MDYzNjk3M2M4NGI4NmFjNjFkOWFkMDlmNGU3YjZhNWNjZjYzMGRjMDRlNjk3MGQ0OSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTJjY2NlYzZmNTgyZDIzYzQ4YzZiMTIzMGVkOGNkMzM4MmUwMjQzNDEzZDRjNTkwMzgyNzE4YWZjYjM4MGYzYyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMzI0YzAzOTgwMzRkMTY0MWRmYzNhOWI1ZDYyZTNiMDdlNGNmOTMyNjc3ZjBkZTc0YTJiOWQyNTE0N2Y2ZDFkMCJ9"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.7.0",
+    "at": "2026-10-05T15:42:00.143Z"
+  }
+}
