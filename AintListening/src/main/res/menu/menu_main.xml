@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <!--
   Copyright 2026 Switch Consulting (https://switch-consulting.de/)
 
@@ -13,14 +14,22 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 -->
-<resources>
-    <style name="Theme.AintListening" parent="Theme.Material3.DayNight.NoActionBar">
-        <item name="android:statusBarColor">@android:color/transparent</item>
-        <item name="android:windowLightStatusBar">false</item>
-    </style>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <style name="ToolbarSubtitleAppearance" parent="TextAppearance.Material3.BodySmall">
-        <item name="android:textSize">12sp</item>
-        <item name="android:textColor">?attr/colorOnPrimary</item>
-    </style>
-</resources>
+    <item
+        android:id="@+id/action_configure"
+        android:title="@string/button_configure"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_about"
+        android:title="@string/menu_about"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_exit"
+        android:title="@string/button_done"
+        app:showAsAction="never" />
+
+</menu>

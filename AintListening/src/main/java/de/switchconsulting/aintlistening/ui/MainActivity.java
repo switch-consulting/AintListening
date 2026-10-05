@@ -19,6 +19,8 @@ package de.switchconsulting.aintlistening.ui;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -32,7 +34,7 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.material.button.MaterialButton;
+import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.progressindicator.LinearProgressIndicator;
 
@@ -93,21 +95,48 @@ public class MainActivity extends AppCompatActivity {
         transcriptionAdapter = new TranscriptionAdapter(getUiDisplaySettings());
         transcriptRecyclerView.setAdapter(transcriptionAdapter);
 
-        MaterialButton configureButton = findViewById(R.id.configureButton);
-        MaterialButton closeButton = findViewById(R.id.closeButton);
-        MaterialButton aboutButton = findViewById(R.id.aboutButton);
-
-        closeButton.setOnClickListener(v -> finish());
-        configureButton.setOnClickListener(v -> {
-            Intent intent = new Intent(MainActivity.this, ModelManagementActivity.class);
-            startActivity(intent);
-        });
-        aboutButton.setOnClickListener(v -> showAboutDialog());
+        MaterialToolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
 
         viewModel.uiState.observe(this, this::handleUiState);
 
         updateAvailableLanguagesUI();
         handleIncomingIntent(getIntent());
+    }
+
+    /**
+     * Inflates the options menu in the action bar.
+     *
+     * @param menu The options menu in which you place your items.
+     * @return True for the menu to be displayed.
+     */
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
+    }
+
+    /**
+     * Handles action bar menu item selections.
+     *
+     * @param item The menu item that was selected.
+     * @return True if the item selection was handled.
+     */
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        if (id == R.id.action_configure) {
+            Intent intent = new Intent(MainActivity.this, ModelManagementActivity.class);
+            startActivity(intent);
+            return true;
+        } else if (id == R.id.action_about) {
+            showAboutDialog();
+            return true;
+        } else if (id == R.id.action_exit) {
+            finish();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     /**
@@ -179,14 +208,14 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * Updates the text view displaying the currently installed language models.
+     * Updates the subtitle of the toolbar displaying the currently installed language models.
      */
     private void updateAvailableLanguagesUI() {
-        TextView supportedLanguagesText = findViewById(R.id.supportedLanguagesText);
+        MaterialToolbar toolbar = findViewById(R.id.toolbar);
         List<String> available = modelRepository.getAvailableLanguageNames();
 
         if (available.isEmpty()) {
-            supportedLanguagesText.setText(R.string.status_no_models_installed);
+            toolbar.setSubtitle(R.string.status_no_models_installed);
         } else {
             StringBuilder sb = new StringBuilder();
             boolean first = true;
@@ -195,7 +224,7 @@ public class MainActivity extends AppCompatActivity {
                 sb.append(lang);
                 first = false;
             }
-            supportedLanguagesText.setText(sb.toString());
+            toolbar.setSubtitle(sb.toString());
         }
     }
 
