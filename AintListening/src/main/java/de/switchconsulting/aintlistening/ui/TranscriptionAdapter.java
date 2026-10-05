@@ -24,12 +24,11 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.DiffUtil;
-import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.ListAdapter;
 
 import com.google.android.material.button.MaterialButton;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -37,13 +36,26 @@ import de.switchconsulting.aintlistening.R;
 import de.switchconsulting.aintlistening.transcription.TranscriptionParagraph;
 
 /**
- * Adapter for displaying transcription paragraphs in a RecyclerView.
- * Allows toggling each paragraph between raw and smart formatted text.
+ * Adapter for displaying transcription paragraphs in a RecyclerView using ListAdapter with DiffUtil.
  */
-public class TranscriptionAdapter extends RecyclerView.Adapter<TranscriptionViewHolder> {
+public class TranscriptionAdapter extends ListAdapter<TranscriptionParagraph, TranscriptionViewHolder> {
 
-    /** The list of transcription paragraphs handled by this adapter. */
-    final List<TranscriptionParagraph> paragraphs = new ArrayList<>();
+    private static final DiffUtil.ItemCallback<TranscriptionParagraph> DIFF_CALLBACK =
+            new DiffUtil.ItemCallback<>() {
+                @Override
+                public boolean areItemsTheSame(@NonNull TranscriptionParagraph oldItem, @NonNull TranscriptionParagraph newItem) {
+                    return Objects.equals(oldItem.getRawText(), newItem.getRawText());
+                }
+
+                @Override
+                public boolean areContentsTheSame(@NonNull TranscriptionParagraph oldItem, @NonNull TranscriptionParagraph newItem) {
+                    return Objects.equals(oldItem.getRawText(), newItem.getRawText()) &&
+                            Objects.equals(oldItem.getFormattedText(), newItem.getFormattedText()) &&
+                            Objects.equals(oldItem.getAudioFilePath(), newItem.getAudioFilePath()) &&
+                            oldItem.isShowFormatted() == newItem.isShowFormatted();
+                }
+            };
+
     /** The MediaPlayer instance used for paragraph audio playback. */
     MediaPlayer mediaPlayer;
     /** The list position of the paragraph currently playing audio, or -1 if none. */
@@ -57,7 +69,8 @@ public class TranscriptionAdapter extends RecyclerView.Adapter<TranscriptionView
      * @param displaySettings The display settings.
      */
     public TranscriptionAdapter(UiDisplaySettings displaySettings) {
-        this.displaySettings = displaySettings;
+        super(DIFF_CALLBACK);
+        this.displaySettings = displaySettings != null ? displaySettings : UiDisplaySettings.defaultSettings();
     }
 
     /**
@@ -71,42 +84,12 @@ public class TranscriptionAdapter extends RecyclerView.Adapter<TranscriptionView
     }
 
     /**
-     * Updates the list of paragraphs displayed by the adapter using DiffUtil for efficient updates.
+     * Updates the list of paragraphs displayed by the adapter.
      *
      * @param newParagraphs The new list of transcription paragraphs.
      */
     public void setParagraphs(List<TranscriptionParagraph> newParagraphs) {
-        DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(new DiffUtil.Callback() {
-            @Override
-            public int getOldListSize() {
-                return paragraphs.size();
-            }
-
-            @Override
-            public int getNewListSize() {
-                return newParagraphs.size();
-            }
-
-            @Override
-            public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
-                return Objects.equals(paragraphs.get(oldItemPosition).getRawText(),
-                        newParagraphs.get(newItemPosition).getRawText());
-            }
-
-            @Override
-            public boolean areContentsTheSame(int oldItemPosition, int newItemPosition) {
-                TranscriptionParagraph oldItem = paragraphs.get(oldItemPosition);
-                TranscriptionParagraph newItem = newParagraphs.get(newItemPosition);
-                return Objects.equals(oldItem.getRawText(), newItem.getRawText()) &&
-                        Objects.equals(oldItem.getFormattedText(), newItem.getFormattedText()) &&
-                        Objects.equals(oldItem.getAudioFilePath(), newItem.getAudioFilePath()) &&
-                        oldItem.isShowFormatted() == newItem.isShowFormatted();
-            }
-        });
-
-        paragraphs.clear();
-        paragraphs.addAll(newParagraphs);
-        diffResult.dispatchUpdatesTo(this);
+        submitList(newParagraphs);
     }
 
     /**
@@ -129,13 +112,8 @@ public class TranscriptionAdapter extends RecyclerView.Adapter<TranscriptionView
 
     @Override
     public void onBindViewHolder(@NonNull TranscriptionViewHolder holder, int position) {
-        TranscriptionParagraph paragraph = paragraphs.get(position);
+        TranscriptionParagraph paragraph = getItem(position);
         holder.bind(paragraph, position);
-    }
-
-    @Override
-    public int getItemCount() {
-        return paragraphs.size();
     }
 
     /**
@@ -167,7 +145,7 @@ public class TranscriptionAdapter extends RecyclerView.Adapter<TranscriptionView
     void startPlayback(int position, MaterialButton playButton) {
         stopPlayback();
 
-        TranscriptionParagraph paragraph = paragraphs.get(position);
+        TranscriptionParagraph paragraph = getItem(position);
         if (paragraph.getAudioFilePath() == null) return;
 
         try {
