@@ -29,9 +29,9 @@ import java.util.List;
 public interface TranscriptionDao {
 
     /**
-     * @return The most recent transcription session entity, or null if none exist.
+     * @return The most recent transcription session entity that contains paragraphs, or null if none exist.
      */
-    @Query("SELECT * FROM transcriptions ORDER BY timestamp DESC LIMIT 1")
+    @Query("SELECT * FROM transcriptions WHERE id IN (SELECT DISTINCT transcriptionId FROM paragraphs) ORDER BY timestamp DESC, id DESC LIMIT 1")
     TranscriptionEntity getLatestTranscriptionSession();
 
     /**

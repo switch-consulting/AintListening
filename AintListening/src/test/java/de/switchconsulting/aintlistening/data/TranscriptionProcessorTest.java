@@ -28,8 +28,10 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import de.switchconsulting.aintlistening.formatting.SmartFormatterFactory;
 import de.switchconsulting.aintlistening.transcription.TranscriberRegistry;
@@ -97,6 +99,25 @@ public class TranscriptionProcessorTest {
         proc.loadLastMessage();
 
         Mockito.verify(repository).loadLastMessage();
+    }
+
+    @Test
+    public void testLoadLastMessageAsyncDelegatesToRepository() throws Exception {
+        TranscriptionRepository repository = mock(TranscriptionRepository.class);
+        ModelCatalogRepository modelRepository = mock(ModelCatalogRepository.class);
+        TranscriberRegistry registry = mock(TranscriberRegistry.class);
+        SmartFormatterFactory formatterFactory = mock(SmartFormatterFactory.class);
+        Context context = mock(Context.class);
+
+        ExecutorService backgroundExecutor = Executors.newSingleThreadExecutor();
+        TranscriptionProcessor proc = new TranscriptionProcessor(context, repository, modelRepository, registry, formatterFactory, backgroundExecutor, Runnable::run);
+
+        CountDownLatch latch = new CountDownLatch(1);
+        proc.loadLastMessage(res -> latch.countDown());
+
+        assertTrue(latch.await(2, TimeUnit.SECONDS));
+        Mockito.verify(repository).loadLastMessage();
+        backgroundExecutor.shutdown();
     }
 
     @Test

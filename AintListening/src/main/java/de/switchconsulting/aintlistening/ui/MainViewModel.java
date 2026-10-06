@@ -51,7 +51,7 @@ public class MainViewModel extends ViewModel {
     @Inject
     public MainViewModel(TranscriptionProcessor processor) {
         this.processor = processor;
-        uiStateMutable.setValue(MainUiState.idle(processor.loadLastMessage()));
+        loadLastMessage();
     }
 
     /**
@@ -94,10 +94,10 @@ public class MainViewModel extends ViewModel {
     }
 
     /**
-     * Loads the last transcription result and updates the UI state.
+     * Loads the last transcription result asynchronously and updates the UI state.
      */
     public void loadLastMessage() {
-        uiStateMutable.setValue(MainUiState.idle(processor.loadLastMessage()));
+        processor.loadLastMessage(paragraphs -> uiStateMutable.setValue(MainUiState.idle(paragraphs)));
     }
 
     /**

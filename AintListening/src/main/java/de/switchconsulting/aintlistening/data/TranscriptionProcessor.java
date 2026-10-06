@@ -28,6 +28,7 @@ import java.util.Objects;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
+import java.util.function.Consumer;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -331,12 +332,26 @@ public class TranscriptionProcessor {
     }
 
     /**
-     * Loads the last transcription result from the repository.
+     * Loads the last transcription result from the repository synchronously.
      *
      * @return The last list of transcription paragraphs.
      */
     public List<TranscriptionParagraph> loadLastMessage() {
         return repository.loadLastMessage();
+    }
+
+    /**
+     * Asynchronously loads the last transcription result from the repository and delivers it to the callback on the main thread.
+     *
+     * @param callback The callback receiving the loaded transcription paragraphs.
+     */
+    public void loadLastMessage(Consumer<List<TranscriptionParagraph>> callback) {
+        backgroundExecutor.submit(() -> {
+            List<TranscriptionParagraph> paragraphs = loadLastMessage();
+            if (callback != null) {
+                mainExecutor.execute(() -> callback.accept(paragraphs));
+            }
+        });
     }
 
     /**

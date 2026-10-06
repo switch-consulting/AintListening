@@ -23,7 +23,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 import android.net.Uri;
 
@@ -36,6 +35,7 @@ import org.junit.Test;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import java.util.function.Consumer;
 
 import de.switchconsulting.aintlistening.data.TranscriptionCallback;
 import de.switchconsulting.aintlistening.data.TranscriptionProcessor;
@@ -56,7 +56,13 @@ public class MainViewModelTest {
     public void setUp() {
         processor = mock(TranscriptionProcessor.class);
         List<TranscriptionParagraph> paragraphs = Collections.singletonList(new TranscriptionParagraph("raw", "formatted"));
-        when(processor.loadLastMessage()).thenReturn(paragraphs);
+        doAnswer(invocation -> {
+            Consumer<List<TranscriptionParagraph>> callback = invocation.getArgument(0);
+            if (callback != null) {
+                callback.accept(paragraphs);
+            }
+            return null;
+        }).when(processor).loadLastMessage(any());
 
         viewModel = new MainViewModel(processor);
     }
@@ -72,7 +78,13 @@ public class MainViewModelTest {
     @Test
     public void testLoadLastMessageUpdatesUiState() {
         List<TranscriptionParagraph> newParagraphs = Collections.singletonList(new TranscriptionParagraph("new raw", "new formatted"));
-        when(processor.loadLastMessage()).thenReturn(newParagraphs);
+        doAnswer(invocation -> {
+            Consumer<List<TranscriptionParagraph>> callback = invocation.getArgument(0);
+            if (callback != null) {
+                callback.accept(newParagraphs);
+            }
+            return null;
+        }).when(processor).loadLastMessage(any());
 
         viewModel.loadLastMessage();
 

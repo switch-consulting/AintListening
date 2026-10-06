@@ -28,6 +28,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.button.MaterialButtonToggleGroup;
 
+import java.io.File;
+
 import de.switchconsulting.aintlistening.R;
 import de.switchconsulting.aintlistening.transcription.TranscriptionParagraph;
 
@@ -76,7 +78,9 @@ public class TranscriptionViewHolder extends RecyclerView.ViewHolder {
         // Play button handling
         btnPlay.setVisibility(showPlayback ? View.VISIBLE : View.GONE);
         if (showPlayback) {
-            if (paragraph.getAudioFilePath() == null) {
+            String audioPath = paragraph.getAudioFilePath();
+            boolean hasAudio = audioPath != null && new File(audioPath).exists();
+            if (!hasAudio) {
                 btnPlay.setEnabled(false);
                 btnPlay.setIconResource(R.drawable.ic_play_arrow);
                 btnPlay.setAlpha(0.38f); // Standard disabled alpha

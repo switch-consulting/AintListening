@@ -59,6 +59,9 @@ public class TranscriptionLocalDataSource {
      */
     public void saveLastMessage(List<TranscriptionParagraph> paragraphs, Locale locale) {
         synchronized (dbLock) {
+            if (paragraphs == null || paragraphs.isEmpty()) {
+                return;
+            }
             try {
                 // Clear previous sessions or keep history; keeping history is supported by Room,
                 // but for matching "last message" behavior, we insert a new session record.
@@ -69,19 +72,17 @@ public class TranscriptionLocalDataSource {
                         )
                 );
 
-                if (paragraphs != null && !paragraphs.isEmpty()) {
-                    List<ParagraphEntity> paragraphEntities = new ArrayList<>();
-                    for (TranscriptionParagraph p : paragraphs) {
-                        paragraphEntities.add(new ParagraphEntity(
-                                sessionId,
-                                p.getRawText(),
-                                p.getFormattedText(),
-                                p.isShowFormatted(),
-                                p.getAudioFilePath()
-                        ));
-                    }
-                    transcriptionDao.insertParagraphs(paragraphEntities);
+                List<ParagraphEntity> paragraphEntities = new ArrayList<>();
+                for (TranscriptionParagraph p : paragraphs) {
+                    paragraphEntities.add(new ParagraphEntity(
+                            sessionId,
+                            p.getRawText(),
+                            p.getFormattedText(),
+                            p.isShowFormatted(),
+                            p.getAudioFilePath()
+                    ));
                 }
+                transcriptionDao.insertParagraphs(paragraphEntities);
             } catch (Exception e) {
                 Log.e(TAG, "Failed to save last message to Room database", e);
             }
