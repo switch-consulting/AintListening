@@ -50,7 +50,7 @@ abstract class ElfPatcherTask extends DefaultTask {
     abstract SetProperty<String> getLibraryIncludes()
 
     @Input
-    abstract Property<String> getAbiFilter()
+    abstract SetProperty<String> getAbiFilters()
 
     @TaskAction
     void patch() {
@@ -61,7 +61,7 @@ abstract class ElfPatcherTask extends DefaultTask {
 
         Configuration classpath = runtimeConfiguration.get()
         Set<String> includes = libraryIncludes.get()
-        String abi = abiFilter.get()
+        Set<String> abis = abiFilters.get()
 
         for (def artifact : classpath.incoming.artifacts.artifacts) {
             def id = artifact.id.componentIdentifier
@@ -77,13 +77,30 @@ abstract class ElfPatcherTask extends DefaultTask {
 
             if (matches) {
                 def jarFile = artifact.file
-                println "Patching native libs in ${id}: ${jarFile.name}"
                 if (jarFile.exists()) {
                     for (File file : project.zipTree(jarFile)) {
-                        if (file.name.endsWith('.so') && file.path.contains(abi)) {
-                            def destFile = new File(output, file.name)
-                            Files.copy(file.toPath(), destFile.toPath(), StandardCopyOption.REPLACE_EXISTING)
-                            patchElf64File(destFile)
+                        if (file.name.endsWith('.so')) {
+                            String matchedAbi = null
+                            for (String abi : abis) {
+                                if (file.parentFile?.name == abi ||
+                                    file.path.contains("/" + abi + "/") ||
+                                    file.path.contains("\\" + abi + "\\") ||
+                                    file.path.contains(File.separator + abi + File.separator)) {
+                                    matchedAbi = abi
+                                    break
+                                }
+                            }
+
+                            if (matchedAbi != null) {
+                                def abiDir = new File(output, matchedAbi)
+                                if (!abiDir.exists()) {
+                                    abiDir.mkdirs()
+                                }
+                                def destFile = new File(abiDir, file.name)
+                                println "Patching native lib ${file.name} for ${matchedAbi} in ${id}"
+                                Files.copy(file.toPath(), destFile.toPath(), StandardCopyOption.REPLACE_EXISTING)
+                                patchElf64File(destFile)
+                            }
                         }
                     }
                 }

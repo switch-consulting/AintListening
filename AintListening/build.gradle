@@ -140,7 +140,7 @@ dependencies {
 import de.switchconsulting.elfpatcher.ElfPatcherTask
 
 tasks.register('patchDjlNativeLibs', ElfPatcherTask) {
-    outputDir.set(layout.buildDirectory.dir("generated/patchedJniLibs/arm64-v8a"))
+    outputDir.set(layout.buildDirectory.dir("generated/patchedJniLibs"))
     
     def runtimeConfig = project.configurations.named("debugRuntimeClasspath")
 
@@ -153,7 +153,7 @@ tasks.register('patchDjlNativeLibs', ElfPatcherTask) {
     libraryIncludes.add('EberronBruce')
     libraryIncludes.add('vosk-android')
     
-    abiFilter.set('arm64-v8a')
+    abiFilters.addAll(['arm64-v8a', 'x86_64'])
 }
 
 tasks.configureEach { task ->
