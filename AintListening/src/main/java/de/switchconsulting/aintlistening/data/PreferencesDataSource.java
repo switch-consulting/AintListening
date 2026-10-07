@@ -68,6 +68,13 @@ public class PreferencesDataSource {
         this.dataStore = dataStore;
     }
 
+    /**
+     * Retrieves a boolean preference value synchronously.
+     *
+     * @param key          The preference key.
+     * @param defaultValue The default value if not set or on error.
+     * @return The boolean value.
+     */
     private boolean getBoolean(String key, boolean defaultValue) {
         try {
             Preferences.Key<Boolean> prefKey = PreferencesKeys.booleanKey(key);
@@ -79,6 +86,12 @@ public class PreferencesDataSource {
         }
     }
 
+    /**
+     * Sets a boolean preference value asynchronously.
+     *
+     * @param key   The preference key.
+     * @param value The boolean value to set.
+     */
     private void setBoolean(String key, boolean value) {
         Preferences.Key<Boolean> prefKey = PreferencesKeys.booleanKey(key);
         dataStore.updateDataAsync(prefs -> {
@@ -88,6 +101,12 @@ public class PreferencesDataSource {
         }).ignoreElement().blockingAwait();
     }
 
+    /**
+     * Retrieves a string preference value synchronously.
+     *
+     * @param key The preference key.
+     * @return The string value, or null if not found or on error.
+     */
     private String getString(String key) {
         try {
             Preferences.Key<String> prefKey = PreferencesKeys.stringKey(key);
@@ -98,6 +117,12 @@ public class PreferencesDataSource {
         }
     }
 
+    /**
+     * Sets a string preference value asynchronously.
+     *
+     * @param key   The preference key.
+     * @param value The string value to set.
+     */
     private void setString(String key, String value) {
         Preferences.Key<String> prefKey = PreferencesKeys.stringKey(key);
         dataStore.updateDataAsync(prefs -> {
@@ -108,6 +133,8 @@ public class PreferencesDataSource {
     }
 
     /**
+     * Returns whether the audio playback button should be shown.
+     *
      * @return True if the playback button should be shown.
      */
     public boolean isShowPlaybackButton() {
@@ -115,6 +142,8 @@ public class PreferencesDataSource {
     }
 
     /**
+     * Sets whether the audio playback button should be shown.
+     *
      * @param show True to show the playback button.
      */
     public void setShowPlaybackButton(boolean show) {
@@ -122,6 +151,8 @@ public class PreferencesDataSource {
     }
 
     /**
+     * Returns whether the copy text button should be shown.
+     *
      * @return True if the copy button should be shown.
      */
     public boolean isShowCopyButton() {
@@ -129,6 +160,8 @@ public class PreferencesDataSource {
     }
 
     /**
+     * Sets whether the copy text button should be shown.
+     *
      * @param show True to show the copy button.
      */
     public void setShowCopyButton(boolean show) {
@@ -136,6 +169,8 @@ public class PreferencesDataSource {
     }
 
     /**
+     * Returns whether raw text should be shown by default.
+     *
      * @return True if raw text should be shown by default.
      */
     public boolean isShowRawText() {
@@ -143,6 +178,8 @@ public class PreferencesDataSource {
     }
 
     /**
+     * Sets whether raw text should be shown by default.
+     *
      * @param show True to show raw text by default.
      */
     public void setShowRawText(boolean show) {
@@ -150,6 +187,8 @@ public class PreferencesDataSource {
     }
 
     /**
+     * Returns whether smart formatted text should be shown by default.
+     *
      * @return True if smart formatted text should be shown by default.
      */
     public boolean isShowSmartText() {
@@ -157,6 +196,8 @@ public class PreferencesDataSource {
     }
 
     /**
+     * Sets whether smart formatted text should be shown by default.
+     *
      * @param show True to show smart formatted text by default.
      */
     public void setShowSmartText(boolean show) {
@@ -164,6 +205,8 @@ public class PreferencesDataSource {
     }
 
     /**
+     * Returns whether smart formatting is enabled for the specified locale.
+     *
      * @param locale The locale to check smart formatting for.
      * @return True if smart formatting is enabled for this locale, or global default.
      */
@@ -173,6 +216,8 @@ public class PreferencesDataSource {
     }
 
     /**
+     * Sets whether smart formatting is enabled for the specified locale.
+     *
      * @param locale  The locale to set smart formatting for.
      * @param enabled True to enable, false to disable.
      */
@@ -182,6 +227,8 @@ public class PreferencesDataSource {
     }
 
     /**
+     * Returns the default transcription engine type.
+     *
      * @return The default transcription engine type.
      */
     public TranscriberType getDefaultTranscriberType() {
@@ -189,6 +236,8 @@ public class PreferencesDataSource {
     }
 
     /**
+     * Returns the transcription engine type selected for the specified locale.
+     *
      * @param locale The locale to get the transcriber for.
      * @return The selected transcription engine type for the locale, or the default.
      */
@@ -206,6 +255,8 @@ public class PreferencesDataSource {
     }
 
     /**
+     * Sets the transcription engine type to use for the specified locale.
+     *
      * @param locale The locale to set the transcriber for.
      * @param type   The transcription engine type to use.
      */

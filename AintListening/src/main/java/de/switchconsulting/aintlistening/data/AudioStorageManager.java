@@ -49,6 +49,8 @@ public class AudioStorageManager {
     }
 
     /**
+     * Returns the file object for the main temporary incoming audio WAV file.
+     *
      * @return The file object for the main temporary incoming audio WAV file.
      */
     public File getIncomingWavFile() {
@@ -56,6 +58,8 @@ public class AudioStorageManager {
     }
 
     /**
+     * Returns the directory for storing audio chunks.
+     *
      * @return The directory for storing audio chunks.
      */
     public File getAudioChunksDir() {

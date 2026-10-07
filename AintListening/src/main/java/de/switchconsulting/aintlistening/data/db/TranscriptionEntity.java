@@ -25,11 +25,14 @@ import androidx.room.PrimaryKey;
 @Entity(tableName = "transcriptions")
 public class TranscriptionEntity {
 
+    /** Primary key for the transcription session entity. */
     @PrimaryKey(autoGenerate = true)
     public long id;
 
+    /** The creation timestamp in milliseconds. */
     public long timestamp;
 
+    /** The BCP 47 language tag for the locale used in this session. */
     public String localeTag;
 
     /**

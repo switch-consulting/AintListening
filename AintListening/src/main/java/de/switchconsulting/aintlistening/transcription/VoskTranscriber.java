@@ -220,11 +220,21 @@ public class VoskTranscriber implements Transcriber {
         }
     }
 
+    /**
+     * Returns the transcriber engine type for Vosk.
+     *
+     * @return TranscriberType.VOSK.
+     */
     @Override
     public TranscriberType getType() {
         return TranscriberType.VOSK;
     }
 
+    /**
+     * Returns whether Vosk provides punctuation in its output.
+     *
+     * @return False because Vosk does not provide punctuation.
+     */
     @Override
     public boolean providesPunctuation() {
         return false;

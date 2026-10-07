@@ -26,6 +26,8 @@ import androidx.room.RoomDatabase;
 public abstract class AppDatabase extends RoomDatabase {
 
     /**
+     * Returns the transcription Data Access Object.
+     *
      * @return The transcription Data Access Object.
      */
     public abstract TranscriptionDao transcriptionDao();

@@ -51,6 +51,8 @@ public class TranscriptionParagraph {
     }
 
     /**
+     * Returns the raw transcription text.
+     *
      * @return The raw transcription text.
      */
     public String getRawText() {
@@ -58,6 +60,8 @@ public class TranscriptionParagraph {
     }
 
     /**
+     * Returns the smart-formatted text, or null if not available.
+     *
      * @return The smart-formatted text, or null if not available.
      */
     public String getFormattedText() {
@@ -65,6 +69,8 @@ public class TranscriptionParagraph {
     }
 
     /**
+     * Returns the absolute path to the audio file chunk.
+     *
      * @return The absolute path to the audio file chunk.
      */
     public String getAudioFilePath() {
@@ -72,6 +78,8 @@ public class TranscriptionParagraph {
     }
 
     /**
+     * Returns whether the formatted text should be displayed.
+     *
      * @return True if the formatted text should be displayed, false for raw text.
      */
     public boolean isShowFormatted() {

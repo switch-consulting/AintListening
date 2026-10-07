@@ -47,6 +47,8 @@ public class ModelCatalogRepository {
     }
 
     /**
+     * Returns the list of supported languages.
+     *
      * @return The list of supported languages.
      */
     public List<LanguageSupport> getSupportedLanguages() {
@@ -173,6 +175,12 @@ public class ModelCatalogRepository {
         return deleteRecursive(modelDir);
     }
 
+    /**
+     * Recursively deletes a file or directory and all its contents.
+     *
+     * @param fileOrDirectory The file or directory to delete.
+     * @return True if deletion was successful, false otherwise.
+     */
     private boolean deleteRecursive(File fileOrDirectory) {
         if (fileOrDirectory.isDirectory()) {
             File[] children = fileOrDirectory.listFiles();
@@ -186,10 +194,10 @@ public class ModelCatalogRepository {
     }
 
     /**
-     * Returns resource ID for human-readable engine name.
+     * Returns the string resource ID for the human-readable engine name of the specified transcriber type.
      *
      * @param type The transcriber type.
-     * @return String resource ID.
+     * @return The string resource ID.
      */
     public int getEngineNameResId(TranscriberType type) {
         return ModelCatalog.getEngineNameResId(type);

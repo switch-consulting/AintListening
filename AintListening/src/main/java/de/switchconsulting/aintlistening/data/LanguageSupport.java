@@ -55,6 +55,8 @@ public class LanguageSupport {
     }
 
     /**
+     * Returns the locale of the language.
+     *
      * @return The locale of the language.
      */
     @NonNull
@@ -74,6 +76,8 @@ public class LanguageSupport {
     }
 
     /**
+     * Returns all available transcription models for this language.
+     *
      * @return All available transcription models for this language.
      */
     public Collection<ModelInfo> getTranscriptionModels() {
@@ -81,6 +85,8 @@ public class LanguageSupport {
     }
 
     /**
+     * Returns the formatting model information for this language.
+     *
      * @return The formatting model information, or null if not supported for this language.
      */
     @Nullable

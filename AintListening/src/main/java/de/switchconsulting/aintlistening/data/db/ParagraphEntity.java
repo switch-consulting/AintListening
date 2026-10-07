@@ -36,17 +36,23 @@ import androidx.room.PrimaryKey;
 )
 public class ParagraphEntity {
 
+    /** Primary key for the paragraph entity. */
     @PrimaryKey(autoGenerate = true)
     public long id;
 
+    /** Foreign key referencing the parent transcription session ID. */
     public long transcriptionId;
 
+    /** The raw transcribed text. */
     public String rawText;
 
+    /** The smart-formatted text, or null if not formatted. */
     public String formattedText;
 
+    /** Whether the formatted text should be displayed by default. */
     public boolean showFormatted;
 
+    /** The absolute path to the audio file chunk for this paragraph. */
     public String audioFilePath;
 
     /**

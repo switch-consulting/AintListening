@@ -68,6 +68,14 @@ public class ModelCatalog {
         };
     }
 
+    /**
+     * Helper method to construct a {@link LanguageSupport} instance with the given locale, formatting model, and transcription models.
+     *
+     * @param locale              The target locale.
+     * @param formatting          The formatting model info.
+     * @param transcriptionModels Array of transcription model info.
+     * @return The created LanguageSupport instance.
+     */
     private static LanguageSupport createLanguageSupport(Locale locale, ModelInfo formatting, ModelInfo... transcriptionModels) {
         Map<TranscriberType, ModelInfo> map = new EnumMap<>(TranscriberType.class);
         for (ModelInfo model : transcriptionModels) {

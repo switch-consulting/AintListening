@@ -53,7 +53,9 @@ import kotlin.Unit;
 @Singleton
 public class WhisperTranscriber implements Transcriber {
     private static final String TAG = "WhisperTranscriber";
+    /** Polling interval in milliseconds for incremental transcription updates. */
     public static final int INCREMENTAL_UPDATE_POLLING_INTERVALL_MS = 100;
+    /** Silence gap threshold in milliseconds used to split paragraphs. */
     public static final int SILENCE_GAP_MS = 100;
 
     private final ModelCatalogRepository modelRepository;
@@ -61,6 +63,7 @@ public class WhisperTranscriber implements Transcriber {
     private Locale loadedLocale;
     private boolean enableIncrementalUpdates = true;
 
+    /** Pattern for parsing timestamped whisper logs (e.g., [00:00:00.000 --> 00:00:05.000] text). */
     private static final Pattern TIMESTAMP_PATTERN = Pattern.compile("\\[(\\d{2}:\\d{2}:\\d{2}\\.\\d{3})\\s*-->\\s*(\\d{2}:\\d{2}:\\d{2}\\.\\d{3})]\\s*(.*)");
 
     /**
@@ -372,16 +375,29 @@ public class WhisperTranscriber implements Transcriber {
         }
     }
 
+    /**
+     * Returns the transcriber engine type for Whisper.
+     *
+     * @return TranscriberType.WHISPER.
+     */
     @Override
     public TranscriberType getType() {
         return TranscriberType.WHISPER;
     }
 
+    /**
+     * Returns whether Whisper provides punctuation in its output.
+     *
+     * @return True because Whisper provides punctuation and casing natively.
+     */
     @Override
     public boolean providesPunctuation() {
         return true;
     }
 
+    /**
+     * Releases resources held by the Whisper engine.
+     */
     @Override
     public void close() {
         if (whisper != null) {
