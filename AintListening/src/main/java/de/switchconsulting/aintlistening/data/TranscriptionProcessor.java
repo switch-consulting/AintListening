@@ -318,7 +318,7 @@ public class TranscriptionProcessor {
      * @return A list of paragraphs.
      */
     List<TranscriptionParagraph> parseParagraphs(String text, boolean providesPunctuation) {
-        if (text.trim().isEmpty()) return new ArrayList<>();
+        if (text == null || text.trim().isEmpty()) return new ArrayList<>();
         String[] paras = text.split("\n\n");
         List<TranscriptionParagraph> pList = new ArrayList<>();
         for (String p : paras) {
