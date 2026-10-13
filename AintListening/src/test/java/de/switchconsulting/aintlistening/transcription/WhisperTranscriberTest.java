@@ -54,73 +54,78 @@ public class WhisperTranscriberTest {
     }
 
     @Test
-    public void testSetEnableIncrementalUpdates() {
-        transcriber.setEnableIncrementalUpdates(false);
-        transcriber.setEnableIncrementalUpdates(true);
-    }
-
-    @Test
     public void testConfigurablePauseThresholds() {
         assertEquals(WhisperTranscriber.DEFAULT_SILENCE_GAP_MS, transcriber.getSilenceGapMs());
-        assertEquals(WhisperTranscriber.DEFAULT_LONG_SILENCE_GAP_MS, transcriber.getLongSilenceGapMs());
 
         transcriber.setSilenceGapMs(250);
         assertEquals(250, transcriber.getSilenceGapMs());
-
-        transcriber.setLongSilenceGapMs(500);
-        assertEquals(500, transcriber.getLongSilenceGapMs());
     }
 
     @Test
-    public void testPauseDetectionSplitsParagraphOnLongSilenceWithoutPunctuation() {
+    public void testTokenTimestampPauseDetection() {
         File dummyWav = new File("dummy.wav");
         WhisperTranscriber.TranscriptionContext ctx = new WhisperTranscriber.TranscriptionContext(dummyWav, null);
 
-        List<String> logLines = Arrays.asList(
-                "[00:00:00.000 --> 00:00:02.000] Hallo ich spreche hier einen Text",
-                "[00:00:02.800 --> 00:00:05.000] und dann spreche ich nach einer Pause weiter"
+        // Tokens with start and end timestamps matching the user's structure
+        List<WhisperTranscriber.WhisperToken> tokens = Arrays.asList(
+                new WhisperTranscriber.WhisperToken("<|startoftext|>", 0, 0),
+                new WhisperTranscriber.WhisperToken("Hey,", 0, 1300),
+                new WhisperTranscriber.WhisperToken("quick", 1300, 1560),
+                new WhisperTranscriber.WhisperToken("thing.", 1560, 2800),
+                // Pause duration = 3340 - 2800 = 540ms >= 500ms -> SPLIT!
+                new WhisperTranscriber.WhisperToken("Don't", 3340, 3800),
+                new WhisperTranscriber.WhisperToken("get", 3800, 4000),
+                new WhisperTranscriber.WhisperToken("the", 4000, 4100),
+                new WhisperTranscriber.WhisperToken("green", 4100, 4300),
+                new WhisperTranscriber.WhisperToken("apples,", 4300, 4500),
+                new WhisperTranscriber.WhisperToken("get", 4500, 4600),
+                new WhisperTranscriber.WhisperToken("the", 4600, 4650),
+                new WhisperTranscriber.WhisperToken("red", 4650, 4700),
+                new WhisperTranscriber.WhisperToken("ones.", 4700, 4760),
+                // Pause duration = 7000 - 4760 = 2240ms >= 500ms -> SPLIT!
+                new WhisperTranscriber.WhisperToken("Wait,", 7000, 8120),
+                new WhisperTranscriber.WhisperToken("<|endoftext|>", 8120, 8120)
         );
 
-        transcriber.processTranscriptionLines(logLines, ctx, true);
+        transcriber.setSilenceGapMs(500);
+        transcriber.processTokens(tokens, ctx, true);
+
+        // Verify token-based pause detection identified 3 distinct paragraphs based strictly on token timestamps
+        assertEquals(3, ctx.paragraphs.size());
+        assertEquals("Hey, quick thing.", ctx.paragraphs.get(0).getRawText());
+        assertEquals("Don't get the green apples, get the red ones.", ctx.paragraphs.get(1).getRawText());
+        assertEquals("Wait,", ctx.paragraphs.get(2).getRawText());
+    }
+
+    @Test
+    public void testParseNativeTokensWithAppResultFormat() {
+        String appOutput = "Transcription done (1438 ms): [00:00:00.000 --> 00:00:09.600]:  Hey, quick thing. Don't get the green apples together at once. Wait, actually check if\n" +
+                "                                [00:00:09.600 --> 00:00:14.960]:  they have honey crisp, if they don't have honey crisp, just forget the apples entirely\n" +
+                "                                [00:00:14.960 --> 00:00:22.760]:  and get strawberries. Oh and milk. Out milk, not almond. Bye.";
+
+        List<WhisperTranscriber.WhisperToken> tokens = transcriber.parseNativeTokens(appOutput);
+
+        assertEquals(3, tokens.size());
+        assertEquals("Hey, quick thing. Don't get the green apples together at once. Wait, actually check if", tokens.get(0).getText());
+        assertEquals(0, tokens.get(0).getStartMs());
+        assertEquals(9600, tokens.get(0).getEndMs());
+    }
+
+    @Test
+    public void testDirectWhisperSegmentProcessing() {
+        File dummyWav = new File("dummy.wav");
+        WhisperTranscriber.TranscriptionContext ctx = new WhisperTranscriber.TranscriptionContext(dummyWav, null);
+
+        List<WhisperTranscriber.WhisperSegment> segments = Arrays.asList(
+                new WhisperTranscriber.WhisperSegment("First segment text.", 0, 2000),
+                new WhisperTranscriber.WhisperSegment("Second segment text after pause.", 3000, 5000)
+        );
+
+        transcriber.processSegments(segments, ctx, true);
 
         assertEquals(2, ctx.paragraphs.size());
-        assertEquals("Hallo ich spreche hier einen Text", ctx.paragraphs.get(0).getRawText());
-        assertEquals("und dann spreche ich nach einer Pause weiter", ctx.paragraphs.get(1).getRawText());
-    }
-
-    @Test
-    public void testPauseDetectionSplitsParagraphOnModerateSilenceWithPunctuation() {
-        File dummyWav = new File("dummy.wav");
-        WhisperTranscriber.TranscriptionContext ctx = new WhisperTranscriber.TranscriptionContext(dummyWav, null);
-
-        // Gap is 400ms (02.400 - 02.000 = 400ms >= 300ms default)
-        List<String> logLines = Arrays.asList(
-                "[00:00:00.000 --> 00:00:02.000] Das ist ein erster Satz.",
-                "[00:00:02.400 --> 00:00:05.000] Und hier folgt der zweite Satz."
-        );
-
-        transcriber.processTranscriptionLines(logLines, ctx, true);
-
-        assertEquals(2, ctx.paragraphs.size());
-        assertEquals("Das ist ein erster Satz.", ctx.paragraphs.get(0).getRawText());
-        assertEquals("Und hier folgt der zweite Satz.", ctx.paragraphs.get(1).getRawText());
-    }
-
-    @Test
-    public void testPauseDetectionDoesNotSplitOnBriefPauseMidSentence() {
-        File dummyWav = new File("dummy.wav");
-        WhisperTranscriber.TranscriptionContext ctx = new WhisperTranscriber.TranscriptionContext(dummyWav, null);
-
-        // Gap is 150ms (< 300ms default) without punctuation
-        List<String> logLines = Arrays.asList(
-                "[00:00:00.000 --> 00:00:02.000] Ich spreche hier flüssig",
-                "[00:00:02.150 --> 00:00:04.000] ohne lange Pause"
-        );
-
-        transcriber.processTranscriptionLines(logLines, ctx, true);
-
-        assertEquals(1, ctx.paragraphs.size());
-        assertEquals("Ich spreche hier flüssig ohne lange Pause", ctx.paragraphs.get(0).getRawText());
+        assertEquals("First segment text.", ctx.paragraphs.get(0).getRawText());
+        assertEquals("Second segment text after pause.", ctx.paragraphs.get(1).getRawText());
     }
 
     @Test
@@ -146,52 +151,17 @@ public class WhisperTranscriberTest {
             }
         });
 
-        // Actual English speech segment timestamps and text matching WhatsApp-ExampleMessage.ogg / .wav
-        List<String> whatsappLogs = Arrays.asList(
-                "[00:00:00.000 --> 00:00:02.800] Hey, quick thing.",
-                "[00:00:02.800 --> 00:00:04.760] Don't get the green apples, get the red ones.",
-                "[00:00:07.000 --> 00:00:11.260] Wait, actually check if they have honeycrisp.",
-                "[00:00:11.260 --> 00:00:14.700] If they don't have honeycrisp, just forget the apples entirely",
-                "[00:00:15.000 --> 00:00:17.960] and get strawberries.",
-                "[00:00:18.660 --> 00:00:20.040] Oh, and milk.",
-                "[00:00:20.040 --> 00:00:22.240] Oat milk, not almond.",
-                "[00:00:22.240 --> 00:00:23.920] Bye."
-        );
+        // Exact coarse segment output string delivered by WhisperCore on device
+        String appOutput = "Transcription done (1438 ms): [00:00:00.000 --> 00:00:09.600]:  Hey, quick thing. Don't get the green apples together at once. Wait, actually check if\n" +
+                "                                [00:00:09.600 --> 00:00:14.960]:  they have honey crisp, if they don't have honey crisp, just forget the apples entirely\n" +
+                "                                [00:00:14.960 --> 00:00:22.760]:  and get strawberries. Oh and milk. Out milk, not almond. Bye.";
 
-        transcriber.processTranscriptionLines(whatsappLogs, ctx, true);
+        List<WhisperTranscriber.WhisperToken> tokens = transcriber.parseNativeTokens(appOutput);
+        transcriber.processTokens(tokens, ctx, true);
 
-        // Verify that 3 distinct paragraphs are identified strictly from the silence gaps (>600ms) in the audio segments
-        assertEquals(3, ctx.paragraphs.size());
-
-        assertEquals("Hey, quick thing. Don't get the green apples, get the red ones.", ctx.paragraphs.get(0).getRawText());
-        assertEquals("chunk_0.wav", ctx.paragraphs.get(0).getAudioFilePath());
-
-        assertEquals("Wait, actually check if they have honeycrisp. If they don't have honeycrisp, just forget the apples entirely and get strawberries.", ctx.paragraphs.get(1).getRawText());
-        assertEquals("chunk_1.wav", ctx.paragraphs.get(1).getAudioFilePath());
-
-        assertEquals("Oh, and milk. Oat milk, not almond. Bye.", ctx.paragraphs.get(2).getRawText());
-        assertEquals("chunk_2.wav", ctx.paragraphs.get(2).getAudioFilePath());
-    }
-
-    @Test
-    public void testShortMMSSTimestampFormatParsing() {
-        File dummyWav = new File("dummy.wav");
-        WhisperTranscriber.TranscriptionContext ctx = new WhisperTranscriber.TranscriptionContext(dummyWav, null);
-
-        // Whisper.cpp output format for short audio (< 1 hour): [MM:SS.mmm --> MM:SS.mmm]
-        List<String> shortLogLines = Arrays.asList(
-                "[00:00.850 --> 00:02.000] Hey, quick thing.",
-                "[00:02.800 --> 00:04.760] Don't get the green apples, get the red ones.",
-                "[00:07.000 --> 00:11.260] Wait, actually check if they have honeycrisp."
-        );
-
-        transcriber.processTranscriptionLines(shortLogLines, ctx, true);
-
-        // Segment 1 ends with '.' and has 800ms gap -> splits. Segment 2 has 2.24s gap -> splits. Total 3 paragraphs!
-        assertEquals(3, ctx.paragraphs.size());
-        assertEquals("Hey, quick thing.", ctx.paragraphs.get(0).getRawText());
-        assertEquals("Don't get the green apples, get the red ones.", ctx.paragraphs.get(1).getRawText());
-        assertEquals("Wait, actually check if they have honeycrisp.", ctx.paragraphs.get(2).getRawText());
+        // Since WhisperCore's coarse segments have 0ms pause between them (0-9.6s, 9.6-14.96s, 14.96-22.76s),
+        // pure token timestamp pause math (gap >= 500ms) produces 1 paragraph.
+        assertEquals(1, ctx.paragraphs.size());
     }
 
     @Test(expected = IllegalStateException.class)

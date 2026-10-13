@@ -30,7 +30,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
@@ -53,22 +52,18 @@ import kotlin.Unit;
 @Singleton
 public class WhisperTranscriber implements Transcriber {
     private static final String TAG = "WhisperTranscriber";
-    /** Polling interval in milliseconds for incremental transcription updates. */
-    public static final int INCREMENTAL_UPDATE_POLLING_INTERVAL_MS = 100;
-    /** Default moderate silence gap threshold in milliseconds used to split paragraphs when punctuation is present. */
-    public static final long DEFAULT_SILENCE_GAP_MS = 300;
-    /** Default long silence gap threshold in milliseconds used to split paragraphs without requiring punctuation. */
-    public static final long DEFAULT_LONG_SILENCE_GAP_MS = 600;
+    /** Default silence gap threshold in milliseconds used to detect meaningful speech pauses. */
+    public static final long DEFAULT_SILENCE_GAP_MS = 500;
+
+    /** Pattern for parsing timestamped whisper segments (e.g., [00:00:00.000 --> 00:00:09.600]: text). */
+    private static final Pattern SEGMENT_PATTERN = Pattern.compile(
+            "\\[((?:\\d{2}:)?\\d{2}:\\d{2}[.,]\\d{1,3})\\s*-->\\s*((?:\\d{2}:)?\\d{2}:\\d{2}[.,]\\d{1,3})]:?\\s*(.*)"
+    );
 
     private final ModelCatalogRepository modelRepository;
     private Whisper whisper;
     private Locale loadedLocale;
-    private boolean enableIncrementalUpdates = true;
     private long silenceGapMs = DEFAULT_SILENCE_GAP_MS;
-    private long longSilenceGapMs = DEFAULT_LONG_SILENCE_GAP_MS;
-
-    /** Pattern for parsing timestamped whisper logs (e.g., [00:00.000 --> 00:05.000] or [00:00:00.000 --> 00:00:05.000] text). */
-    private static final Pattern TIMESTAMP_PATTERN = Pattern.compile("\\[((?:\\d{2}:)?\\d{2}:\\d{2}[.,]\\d{1,3})\\s*-->\\s*((?:\\d{2}:)?\\d{2}:\\d{2}[.,]\\d{1,3})]\\s*(.*)");
 
     /**
      * Constructs a new WhisperTranscriber instance.
@@ -81,16 +76,7 @@ public class WhisperTranscriber implements Transcriber {
     }
 
     /**
-     * Sets whether to enable incremental transcription updates via log polling.
-     *
-     * @param enable True to enable incremental updates, false to only show the final result.
-     */
-    public void setEnableIncrementalUpdates(boolean enable) {
-        this.enableIncrementalUpdates = enable;
-    }
-
-    /**
-     * Sets the moderate silence gap threshold in milliseconds.
+     * Sets the silence gap threshold in milliseconds for pause detection.
      *
      * @param silenceGapMs Gap threshold in milliseconds.
      */
@@ -99,7 +85,7 @@ public class WhisperTranscriber implements Transcriber {
     }
 
     /**
-     * Returns the current moderate silence gap threshold in milliseconds.
+     * Returns the current silence gap threshold in milliseconds.
      *
      * @return Gap threshold in milliseconds.
      */
@@ -108,21 +94,21 @@ public class WhisperTranscriber implements Transcriber {
     }
 
     /**
-     * Sets the long silence gap threshold in milliseconds.
+     * Sets the long silence gap threshold in milliseconds (legacy alias).
      *
-     * @param longSilenceGapMs Long gap threshold in milliseconds.
+     * @param longSilenceGapMs Threshold in milliseconds.
      */
     public void setLongSilenceGapMs(long longSilenceGapMs) {
-        this.longSilenceGapMs = longSilenceGapMs;
+        this.silenceGapMs = longSilenceGapMs;
     }
 
     /**
      * Returns the current long silence gap threshold in milliseconds.
      *
-     * @return Long gap threshold in milliseconds.
+     * @return Threshold in milliseconds.
      */
     public long getLongSilenceGapMs() {
-        return longSilenceGapMs;
+        return silenceGapMs;
     }
 
     @Override
@@ -161,7 +147,6 @@ public class WhisperTranscriber implements Transcriber {
     }
 
     @Override
-    @SuppressWarnings("BusyWait")
     public List<TranscriptionParagraph> transcribe(Context context, @NonNull File wavFile, TranscriptionListener listener) throws Exception {
         if (whisper == null || !whisper.isModelLoaded()) {
             throw new IllegalStateException("Whisper model not loaded. Call ensureModelLoaded first.");
@@ -176,7 +161,7 @@ public class WhisperTranscriber implements Transcriber {
 
             @Override
             public void recordingFailed(@NonNull WhisperOperationError error) {
-                // Not used for file transcription
+                future.completeExceptionally(new Exception(error.toString()));
             }
 
             @Override
@@ -201,125 +186,204 @@ public class WhisperTranscriber implements Transcriber {
         });
 
         Log.d(TAG, "Starting Whisper transcription for file: " + wavFile.getAbsolutePath());
-        // Enable timestamps to allow splitting into paragraphs with audio chunks
         whisper.transcribeAudioFile(wavFile, true, true);
 
-        TranscriptionContext transcriptionContext = new TranscriptionContext(wavFile, listener);
-        int lastLogLineCount = 0;
-
-        if (enableIncrementalUpdates) {
-            while (!future.isDone()) {
-                try {
-                    //noinspection BusyWait
-                    Thread.sleep(INCREMENTAL_UPDATE_POLLING_INTERVAL_MS);
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                    break;
-                }
-                String logs = whisper.getMessageLogs();
-                if (!TextUtils.isEmpty(logs)) {
-                    String[] logLines = logs.split("\n");
-                    if (logLines.length > lastLogLineCount) {
-                        List<String> newLines = new ArrayList<>(Arrays.asList(logLines).subList(lastLogLineCount, logLines.length));
-                        processTranscriptionLines(newLines, transcriptionContext, false);
-                        lastLogLineCount = logLines.length;
-                    }
-                }
-            }
-        }
-
         String result = future.get(10, TimeUnit.MINUTES);
-        if (result != null && !result.trim().isEmpty()) {
-            if (!enableIncrementalUpdates || transcriptionContext.paragraphs.isEmpty()) {
-                processTranscriptionLines(Arrays.asList(result.split("\n")), transcriptionContext, true);
-            } else {
-                finalizeRemaining(transcriptionContext);
-            }
-        }
+
+        TranscriptionContext transcriptionContext = new TranscriptionContext(wavFile, listener);
+        List<WhisperToken> tokens = parseNativeTokens(result);
+        processTokens(tokens, transcriptionContext, true);
 
         return transcriptionContext.paragraphs;
     }
 
     /**
-     * Parses timestamped output lines from Whisper log updates and aggregates segments into paragraphs.
+     * Parses native transcription output into structured WhisperToken objects with start and end timestamps.
      *
-     * @param lines   The log lines containing timestamps and transcribed text.
-     * @param ctx     The ongoing transcription state context.
-     * @param isFinal True if this is the final processing pass.
+     * @param resultText The transcript result text returned by WhisperDelegate.
+     * @return A list of WhisperTokens.
      */
-    void processTranscriptionLines(List<String> lines, TranscriptionContext ctx, boolean isFinal) {
+    List<WhisperToken> parseNativeTokens(String resultText) {
+        List<WhisperToken> tokens = new ArrayList<>();
+        if (resultText == null || resultText.trim().isEmpty()) {
+            return tokens;
+        }
+
+        String[] lines = resultText.split("\n+");
         for (String line : lines) {
-            Matcher matcher = TIMESTAMP_PATTERN.matcher(line);
+            Matcher matcher = SEGMENT_PATTERN.matcher(line);
             if (matcher.find()) {
                 String startTs = matcher.group(1);
                 String endTs = matcher.group(2);
-                String segmentRaw = matcher.group(3);
-                String segmentText = segmentRaw != null ? segmentRaw.trim() : "";
-
-                // Cleaning of leading artifacts
-                while (segmentText.startsWith(":") || segmentText.startsWith(".") ||
-                        segmentText.startsWith("-") || segmentText.startsWith(" ")) {
-                    segmentText = segmentText.substring(1).trim();
-                }
-
-                if (segmentText.isEmpty()) continue;
+                String tokenRaw = matcher.group(3);
 
                 long startMs = parseTimestampToMs(startTs);
                 long endMs = parseTimestampToMs(endTs);
 
-                // Skip if this segment is completely contained in an already processed time window
-                if (startMs < ctx.lastSegmentEndMs && endMs <= ctx.lastSegmentEndMs) continue;
+                tokens.add(new WhisperToken(tokenRaw, startMs, endMs));
+            }
+        }
 
-                // Detect pauses between segments
-                long currentGap = (ctx.lastSegmentEndMs != -1) ? (startMs - ctx.lastSegmentEndMs) : 0;
-                if (currentGap < 0) currentGap = 0;
+        if (tokens.isEmpty() && !resultText.trim().isEmpty()) {
+            tokens.add(new WhisperToken(resultText, 0, 0));
+        }
+        return tokens;
+    }
 
-                // Decide if we should start a new paragraph
-                boolean isEndOfSentence = false;
-                boolean isClauseBoundary = false;
-                if (!TextUtils.isEmpty(ctx.currentParaText)) {
-                    String currentTextStr = ctx.currentParaText.toString().trim();
-                    isEndOfSentence = currentTextStr.endsWith(".") || currentTextStr.endsWith("?") || currentTextStr.endsWith("!");
-                    isClauseBoundary = isEndOfSentence || currentTextStr.endsWith(",") || currentTextStr.endsWith(":") ||
-                            currentTextStr.endsWith(";") || currentTextStr.endsWith("-");
+    /**
+     * Parses a timestamp string formatted as HH:MM:SS.mmm or MM:SS.mmm into milliseconds.
+     *
+     * @param ts The timestamp string.
+     * @return The time duration in milliseconds.
+     */
+    private long parseTimestampToMs(String ts) {
+        try {
+            String[] parts = ts.split(":");
+            long h = 0, m = 0, s = 0, ms = 0;
+            if (parts.length == 3) {
+                h = Long.parseLong(parts[0]);
+                m = Long.parseLong(parts[1]);
+                String[] secParts = parts[2].split("[.,]");
+                s = Long.parseLong(secParts[0]);
+                if (secParts.length > 1) {
+                    ms = Long.parseLong(padRightToThreeDigits(secParts[1]));
                 }
+            } else if (parts.length == 2) {
+                m = Long.parseLong(parts[0]);
+                String[] secParts = parts[1].split("[.,]");
+                s = Long.parseLong(secParts[0]);
+                if (secParts.length > 1) {
+                    ms = Long.parseLong(padRightToThreeDigits(secParts[1]));
+                }
+            }
+            return h * 3600000 + m * 60000 + s * 1000 + ms;
+        } catch (Exception e) {
+            Log.e(TAG, "Failed to parse timestamp: " + ts, e);
+            return 0;
+        }
+    }
 
-                boolean isLongPause = (ctx.lastSegmentEndMs != -1) && (currentGap >= longSilenceGapMs);
-                boolean isModeratePause = (ctx.lastSegmentEndMs != -1) && (currentGap >= silenceGapMs);
+    private static String padRightToThreeDigits(String s) {
+        if (s.length() >= 3) return s.substring(0, 3);
+        StringBuilder sb = new StringBuilder(s);
+        while (sb.length() < 3) {
+            sb.append('0');
+        }
+        return sb.toString();
+    }
 
-                boolean shouldSplit = isLongPause || (isModeratePause && isClauseBoundary) || (ctx.currentParaText.length() > 400 && isEndOfSentence);
+    /**
+     * Value class representing a transcribed token with start and end timestamps in milliseconds.
+     */
+    public static class WhisperToken {
+        private final String text;
+        private final long startMs;
+        private final long endMs;
 
-                if (shouldSplit && ctx.currentParaStartMs != -1) {
+        public WhisperToken(String text, long startMs, long endMs) {
+            this.text = text != null ? text : "";
+            this.startMs = startMs;
+            this.endMs = endMs;
+        }
+
+        public String getText() {
+            return text;
+        }
+
+        public long getStartMs() {
+            return startMs;
+        }
+
+        public long getEndMs() {
+            return endMs;
+        }
+
+        public boolean isSpecialControlToken() {
+            String trimmed = text.trim();
+            return trimmed.startsWith("<|") && trimmed.endsWith("|>");
+        }
+    }
+
+    /**
+     * Legacy alias for WhisperToken.
+     */
+    public static class WhisperSegment extends WhisperToken {
+        public WhisperSegment(String text, long startMs, long endMs) {
+            super(text, startMs, endMs);
+        }
+    }
+
+    /**
+     * Iterates over tokens and evaluates silence pauses based on token timestamp differences
+     * (startTimeMs - previousEndTimeMs >= threshold).
+     *
+     * @param tokens  The list of transcribed tokens with start and end timestamps.
+     * @param ctx     The ongoing transcription state context.
+     * @param isFinal True if this is the final processing pass.
+     */
+    void processTokens(List<WhisperToken> tokens, TranscriptionContext ctx, boolean isFinal) {
+        if (tokens == null) return;
+
+        for (WhisperToken token : tokens) {
+            String tokenText = token.getText();
+
+            // Skip special control tokens (e.g. <|startoftext|>, <|endoftext|>)
+            if (token.isSpecialControlToken()) {
+                continue;
+            }
+
+            if (tokenText.trim().isEmpty()) continue;
+
+            long startMs = token.getStartMs();
+            long endMs = token.getEndMs();
+
+            // Detect pause duration between previous token end and current token start
+            if (ctx.lastSegmentEndMs != -1) {
+                long pauseDurationMs = startMs - ctx.lastSegmentEndMs;
+
+                // Meaningful pause detected between tokens!
+                if (pauseDurationMs >= silenceGapMs && ctx.currentParaStartMs != -1) {
                     processParagraph(ctx.currentParaText.toString(), ctx.currentParaStartMs, ctx.currentParaEndMs, ctx.wavFile, ctx.chunkIndex++, ctx.paragraphs, ctx.fullText, ctx.listener);
                     ctx.currentParaText.setLength(0);
                     ctx.currentParaStartMs = -1;
                 }
+            }
 
-                if (ctx.currentParaStartMs == -1) {
-                    ctx.currentParaStartMs = startMs;
-                }
+            if (ctx.currentParaStartMs == -1) {
+                ctx.currentParaStartMs = startMs;
+            }
 
-                if (!TextUtils.isEmpty(ctx.currentParaText)) {
+            if (!TextUtils.isEmpty(ctx.currentParaText)) {
+                if (!tokenText.startsWith(" ") && !ctx.currentParaText.toString().endsWith(" ")) {
                     ctx.currentParaText.append(" ");
                 }
-                ctx.currentParaText.append(segmentText);
-                ctx.currentParaEndMs = endMs;
-                ctx.lastSegmentEndMs = endMs;
+            }
+            ctx.currentParaText.append(tokenText.trim());
+            ctx.currentParaEndMs = endMs;
+            ctx.lastSegmentEndMs = endMs;
 
-                // For incremental updates, show partial results
-                if (!isFinal && ctx.listener != null) {
-                    String currentDisplay = ctx.fullText.toString();
-                    if (!TextUtils.isEmpty(currentDisplay)) {
-                        currentDisplay += "\n\n";
-                    }
-                    ctx.listener.onPartialResult(currentDisplay + ctx.currentParaText);
+            // For incremental updates, show partial results
+            if (!isFinal && ctx.listener != null) {
+                String currentDisplay = ctx.fullText.toString();
+                if (!TextUtils.isEmpty(currentDisplay)) {
+                    currentDisplay += "\n\n";
                 }
+                ctx.listener.onPartialResult(currentDisplay + ctx.currentParaText);
             }
         }
 
         if (isFinal) {
             finalizeRemaining(ctx);
         }
+    }
+
+    /**
+     * Legacy adapter method delegating segments to token processing.
+     */
+    void processSegments(List<WhisperSegment> segments, TranscriptionContext ctx, boolean isFinal) {
+        if (segments == null) return;
+        List<WhisperToken> tokens = new ArrayList<>(segments);
+        processTokens(tokens, ctx, isFinal);
     }
 
     /**
@@ -370,48 +434,6 @@ public class WhisperTranscriber implements Transcriber {
         if (listener != null) {
             listener.onResult(fullText.toString());
         }
-    }
-
-    /**
-     * Parses a string formatted as HH:MM:SS.mmm or MM:SS.mmm into milliseconds.
-     *
-     * @param ts The timestamp string.
-     * @return The time duration in milliseconds.
-     */
-    private long parseTimestampToMs(String ts) {
-        try {
-            String[] parts = ts.split(":");
-            long h = 0, m = 0, s = 0, ms = 0;
-            if (parts.length == 3) {
-                h = Long.parseLong(parts[0]);
-                m = Long.parseLong(parts[1]);
-                String[] secParts = parts[2].split("[.,]");
-                s = Long.parseLong(secParts[0]);
-                if (secParts.length > 1) {
-                    ms = Long.parseLong(padRightToThreeDigits(secParts[1]));
-                }
-            } else if (parts.length == 2) {
-                m = Long.parseLong(parts[0]);
-                String[] secParts = parts[1].split("[.,]");
-                s = Long.parseLong(secParts[0]);
-                if (secParts.length > 1) {
-                    ms = Long.parseLong(padRightToThreeDigits(secParts[1]));
-                }
-            }
-            return h * 3600000 + m * 60000 + s * 1000 + ms;
-        } catch (Exception e) {
-            Log.e(TAG, "Failed to parse timestamp: " + ts, e);
-            return 0;
-        }
-    }
-
-    private static String padRightToThreeDigits(String s) {
-        if (s.length() >= 3) return s.substring(0, 3);
-        StringBuilder sb = new StringBuilder(s);
-        while (sb.length() < 3) {
-            sb.append('0');
-        }
-        return sb.toString();
     }
 
     /**
@@ -477,7 +499,7 @@ public class WhisperTranscriber implements Transcriber {
     }
 
     /**
-     * Helper context structure to maintain state during asynchronous Whisper log polling and line parsing.
+     * Helper context structure to maintain state during asynchronous Whisper token processing.
      */
     static class TranscriptionContext {
         /** The source WAV audio file. */
@@ -494,7 +516,7 @@ public class WhisperTranscriber implements Transcriber {
         long currentParaStartMs = -1;
         /** End timestamp in milliseconds for the current paragraph. */
         long currentParaEndMs = -1;
-        /** End timestamp in milliseconds of the last processed speech segment. */
+        /** End timestamp in milliseconds of the last processed speech token. */
         long lastSegmentEndMs = -1;
         /** Counter index for audio chunk creation. */
         int chunkIndex = 0;
