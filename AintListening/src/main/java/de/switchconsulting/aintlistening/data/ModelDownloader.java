@@ -16,6 +16,7 @@
 
 package de.switchconsulting.aintlistening.data;
 
+import android.content.Context;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -39,8 +40,13 @@ import java.util.zip.ZipInputStream;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import dagger.hilt.android.qualifiers.ApplicationContext;
 import de.switchconsulting.aintlistening.di.BackgroundExecutor;
 import de.switchconsulting.aintlistening.di.MainExecutor;
+import de.switchconsulting.aintlistening.transcription.TranscriberType;
+import de.switchconsulting.androidwhisperer.ModelDownloadListener;
+import de.switchconsulting.androidwhisperer.ModelManager;
+import de.switchconsulting.androidwhisperer.WhisperModel;
 
 /**
  * Handles the downloading and extraction of speech model zip files.
@@ -52,6 +58,7 @@ public class ModelDownloader {
     /** Log tag for debugging. */
     private static final String TAG = "ModelDownloader";
     
+    private final Context context;
     private final ExecutorService backgroundExecutor;
     private final Executor mainExecutor;
 
@@ -64,18 +71,21 @@ public class ModelDownloader {
      * Constructs a ModelDownloader with default background and main thread executors.
      */
     public ModelDownloader() {
-        this(Executors.newSingleThreadExecutor(), Runnable::run);
+        this(null, Executors.newSingleThreadExecutor(), Runnable::run);
     }
 
     /**
      * Constructs a ModelDownloader with injected background and main thread executors.
      *
+     * @param context            Application context.
      * @param backgroundExecutor Background executor service for downloading/extracting.
      * @param mainExecutor       Main thread executor for dispatching callbacks.
      */
     @Inject
-    public ModelDownloader(@BackgroundExecutor ExecutorService backgroundExecutor,
+    public ModelDownloader(@ApplicationContext Context context,
+                           @BackgroundExecutor ExecutorService backgroundExecutor,
                            @MainExecutor Executor mainExecutor) {
+        this.context = context;
         this.backgroundExecutor = backgroundExecutor;
         this.mainExecutor = mainExecutor;
     }
@@ -90,6 +100,35 @@ public class ModelDownloader {
     public synchronized void downloadAndExtract(@NonNull ModelInfo info, @NonNull File targetBaseDir, @NonNull ModelDownloadCallback callback) {
         cancel();
         isCancelled = false;
+
+        if (info.type() == TranscriberType.WHISPER) {
+            currentFuture = backgroundExecutor.submit(() -> {
+                try {
+                    ModelManager.ensureModelAsync(context, WhisperModel.TINY, new ModelDownloadListener() {
+                        @Override
+                        public void onSuccess(@NonNull File modelFile) {
+                            mainExecutor.execute(callback::onSuccess);
+                        }
+
+                        @Override
+                        public void onProgress(long bytesDownloaded, long totalBytes) {
+                            if (totalBytes > 0) {
+                                int progress = (int) (bytesDownloaded * 100 / totalBytes);
+                                mainExecutor.execute(() -> callback.onProgress(progress));
+                            }
+                        }
+
+                        @Override
+                        public void onError(@NonNull Exception error) {
+                            mainExecutor.execute(() -> callback.onError(error));
+                        }
+                    });
+                } catch (Exception e) {
+                    mainExecutor.execute(() -> callback.onError(e));
+                }
+            });
+            return;
+        }
 
         currentFuture = backgroundExecutor.submit(() -> {
             Log.d(TAG, "Starting download task for: " + info.url());

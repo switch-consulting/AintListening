@@ -30,6 +30,8 @@ import javax.inject.Singleton;
 
 import dagger.hilt.android.qualifiers.ApplicationContext;
 import de.switchconsulting.aintlistening.transcription.TranscriberType;
+import de.switchconsulting.androidwhisperer.ModelManager;
+import de.switchconsulting.androidwhisperer.WhisperModel;
 
 /**
  * Repository for accessing speech model metadata, checking model installation status,
@@ -74,6 +76,9 @@ public class ModelCatalogRepository {
      */
     public boolean isModelDownloaded(@Nullable ModelInfo info) {
         if (info == null) return false;
+        if (info.type() == TranscriberType.WHISPER) {
+            return ModelManager.isModelDownloaded(context, WhisperModel.TINY);
+        }
         File modelFile = new File(context.getFilesDir(), info.name());
         if (info.isZip()) {
             return modelFile.exists() && modelFile.isDirectory();
@@ -171,6 +176,9 @@ public class ModelCatalogRepository {
      */
     public boolean deleteModel(@Nullable ModelInfo info) {
         if (info == null) return false;
+        if (info.type() == TranscriberType.WHISPER) {
+            return ModelManager.removeModel(context, WhisperModel.TINY);
+        }
         File modelDir = new File(context.getFilesDir(), info.name());
         return deleteRecursive(modelDir);
     }

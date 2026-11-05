@@ -39,10 +39,6 @@
 -keep class ai.djl.android.** { *; }
 -dontwarn ai.djl.**
 
-# WhisperCore C++ Wrapper rules
--keep class com.redravencomputing.whispercore.** { *; }
--dontwarn com.redravencomputing.whispercore.**
-
 # Vosk Speech-to-Text Engine rules
 -keep class com.alphacephei.vosk.** { *; }
 -keep class org.kaldi.** { *; }

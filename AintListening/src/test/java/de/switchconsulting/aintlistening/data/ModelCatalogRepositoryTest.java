@@ -89,12 +89,29 @@ public class ModelCatalogRepositoryTest {
 
     @Test
     public void testIsModelDownloadedNonZipModel() throws IOException {
+        ModelInfo binModel = new ModelInfo("model.bin", "http://example.com", Locale.GERMAN, "75MB", TranscriberType.VOSK, false);
+
+        assertFalse(repository.isModelDownloaded(binModel));
+
+        File modelFile = new File(context.getFilesDir(), "model.bin");
+        assertTrue(modelFile.createNewFile());
+
+        assertTrue(repository.isModelDownloaded(binModel));
+    }
+
+    @Test
+    public void testIsModelDownloadedWhisperModel() throws IOException {
         ModelInfo binModel = new ModelInfo("ggml-tiny.bin", "http://example.com", Locale.GERMAN, "75MB", TranscriberType.WHISPER, false);
 
         assertFalse(repository.isModelDownloaded(binModel));
 
-        File modelFile = new File(context.getFilesDir(), "ggml-tiny.bin");
+        File whisperDir = new File(context.getFilesDir(), "whisper_models");
+        assertTrue(whisperDir.mkdirs() || whisperDir.isDirectory());
+        File modelFile = new File(whisperDir, "ggml-tiny.bin");
         assertTrue(modelFile.createNewFile());
+        try (java.io.FileOutputStream fos = new java.io.FileOutputStream(modelFile)) {
+            fos.write(1);
+        }
 
         assertTrue(repository.isModelDownloaded(binModel));
     }
