@@ -25,7 +25,7 @@ import android.net.NetworkCapabilities;
  */
 public class NetworkUtils {
     /**
-     * Checks if the device has an active internet connection (WiFi, Cellular, or Ethernet).
+     * Checks if the device has an active internet connection (Wi-Fi, Cellular, or Ethernet).
      *
      * @param context The context.
      * @return True if the device is online, false otherwise.

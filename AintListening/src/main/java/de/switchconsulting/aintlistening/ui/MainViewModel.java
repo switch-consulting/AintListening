@@ -101,7 +101,7 @@ public class MainViewModel extends ViewModel {
     }
 
     /**
-     * Called when the ViewModel is cleared, ensuring resources in the processor are released and pending tasks cancelled.
+     * Called when the ViewModel is cleared, ensuring resources in the processor are released and pending tasks canceled.
      */
     @Override
     protected void onCleared() {

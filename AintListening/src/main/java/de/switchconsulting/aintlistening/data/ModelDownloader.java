@@ -64,7 +64,7 @@ public class ModelDownloader {
 
     /** Future handle for tracking and cancelling the current active background task. */
     private Future<?> currentFuture;
-    /** Flag indicating whether the active download/extraction task has been cancelled. */
+    /** Flag indicating whether the active download/extraction task has been canceled. */
     private volatile boolean isCancelled = false;
 
     /**

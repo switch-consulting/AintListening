@@ -45,7 +45,7 @@ public interface ModelDownloadCallback {
     void onError(Exception e);
 
     /**
-     * Called if the operation was cancelled.
+     * Called if the operation was canceled.
      */
     void onCancelled();
 }
