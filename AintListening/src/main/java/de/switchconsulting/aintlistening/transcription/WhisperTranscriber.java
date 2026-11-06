@@ -105,7 +105,17 @@ public class WhisperTranscriber implements Transcriber {
 
         Log.i(TAG, "Starting Whisper transcription for file: " + wavFile.getAbsolutePath());
         float[] samples = AudioUtils.readWav(wavFile);
-        TranscriptionResult result = whisperer.transcribe(samples);
+
+        List<String> partialSegments = new ArrayList<>();
+        de.switchconsulting.androidwhisperer.TranscriptionListener whisperListener = createWhisperListener(listener, partialSegments);
+
+        whisperer.addListener(whisperListener);
+        TranscriptionResult result;
+        try {
+            result = whisperer.transcribe(samples);
+        } finally {
+            whisperer.removeListener(whisperListener);
+        }
 
         List<TranscriptionParagraph> paragraphs = new ArrayList<>();
         List<SegmentResult> segments = result.getSegments();
@@ -134,6 +144,43 @@ public class WhisperTranscriber implements Transcriber {
         }
 
         return paragraphs;
+    }
+
+    /**
+     * Creates a Whisper transcription listener for receiving partial segments.
+     *
+     * @param listener        The application transcription listener.
+     * @param partialSegments The list accumulating valid partial segment texts.
+     * @return The AndroidWhisperer transcription listener instance.
+     */
+    private de.switchconsulting.androidwhisperer.TranscriptionListener createWhisperListener(
+            TranscriptionListener listener, List<String> partialSegments) {
+        return new de.switchconsulting.androidwhisperer.TranscriptionListener() {
+            @Override
+            public void onNewSegment(@NonNull SegmentResult segment, @NonNull String accumulatedTranscript) {
+                if (listener != null) {
+                    String text = segment.getText();
+                    if (!text.trim().isEmpty()) {
+                        partialSegments.add(text.trim());
+                        StringBuilder sb = new StringBuilder();
+                        for (String s : partialSegments) {
+                            if (sb.length() > 0) sb.append(" ");
+                            sb.append(s);
+                        }
+                        listener.onPartialResult(sb.toString());
+                    }
+                }
+            }
+
+            @Override
+            public void onProgress(int progressPercent) {
+            }
+
+            @Override
+            public void onError(@NonNull de.switchconsulting.androidwhisperer.TranscriptionException exception) {
+                Log.e(TAG, "AndroidWhisperer encountered an error during transcription", exception);
+            }
+        };
     }
 
     /**
