@@ -106,8 +106,8 @@ public class WhisperTranscriber implements Transcriber {
         Log.i(TAG, "Starting Whisper transcription for file: " + wavFile.getAbsolutePath());
         float[] samples = AudioUtils.readWav(wavFile);
 
-        List<String> partialSegments = new ArrayList<>();
-        de.switchconsulting.androidwhisperer.TranscriptionListener whisperListener = createWhisperListener(listener, partialSegments);
+        List<PartialRecognitionResult> partialResults = new ArrayList<>();
+        de.switchconsulting.androidwhisperer.TranscriptionListener whisperListener = createWhisperListener(listener, partialResults);
 
         whisperer.addListener(whisperListener);
         TranscriptionResult result;
@@ -134,13 +134,18 @@ public class WhisperTranscriber implements Transcriber {
             }
         }
 
-        if (listener != null && !paragraphs.isEmpty()) {
-            StringBuilder sb = new StringBuilder();
-            for (TranscriptionParagraph p : paragraphs) {
-                if (sb.length() > 0) sb.append(" ");
-                sb.append(p.getRawText());
+        if (listener != null) {
+            long totalLengthMs = (wavFile.length() - 44) / 32;
+            if (partialResults.isEmpty() && !paragraphs.isEmpty()) {
+                StringBuilder sb = new StringBuilder();
+                for (TranscriptionParagraph p : paragraphs) {
+                    if (sb.length() > 0) sb.append(" ");
+                    sb.append(p.getRawText());
+                }
+                partialResults.add(new PartialRecognitionResult(sb.toString(), 0, totalLengthMs));
             }
-            listener.onResult(sb.toString());
+            FinalRecognitionResult finalResult = new FinalRecognitionResult(partialResults, wavFile, totalLengthMs);
+            listener.onResult(finalResult);
         }
 
         return paragraphs;
@@ -149,22 +154,22 @@ public class WhisperTranscriber implements Transcriber {
     /**
      * Creates a Whisper transcription listener for receiving partial segments.
      *
-     * @param listener        The application transcription listener.
-     * @param partialSegments The list accumulating valid partial segment texts.
+     * @param listener       The application transcription listener.
+     * @param partialResults The list accumulating valid partial recognition results.
      * @return The AndroidWhisperer transcription listener instance.
      */
     private de.switchconsulting.androidwhisperer.TranscriptionListener createWhisperListener(
-            TranscriptionListener listener, List<String> partialSegments) {
+            TranscriptionListener listener, List<PartialRecognitionResult> partialResults) {
         return new de.switchconsulting.androidwhisperer.TranscriptionListener() {
             @Override
             public void onNewSegment(@NonNull SegmentResult segment, @NonNull String accumulatedTranscript) {
-                if (listener != null) {
-                    String text = segment.getText();
-                    if (!text.trim().isEmpty()) {
-                        partialSegments.add(text.trim());
-                        PartialRecognitionResult result = new PartialRecognitionResult(
-                                text.trim(), segment.getStartMs(), segment.getEndMs());
-                        listener.onPartialRecognition(result);
+                String text = segment.getText();
+                if (!text.trim().isEmpty()) {
+                    PartialRecognitionResult pr = new PartialRecognitionResult(
+                            text.trim(), segment.getStartMs(), segment.getEndMs());
+                    partialResults.add(pr);
+                    if (listener != null) {
+                        listener.onPartialRecognition(pr);
                     }
                 }
             }

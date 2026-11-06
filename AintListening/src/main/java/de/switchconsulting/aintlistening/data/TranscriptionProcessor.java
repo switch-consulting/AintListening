@@ -44,6 +44,7 @@ import de.switchconsulting.aintlistening.transcription.Transcriber;
 import de.switchconsulting.aintlistening.transcription.TranscriberRegistry;
 import de.switchconsulting.aintlistening.transcription.TranscriberType;
 import de.switchconsulting.aintlistening.transcription.TranscriptionListener;
+import de.switchconsulting.aintlistening.transcription.FinalRecognitionResult;
 import de.switchconsulting.aintlistening.transcription.PartialRecognitionResult;
 import de.switchconsulting.aintlistening.transcription.TranscriptionParagraph;
 import de.switchconsulting.aintlistening.util.OpusToWavDecoder;
@@ -162,9 +163,9 @@ public class TranscriptionProcessor {
                     }
 
                     @Override
-                    public void onResult(String text) {
+                    public void onResult(@NonNull FinalRecognitionResult result) {
                         if (!Thread.currentThread().isInterrupted()) {
-                            notifyPartialResult(callback, parseParagraphs(text, providesPunctuation));
+                            notifyPartialResult(callback, parseParagraphs(result.getFullTranscription(), providesPunctuation));
                         }
                     }
 

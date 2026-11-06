@@ -32,9 +32,9 @@ public interface TranscriptionListener {
     /**
      * Called when a final transcription result is available.
      *
-     * @param text The final transcription text.
+     * @param result The final recognition result containing partial results, audio file, and total length.
      */
-    void onResult(String text);
+    void onResult(@NonNull FinalRecognitionResult result);
 
     /**
      * Called when a new audio chunk is ready to be saved.

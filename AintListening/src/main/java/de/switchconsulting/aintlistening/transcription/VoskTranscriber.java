@@ -111,6 +111,7 @@ public class VoskTranscriber implements Transcriber {
         }
 
         List<TranscriptionParagraph> paragraphs = new ArrayList<>();
+        List<PartialRecognitionResult> partialResults = new ArrayList<>();
         StringBuilder fullText = new StringBuilder();
 
         try (FileInputStream fis = new FileInputStream(wavFile);
@@ -138,6 +139,12 @@ public class VoskTranscriber implements Transcriber {
                     if (!TextUtils.isEmpty(text)) {
                         Log.d(TAG, "Vosk segment finalized: " + text);
 
+                        long currentPcmSize = currentPcm.size();
+                        long startMs = (totalBytesProcessed - currentPcmSize) / 32; // 32 bytes/ms
+                        long endMs = totalBytesProcessed / 32;
+                        PartialRecognitionResult partialResult = new PartialRecognitionResult(text, startMs, endMs);
+                        partialResults.add(partialResult);
+
                         String audioPath = null;
                         if (listener != null) {
                             audioPath = listener.onAudioChunkAvailable(currentPcm.toByteArray(), chunkIndex++);
@@ -151,7 +158,10 @@ public class VoskTranscriber implements Transcriber {
                             fullText.append("\n\n");
                         }
                         fullText.append(text);
-                        if (listener != null) listener.onResult(fullText.toString());
+                        if (listener != null) {
+                            long totalLengthMs = (wavFile.length() - 44) / 32;
+                            listener.onResult(new FinalRecognitionResult(new ArrayList<>(partialResults), wavFile, totalLengthMs));
+                        }
                     }
                 } else {
                     String partialJson = recognizer.getPartialResult();
@@ -171,6 +181,12 @@ public class VoskTranscriber implements Transcriber {
             if (!TextUtils.isEmpty(finalText)) {
                 Log.d(TAG, "Vosk final segment: " + finalText);
 
+                long currentPcmSize = currentPcm.size();
+                long startMs = (totalBytesProcessed - currentPcmSize) / 32;
+                long endMs = totalBytesProcessed / 32;
+                PartialRecognitionResult partialResult = new PartialRecognitionResult(finalText, startMs, endMs);
+                partialResults.add(partialResult);
+
                 String audioPath = null;
                 if (listener != null) {
                     audioPath = listener.onAudioChunkAvailable(currentPcm.toByteArray(), chunkIndex);
@@ -183,7 +199,10 @@ public class VoskTranscriber implements Transcriber {
                     fullText.append("\n\n");
                 }
                 fullText.append(finalText);
-                if (listener != null) listener.onResult(fullText.toString());
+                if (listener != null) {
+                    long totalLengthMs = (wavFile.length() - 44) / 32;
+                    listener.onResult(new FinalRecognitionResult(new ArrayList<>(partialResults), wavFile, totalLengthMs));
+                }
             }
         }
 
