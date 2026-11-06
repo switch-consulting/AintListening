@@ -16,16 +16,18 @@
 
 package de.switchconsulting.aintlistening.transcription;
 
+import androidx.annotation.NonNull;
+
 /**
  * Interface for receiving transcription results.
  */
 public interface TranscriptionListener {
     /**
-     * Called when a partial transcription result is available.
+     * Called when a partial recognition result is available.
      *
-     * @param text The partial transcription text.
+     * @param result The partial recognition result containing text and timestamps.
      */
-    void onPartialResult(String text);
+    void onPartialRecognition(@NonNull PartialRecognitionResult result);
 
     /**
      * Called when a final transcription result is available.

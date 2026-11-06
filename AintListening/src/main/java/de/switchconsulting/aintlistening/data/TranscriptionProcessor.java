@@ -20,6 +20,8 @@ import android.content.Context;
 import android.net.Uri;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -42,6 +44,7 @@ import de.switchconsulting.aintlistening.transcription.Transcriber;
 import de.switchconsulting.aintlistening.transcription.TranscriberRegistry;
 import de.switchconsulting.aintlistening.transcription.TranscriberType;
 import de.switchconsulting.aintlistening.transcription.TranscriptionListener;
+import de.switchconsulting.aintlistening.transcription.PartialRecognitionResult;
 import de.switchconsulting.aintlistening.transcription.TranscriptionParagraph;
 import de.switchconsulting.aintlistening.util.OpusToWavDecoder;
 
@@ -145,11 +148,16 @@ public class TranscriptionProcessor {
                 if (Thread.currentThread().isInterrupted()) return;
                 notifyStatusUpdate(callback, "Transcribing...");
                 boolean providesPunctuation = activeTranscriber.providesPunctuation();
+                StringBuilder accumulatedText = new StringBuilder();
                 List<TranscriptionParagraph> rawParagraphs = activeTranscriber.transcribe(context, wavFile, new TranscriptionListener() {
                     @Override
-                    public void onPartialResult(String text) {
+                    public void onPartialRecognition(@NonNull PartialRecognitionResult result) {
                         if (!Thread.currentThread().isInterrupted()) {
-                            notifyPartialResult(callback, parseParagraphs(text, providesPunctuation));
+                            if (!accumulatedText.isEmpty()) {
+                                accumulatedText.append(" ");
+                            }
+                            accumulatedText.append(result.text());
+                            notifyPartialResult(callback, parseParagraphs(accumulatedText.toString(), providesPunctuation));
                         }
                     }
 

@@ -126,9 +126,11 @@ public class VoskTranscriber implements Transcriber {
             byte[] buffer = new byte[4096];
             int nread;
             int chunkIndex = 0;
+            long totalBytesProcessed = 0;
 
             while ((nread = fis.read(buffer)) >= 0) {
                 currentPcm.write(buffer, 0, nread);
+                totalBytesProcessed += nread;
 
                 if (recognizer.acceptWaveForm(buffer, nread)) {
                     String resultJson = recognizer.getResult();
@@ -155,11 +157,11 @@ public class VoskTranscriber implements Transcriber {
                     String partialJson = recognizer.getPartialResult();
                     String partialText = extractPartialTextFromJson(partialJson);
                     if (!TextUtils.isEmpty(partialText) && listener != null) {
-                        String currentDisplay = fullText.toString();
-                        if (!TextUtils.isEmpty(currentDisplay)) {
-                            currentDisplay += "\n\n";
-                        }
-                        listener.onPartialResult(currentDisplay + partialText);
+                        long currentPcmSize = currentPcm.size();
+                        long startMs = (totalBytesProcessed - currentPcmSize) / 32; // 32 bytes/ms
+                        long endMs = totalBytesProcessed / 32;
+                        PartialRecognitionResult result = new PartialRecognitionResult(partialText, startMs, endMs);
+                        listener.onPartialRecognition(result);
                     }
                 }
             }

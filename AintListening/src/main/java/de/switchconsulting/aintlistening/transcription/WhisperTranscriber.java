@@ -162,12 +162,9 @@ public class WhisperTranscriber implements Transcriber {
                     String text = segment.getText();
                     if (!text.trim().isEmpty()) {
                         partialSegments.add(text.trim());
-                        StringBuilder sb = new StringBuilder();
-                        for (String s : partialSegments) {
-                            if (sb.length() > 0) sb.append(" ");
-                            sb.append(s);
-                        }
-                        listener.onPartialResult(sb.toString());
+                        PartialRecognitionResult result = new PartialRecognitionResult(
+                                text.trim(), segment.getStartMs(), segment.getEndMs());
+                        listener.onPartialRecognition(result);
                     }
                 }
             }
