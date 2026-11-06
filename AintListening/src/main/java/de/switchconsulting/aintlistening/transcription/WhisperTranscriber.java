@@ -33,7 +33,9 @@ import javax.inject.Singleton;
 import de.switchconsulting.aintlistening.data.LanguageSupport;
 import de.switchconsulting.aintlistening.data.ModelCatalogRepository;
 import de.switchconsulting.androidwhisperer.AndroidWhisperer;
+import de.switchconsulting.androidwhisperer.AndroidWhispererOptions;
 import de.switchconsulting.androidwhisperer.AudioUtils;
+import de.switchconsulting.androidwhisperer.PauseMode;
 import de.switchconsulting.androidwhisperer.WhisperModel;
 import de.switchconsulting.androidwhisperer.model.SegmentResult;
 import de.switchconsulting.androidwhisperer.model.TranscriptionResult;
@@ -104,6 +106,7 @@ public class WhisperTranscriber implements Transcriber {
         }
 
         Log.i(TAG, "Starting Whisper transcription for file: " + wavFile.getAbsolutePath());
+        Log.i(TAG, "Transcription for locale: " + loadedLocale);
         float[] samples = AudioUtils.readWav(wavFile);
 
         List<PartialRecognitionResult> partialResults = new ArrayList<>();
@@ -112,7 +115,9 @@ public class WhisperTranscriber implements Transcriber {
         whisperer.addListener(whisperListener);
         TranscriptionResult result;
         try {
-            result = whisperer.transcribe(samples);
+            AndroidWhispererOptions options = new AndroidWhispererOptions(
+                    PauseMode.BOTH, 500, 100, loadedLocale);
+            result = whisperer.transcribe(samples, options);
         } finally {
             whisperer.removeListener(whisperListener);
         }
