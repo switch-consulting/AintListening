@@ -113,6 +113,7 @@ public class VoskTranscriber implements Transcriber {
         List<TranscriptionParagraph> paragraphs = new ArrayList<>();
         List<PartialRecognitionResult> partialResults = new ArrayList<>();
         StringBuilder fullText = new StringBuilder();
+        ChunkIndexHolder chunkIndexHolder = new ChunkIndexHolder();
 
         try (FileInputStream fis = new FileInputStream(wavFile);
              Recognizer recognizer = new Recognizer(model, 16000.0f);
@@ -126,7 +127,6 @@ public class VoskTranscriber implements Transcriber {
 
             byte[] buffer = new byte[4096];
             int nread;
-            int chunkIndex = 0;
             long totalBytesProcessed = 0;
 
             while ((nread = fis.read(buffer)) >= 0) {
@@ -138,41 +138,13 @@ public class VoskTranscriber implements Transcriber {
                     String text = extractTextFromResultJson(resultJson);
                     if (!TextUtils.isEmpty(text)) {
                         Log.d(TAG, "Vosk segment finalized: " + text);
-
-                        long currentPcmSize = currentPcm.size();
-                        long startMs = (totalBytesProcessed - currentPcmSize) / 32; // 32 bytes/ms
-                        long endMs = totalBytesProcessed / 32;
-                        PartialRecognitionResult partialResult = new PartialRecognitionResult(text, startMs, endMs);
-                        partialResults.add(partialResult);
-
-                        String audioPath = null;
-                        if (listener != null) {
-                            audioPath = listener.onAudioChunkAvailable(currentPcm.toByteArray(), chunkIndex++);
-                        }
-                        currentPcm.reset();
-
-                        TranscriptionParagraph p = new TranscriptionParagraph(text, null, audioPath);
-                        paragraphs.add(p);
-
-                        if (!TextUtils.isEmpty(fullText)) {
-                            fullText.append("\n\n");
-                        }
-                        fullText.append(text);
-                        if (listener != null) {
-                            long totalLengthMs = (wavFile.length() - 44) / 32;
-                            listener.onResult(new FinalRecognitionResult(new ArrayList<>(partialResults), wavFile, totalLengthMs));
-                        }
+                        processFinalizedSegment(text, currentPcm, totalBytesProcessed, wavFile,
+                                paragraphs, partialResults, fullText, listener, chunkIndexHolder);
                     }
                 } else {
                     String partialJson = recognizer.getPartialResult();
                     String partialText = extractPartialTextFromJson(partialJson);
-                    if (!TextUtils.isEmpty(partialText) && listener != null) {
-                        long currentPcmSize = currentPcm.size();
-                        long startMs = (totalBytesProcessed - currentPcmSize) / 32; // 32 bytes/ms
-                        long endMs = totalBytesProcessed / 32;
-                        PartialRecognitionResult result = new PartialRecognitionResult(partialText, startMs, endMs);
-                        listener.onPartialRecognition(result);
-                    }
+                    processPartialResult(partialText, currentPcm, totalBytesProcessed, fullText, listener);
                 }
             }
 
@@ -180,33 +152,102 @@ public class VoskTranscriber implements Transcriber {
             String finalText = extractTextFromResultJson(finalJson);
             if (!TextUtils.isEmpty(finalText)) {
                 Log.d(TAG, "Vosk final segment: " + finalText);
-
-                long currentPcmSize = currentPcm.size();
-                long startMs = (totalBytesProcessed - currentPcmSize) / 32;
-                long endMs = totalBytesProcessed / 32;
-                PartialRecognitionResult partialResult = new PartialRecognitionResult(finalText, startMs, endMs);
-                partialResults.add(partialResult);
-
-                String audioPath = null;
-                if (listener != null) {
-                    audioPath = listener.onAudioChunkAvailable(currentPcm.toByteArray(), chunkIndex);
-                }
-
-                TranscriptionParagraph p = new TranscriptionParagraph(finalText, null, audioPath);
-                paragraphs.add(p);
-
-                if (!TextUtils.isEmpty(fullText)) {
-                    fullText.append("\n\n");
-                }
-                fullText.append(finalText);
-                if (listener != null) {
-                    long totalLengthMs = (wavFile.length() - 44) / 32;
-                    listener.onResult(new FinalRecognitionResult(new ArrayList<>(partialResults), wavFile, totalLengthMs));
-                }
+                processFinalizedSegment(finalText, currentPcm, totalBytesProcessed, wavFile,
+                        paragraphs, partialResults, fullText, listener, chunkIndexHolder);
             }
         }
 
         return paragraphs;
+    }
+
+    /**
+     * Extracts delta text by subtracting any already accumulated full text.
+     */
+    private String computeDeltaText(String accumulatedFullText, String rawText) {
+        if (TextUtils.isEmpty(rawText)) return "";
+        if (TextUtils.isEmpty(accumulatedFullText)) return rawText.trim();
+        if (rawText.equals(accumulatedFullText)) return "";
+        if (rawText.startsWith(accumulatedFullText)) {
+            return rawText.substring(accumulatedFullText.length()).trim();
+        }
+        return rawText.trim();
+    }
+
+    /**
+     * Processes a finalized recognition segment.
+     */
+    private void processFinalizedSegment(
+            String rawText,
+            ByteArrayOutputStream currentPcm,
+            long totalBytesProcessed,
+            File wavFile,
+            List<TranscriptionParagraph> paragraphs,
+            List<PartialRecognitionResult> partialResults,
+            StringBuilder fullText,
+            TranscriptionListener listener,
+            ChunkIndexHolder chunkIndexHolder
+    ) {
+        String textToAdd = computeDeltaText(fullText.toString(), rawText);
+        if (TextUtils.isEmpty(textToAdd)) return;
+
+        long currentPcmSize = currentPcm.size();
+        long startMs = (totalBytesProcessed - currentPcmSize) / 32;
+        long endMs = totalBytesProcessed / 32;
+        PartialRecognitionResult partialResult = new PartialRecognitionResult(textToAdd, startMs, endMs);
+        partialResults.add(partialResult);
+
+        String audioPath = null;
+        if (listener != null) {
+            audioPath = listener.onAudioChunkAvailable(currentPcm.toByteArray(), chunkIndexHolder.value++);
+        }
+        currentPcm.reset();
+
+        paragraphs.add(new TranscriptionParagraph(textToAdd, null, audioPath));
+
+        if (fullText.length() != 0) {
+            fullText.append("\n\n");
+        }
+        fullText.append(textToAdd);
+
+        if (listener != null && !partialResults.isEmpty()) {
+            long totalLengthMs = (wavFile.length() - 44) / 32;
+            listener.onResult(new FinalRecognitionResult(new ArrayList<>(partialResults), wavFile, totalLengthMs));
+        }
+    }
+
+    /**
+     * Processes a partial recognition result.
+     */
+    private void processPartialResult(
+            String partialText,
+            ByteArrayOutputStream currentPcm,
+            long totalBytesProcessed,
+            StringBuilder fullText,
+            TranscriptionListener listener
+    ) {
+        if (TextUtils.isEmpty(partialText) || listener == null) return;
+
+        StringBuilder currentPartialState = new StringBuilder();
+        String finalizedSoFar = fullText.toString();
+        if (!TextUtils.isEmpty(finalizedSoFar)) {
+            currentPartialState.append(finalizedSoFar);
+        }
+        if (!TextUtils.isEmpty(partialText)) {
+            if (currentPartialState.length() != 0) {
+                currentPartialState.append(" ");
+            }
+            currentPartialState.append(partialText);
+        }
+
+        long currentPcmSize = currentPcm.size();
+        long startMs = (totalBytesProcessed - currentPcmSize) / 32;
+        long endMs = totalBytesProcessed / 32;
+        PartialRecognitionResult result = new PartialRecognitionResult(currentPartialState.toString(), startMs, endMs);
+        listener.onPartialRecognition(result);
+    }
+
+    private static class ChunkIndexHolder {
+        int value = 0;
     }
 
     /**
