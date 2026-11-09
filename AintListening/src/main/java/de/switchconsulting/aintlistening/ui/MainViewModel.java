@@ -16,13 +16,17 @@
 
 package de.switchconsulting.aintlistening.ui;
 
+import android.content.Context;
 import android.net.Uri;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 import dagger.hilt.android.lifecycle.HiltViewModel;
+import dagger.hilt.android.qualifiers.ApplicationContext;
+import de.switchconsulting.aintlistening.R;
 import de.switchconsulting.aintlistening.data.TranscriptionCallback;
 import de.switchconsulting.aintlistening.data.TranscriptionProcessor;
+import de.switchconsulting.aintlistening.data.TranscriptionStep;
 import de.switchconsulting.aintlistening.transcription.TranscriptionParagraph;
 import java.util.ArrayList;
 import java.util.List;
@@ -36,6 +40,8 @@ import javax.inject.Inject;
 @HiltViewModel
 public class MainViewModel extends ViewModel {
 
+    /** The application context. */
+    private final Context context;
     /** The transcription processor used to handle audio transcription logic. */
     private final TranscriptionProcessor processor;
     /** Mutable LiveData representing the internal UI state. */
@@ -46,10 +52,12 @@ public class MainViewModel extends ViewModel {
     /**
      * Constructs a new MainViewModel.
      *
+     * @param context   The application context.
      * @param processor The processor responsible for the transcription logic.
      */
     @Inject
-    public MainViewModel(TranscriptionProcessor processor) {
+    public MainViewModel(@ApplicationContext Context context, TranscriptionProcessor processor) {
+        this.context = context;
         this.processor = processor;
         loadLastMessage();
     }
@@ -61,10 +69,12 @@ public class MainViewModel extends ViewModel {
      * @param locale   The locale of the language model to use.
      */
     public void startTranscription(Uri audioUri, Locale locale) {
-        uiStateMutable.setValue(MainUiState.loading("Preparing...", new ArrayList<>()));
+        uiStateMutable.setValue(MainUiState.loading(getStatusMessage(TranscriptionStep.PREPARING, locale), new ArrayList<>()));
         processor.startTranscription(audioUri, locale, new TranscriptionCallback() {
             @Override
-            public void onStatusUpdate(String message) {
+            public void onStepUpdate(TranscriptionStep step, Locale stepLocale) {
+                Locale activeLocale = stepLocale != null ? stepLocale : locale;
+                String message = getStatusMessage(step, activeLocale);
                 MainUiState current = uiStateMutable.getValue();
                 uiStateMutable.postValue(MainUiState.loading(message, current != null ? current.paragraphs() : new ArrayList<>()));
             }
@@ -72,12 +82,13 @@ public class MainViewModel extends ViewModel {
             @Override
             public void onPartialResult(List<TranscriptionParagraph> paragraphs) {
                 MainUiState current = uiStateMutable.getValue();
-                uiStateMutable.postValue(MainUiState.loading(current != null ? current.statusMessage() : "Transcribing...", paragraphs));
+                String defaultTranscribing = getStatusMessage(TranscriptionStep.TRANSCRIBING, locale);
+                uiStateMutable.postValue(MainUiState.loading(current != null ? current.statusMessage() : defaultTranscribing, paragraphs));
             }
 
             @Override
             public void onSmartFormattingProgress(int progress, int total, List<TranscriptionParagraph> paragraphs) {
-                uiStateMutable.postValue(MainUiState.progress("Applying smart formatting...", progress, total, paragraphs));
+                uiStateMutable.postValue(MainUiState.progress(getStatusMessage(TranscriptionStep.APPLYING_SMART_FORMATTING, locale), progress, total, paragraphs));
             }
 
             @Override
@@ -91,6 +102,27 @@ public class MainViewModel extends ViewModel {
                 uiStateMutable.postValue(MainUiState.error(message, current != null ? current.paragraphs() : new ArrayList<>()));
             }
         });
+    }
+
+    /**
+     * Maps a TranscriptionStep and Locale to a localized status message string.
+     *
+     * @param step   The transcription step.
+     * @param locale The locale being processed.
+     * @return The localized status message.
+     */
+    private String getStatusMessage(TranscriptionStep step, Locale locale) {
+        if (step == null) return "";
+        return switch (step) {
+            case PREPARING -> context.getString(R.string.status_preparing);
+            case CONVERTING_AUDIO -> context.getString(R.string.status_converting);
+            case LOADING_MODEL -> context.getString(R.string.status_loading_model);
+            case TRANSCRIBING -> {
+                String languageName = locale != null ? locale.getDisplayName() : "";
+                yield context.getString(R.string.status_transcribing, languageName);
+            }
+            case APPLYING_SMART_FORMATTING -> context.getString(R.string.status_applying_smart_formatting);
+        };
     }
 
     /**

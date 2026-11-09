@@ -17,6 +17,7 @@
 package de.switchconsulting.aintlistening.data;
 
 import java.util.List;
+import java.util.Locale;
 import de.switchconsulting.aintlistening.transcription.TranscriptionParagraph;
 
 /**
@@ -24,11 +25,12 @@ import de.switchconsulting.aintlistening.transcription.TranscriptionParagraph;
  */
 public interface TranscriptionCallback {
     /**
-     * Called when there is a status update message.
+     * Called when the transcription process advances to a new step.
      *
-     * @param message The status message string.
+     * @param step   The current processing step.
+     * @param locale The locale being processed, or null if not applicable.
      */
-    void onStatusUpdate(String message);
+    void onStepUpdate(TranscriptionStep step, Locale locale);
 
     /**
      * Called when a partial transcription result becomes available.
@@ -40,8 +42,8 @@ public interface TranscriptionCallback {
     /**
      * Called to report progress on smart text formatting.
      *
-     * @param progress The current progress value.
-     * @param total    The total expected value for complete progress.
+     * @param progress   The current progress value.
+     * @param total      The total expected value for complete progress.
      * @param paragraphs The current list of transcription paragraphs.
      */
     void onSmartFormattingProgress(int progress, int total, List<TranscriptionParagraph> paragraphs);

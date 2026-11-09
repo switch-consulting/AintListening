@@ -22,7 +22,7 @@
     <string name="error_conversion_failed">Fallo en la conversión de audio. Por favor, intenta con otro archivo.</string>
     <string name="error_read_failed">No si pudo leer el archivo de audio compartido.</string>
     <string name="status_loading_model">Cargando modelo de voz&#8230;</string>
-    <string name="status_transcribing">Transcribiendo sin conexión&#8230;</string>
+    <string name="status_transcribing">Transcribiendo %1$s sin conexión&#8230;</string>
     <string name="status_applying_smart_formatting">Aplicando formato inteligente&#8230;</string>
     <string name="status_no_speech">No se reconoció voz.</string>
     <string name="error_transcription_failed">Fallo en la transcripción. Comprueba si el modelo está disponible.</string>

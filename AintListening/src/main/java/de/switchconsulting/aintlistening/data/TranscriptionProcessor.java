@@ -111,7 +111,7 @@ public class TranscriptionProcessor {
      *
      * @param audioUri The URI of the audio file to transcribe.
      * @param locale   The locale of the language model to use.
-     * @param callback The callback to receive status updates and results.
+     * @param callback The callback to receive step updates and results.
      */
     public synchronized void startTranscription(Uri audioUri, Locale locale, TranscriptionCallback callback) {
         cancelTranscription();
@@ -119,7 +119,7 @@ public class TranscriptionProcessor {
         activeTask = backgroundExecutor.submit(() -> {
             try {
                 if (Thread.currentThread().isInterrupted()) return;
-                notifyStatusUpdate(callback, "Converting audio...");
+                notifyStepUpdate(callback, TranscriptionStep.CONVERTING_AUDIO, locale);
                 File wavFile = repository.getIncomingWavFile();
                 repository.clearTemporaryFiles();
 
@@ -132,7 +132,7 @@ public class TranscriptionProcessor {
                 }
 
                 if (Thread.currentThread().isInterrupted()) return;
-                notifyStatusUpdate(callback, "Loading model...");
+                notifyStepUpdate(callback, TranscriptionStep.LOADING_MODEL, locale);
                 LanguageSupport language = modelRepository.getLanguageSupport(locale);
                 if (language == null) {
                     throw new IllegalStateException("Unsupported language locale: " + (locale != null ? locale.getDisplayName() : "null"));
@@ -147,7 +147,7 @@ public class TranscriptionProcessor {
                 activeTranscriber.ensureModelLoaded(context, locale);
 
                 if (Thread.currentThread().isInterrupted()) return;
-                notifyStatusUpdate(callback, "Transcribing...");
+                notifyStepUpdate(callback, TranscriptionStep.TRANSCRIBING, locale);
                 boolean providesPunctuation = activeTranscriber.providesPunctuation();
                 List<TranscriptionParagraph> rawParagraphs = activeTranscriber.transcribe(context, wavFile, new TranscriptionListener() {
                     @Override
@@ -207,7 +207,7 @@ public class TranscriptionProcessor {
 
         if (!engineProvidesPunctuation && userWantsSmart && modelAvailable && !paragraphs.isEmpty()) {
             try {
-                notifyStatusUpdate(callback, "Applying smart formatting...");
+                notifyStepUpdate(callback, TranscriptionStep.APPLYING_SMART_FORMATTING, locale);
                 ModelInfo targetModel = selectedLanguage.getFormattingModel();
                 if (targetModel != null) {
                     if (smartFormatter != null && !Objects.equals(smartFormatter.getModelInfo(), targetModel)) {
@@ -263,13 +263,14 @@ public class TranscriptionProcessor {
     }
 
     /**
-     * Posts a status update notification to the callback on the main thread.
+     * Posts a step update notification to the callback on the main thread.
      *
      * @param callback The callback listener.
-     * @param message  The status update message.
+     * @param step     The processing step.
+     * @param locale   The locale being processed.
      */
-    private void notifyStatusUpdate(TranscriptionCallback callback, String message) {
-        mainExecutor.execute(() -> callback.onStatusUpdate(message));
+    private void notifyStepUpdate(TranscriptionCallback callback, TranscriptionStep step, Locale locale) {
+        mainExecutor.execute(() -> callback.onStepUpdate(step, locale));
     }
 
     /**

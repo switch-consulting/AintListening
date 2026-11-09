@@ -20,9 +20,11 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import android.net.Uri;
 
@@ -39,6 +41,7 @@ import java.util.function.Consumer;
 
 import de.switchconsulting.aintlistening.data.TranscriptionCallback;
 import de.switchconsulting.aintlistening.data.TranscriptionProcessor;
+import de.switchconsulting.aintlistening.data.TranscriptionStep;
 import de.switchconsulting.aintlistening.transcription.TranscriptionParagraph;
 
 /**
@@ -54,6 +57,10 @@ public class MainViewModelTest {
 
     @Before
     public void setUp() {
+        android.content.Context context = mock(android.content.Context.class);
+        when(context.getString(anyInt())).thenReturn("status");
+        when(context.getString(anyInt(), any())).thenAnswer(invocation -> "status " + invocation.getArgument(1));
+
         processor = mock(TranscriptionProcessor.class);
         List<TranscriptionParagraph> paragraphs = Collections.singletonList(new TranscriptionParagraph("raw", "formatted"));
         doAnswer(invocation -> {
@@ -64,7 +71,7 @@ public class MainViewModelTest {
             return null;
         }).when(processor).loadLastMessage(any());
 
-        viewModel = new MainViewModel(processor);
+        viewModel = new MainViewModel(context, processor);
     }
 
     @Test
@@ -100,7 +107,7 @@ public class MainViewModelTest {
 
         doAnswer(invocation -> {
             TranscriptionCallback callback = invocation.getArgument(2);
-            callback.onStatusUpdate("Converting...");
+            callback.onStepUpdate(TranscriptionStep.CONVERTING_AUDIO, Locale.GERMAN);
             callback.onPartialResult(Collections.singletonList(new TranscriptionParagraph("partial", null)));
             callback.onSmartFormattingProgress(1, 1, resultParagraphs);
             callback.onComplete(resultParagraphs);

@@ -22,7 +22,7 @@
     <string name="error_conversion_failed">Audio conversion failed. Please try another file.</string>
     <string name="error_read_failed">Could not read shared audio file.</string>
     <string name="status_loading_model">Loading speech model&#8230;</string>
-    <string name="status_transcribing">Transcribing offline&#8230;</string>
+    <string name="status_transcribing">Transcribing %1$s offline&#8230;</string>
     <string name="status_applying_smart_formatting">Applying smart formatting&#8230;</string>
     <string name="status_no_speech">No speech recognized.</string>
     <string name="error_transcription_failed">Transcription failed. Check if model is available.</string>
