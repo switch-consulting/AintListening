@@ -129,13 +129,13 @@ public class WhisperTranscriber implements Transcriber {
             for (SegmentResult segment : segments) {
                 String text = segment.getText();
                 if (!text.trim().isEmpty()) {
-                    paragraphs.add(new TranscriptionParagraph(text.trim(), null, null));
+                    paragraphs.add(new TranscriptionParagraph(text.trim()));
                 }
             }
         } else {
             String fullText = result.getText();
             if (!fullText.trim().isEmpty()) {
-                paragraphs.add(new TranscriptionParagraph(fullText.trim(), null, null));
+                paragraphs.add(new TranscriptionParagraph(fullText.trim()));
             }
         }
 

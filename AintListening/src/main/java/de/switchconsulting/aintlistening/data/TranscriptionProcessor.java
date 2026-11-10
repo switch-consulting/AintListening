@@ -47,6 +47,7 @@ import de.switchconsulting.aintlistening.transcription.TranscriptionListener;
 import de.switchconsulting.aintlistening.transcription.FinalRecognitionResult;
 import de.switchconsulting.aintlistening.transcription.PartialRecognitionResult;
 import de.switchconsulting.aintlistening.transcription.TranscriptionParagraph;
+import de.switchconsulting.aintlistening.util.AudioSlicer;
 import de.switchconsulting.aintlistening.util.OpusToWavDecoder;
 
 /**
@@ -149,6 +150,7 @@ public class TranscriptionProcessor {
                 if (Thread.currentThread().isInterrupted()) return;
                 notifyStepUpdate(callback, TranscriptionStep.TRANSCRIBING, locale);
                 boolean providesPunctuation = activeTranscriber.providesPunctuation();
+                final List<TranscriptionParagraph> finalParagraphs = new ArrayList<>();
                 List<TranscriptionParagraph> rawParagraphs = activeTranscriber.transcribe(context, wavFile, new TranscriptionListener() {
                     @Override
                     public void onPartialRecognition(@NonNull PartialRecognitionResult result) {
@@ -160,24 +162,24 @@ public class TranscriptionProcessor {
                     @Override
                     public void onResult(@NonNull FinalRecognitionResult result) {
                         if (!Thread.currentThread().isInterrupted()) {
-                            notifyPartialResult(callback, parseParagraphs(result.getFullTranscription(), providesPunctuation));
-                        }
-                    }
-
-                    @Override
-                    public String onAudioChunkAvailable(byte[] pcmData, int chunkIndex) {
-                        if (Thread.currentThread().isInterrupted()) return null;
-                        try {
-                            return repository.saveAudioChunk(pcmData, chunkIndex);
-                        } catch (Exception e) {
-                            Log.e(TAG, "Failed to save audio chunk", e);
-                            return null;
+                            try {
+                                finalParagraphs.clear();
+                                int chunkIndex = 0;
+                                for (PartialRecognitionResult pr : result.partialResults()) {
+                                    byte[] pcmSlice = AudioSlicer.extractPcmSlice(wavFile, pr.startMs(), pr.endMs());
+                                    String audioPath = repository.saveAudioChunk(pcmSlice, chunkIndex++);
+                                    finalParagraphs.add(new TranscriptionParagraph(pr.text(), null, audioPath));
+                                }
+                            } catch (Exception e) {
+                                Log.e(TAG, "Failed to save audio chunks", e);
+                            }
                         }
                     }
                 });
 
                 if (Thread.currentThread().isInterrupted()) return;
-                applySmartFormatting(rawParagraphs, locale, callback);
+                List<TranscriptionParagraph> paragraphsToFormat = finalParagraphs.isEmpty() ? rawParagraphs : finalParagraphs;
+                applySmartFormatting(paragraphsToFormat, locale, callback);
 
             } catch (Exception e) {
                 if (Thread.currentThread().isInterrupted()) {

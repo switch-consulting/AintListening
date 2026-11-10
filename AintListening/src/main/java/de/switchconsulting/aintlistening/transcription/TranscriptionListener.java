@@ -35,13 +35,4 @@ public interface TranscriptionListener {
      * @param result The final recognition result containing partial results, audio file, and total length.
      */
     void onResult(@NonNull FinalRecognitionResult result);
-
-    /**
-     * Called when a new audio chunk is ready to be saved.
-     *
-     * @param pcmData    The raw PCM data for the chunk.
-     * @param chunkIndex The index of the chunk.
-     * @return The absolute path where the chunk was saved, or null if it couldn't be saved.
-     */
-    String onAudioChunkAvailable(byte[] pcmData, int chunkIndex);
 }

@@ -29,6 +29,28 @@ import org.junit.Test;
 public class TranscriptionParagraphTest {
 
     @Test
+    public void testDefaultConstructor() {
+        TranscriptionParagraph paragraph = new TranscriptionParagraph();
+
+        assertNull(paragraph.getRawText());
+        assertNull(paragraph.getFormattedText());
+        assertNull(paragraph.getAudioFilePath());
+        assertFalse(paragraph.isShowFormatted());
+        assertNull(paragraph.getDisplayText());
+    }
+
+    @Test
+    public void testRawTextConstructor() {
+        TranscriptionParagraph paragraph = new TranscriptionParagraph("test raw");
+
+        assertEquals("test raw", paragraph.getRawText());
+        assertNull(paragraph.getFormattedText());
+        assertNull(paragraph.getAudioFilePath());
+        assertFalse(paragraph.isShowFormatted());
+        assertEquals("test raw", paragraph.getDisplayText());
+    }
+
+    @Test
     public void testParagraphWithFormattedText() {
         TranscriptionParagraph paragraph = new TranscriptionParagraph("hallo welt", "Hallo Welt.", "/path/to/chunk.wav");
 

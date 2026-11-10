@@ -113,7 +113,6 @@ public class VoskTranscriber implements Transcriber {
         List<TranscriptionParagraph> paragraphs = new ArrayList<>();
         List<PartialRecognitionResult> partialResults = new ArrayList<>();
         StringBuilder fullText = new StringBuilder();
-        ChunkIndexHolder chunkIndexHolder = new ChunkIndexHolder();
 
         try (FileInputStream fis = new FileInputStream(wavFile);
              Recognizer recognizer = new Recognizer(model, 16000.0f);
@@ -139,7 +138,7 @@ public class VoskTranscriber implements Transcriber {
                     if (!TextUtils.isEmpty(text)) {
                         Log.d(TAG, "Vosk segment finalized: " + text);
                         processFinalizedSegment(text, currentPcm, totalBytesProcessed, wavFile,
-                                paragraphs, partialResults, fullText, listener, chunkIndexHolder);
+                                paragraphs, partialResults, fullText, listener);
                     }
                 } else {
                     String partialJson = recognizer.getPartialResult();
@@ -153,7 +152,7 @@ public class VoskTranscriber implements Transcriber {
             if (!TextUtils.isEmpty(finalText)) {
                 Log.d(TAG, "Vosk final segment: " + finalText);
                 processFinalizedSegment(finalText, currentPcm, totalBytesProcessed, wavFile,
-                        paragraphs, partialResults, fullText, listener, chunkIndexHolder);
+                        paragraphs, partialResults, fullText, listener);
             }
         }
 
@@ -184,8 +183,7 @@ public class VoskTranscriber implements Transcriber {
             List<TranscriptionParagraph> paragraphs,
             List<PartialRecognitionResult> partialResults,
             StringBuilder fullText,
-            TranscriptionListener listener,
-            ChunkIndexHolder chunkIndexHolder
+            TranscriptionListener listener
     ) {
         String textToAdd = computeDeltaText(fullText.toString(), rawText);
         if (TextUtils.isEmpty(textToAdd)) return;
@@ -196,13 +194,9 @@ public class VoskTranscriber implements Transcriber {
         PartialRecognitionResult partialResult = new PartialRecognitionResult(textToAdd, startMs, endMs);
         partialResults.add(partialResult);
 
-        String audioPath = null;
-        if (listener != null) {
-            audioPath = listener.onAudioChunkAvailable(currentPcm.toByteArray(), chunkIndexHolder.value++);
-        }
         currentPcm.reset();
 
-        paragraphs.add(new TranscriptionParagraph(textToAdd, null, audioPath));
+        paragraphs.add(new TranscriptionParagraph(textToAdd));
 
         if (fullText.length() != 0) {
             fullText.append("\n\n");
@@ -244,10 +238,6 @@ public class VoskTranscriber implements Transcriber {
         long endMs = totalBytesProcessed / 32;
         PartialRecognitionResult result = new PartialRecognitionResult(currentPartialState.toString(), startMs, endMs);
         listener.onPartialRecognition(result);
-    }
-
-    private static class ChunkIndexHolder {
-        int value = 0;
     }
 
     /**

@@ -27,6 +27,22 @@ public class TranscriptionParagraph {
     private boolean showFormatted;
 
     /**
+     * Constructs an empty TranscriptionParagraph with all null fields.
+     */
+    public TranscriptionParagraph() {
+        this(null, null, null);
+    }
+
+    /**
+     * Constructs a new TranscriptionParagraph with raw text only.
+     *
+     * @param rawText The raw transcription text.
+     */
+    public TranscriptionParagraph(String rawText) {
+        this(rawText, null, null);
+    }
+
+    /**
      * Constructs a new TranscriptionParagraph with raw and optionally formatted text.
      *
      * @param rawText       The raw transcription text.

@@ -108,7 +108,7 @@ public class MainViewModelTest {
         doAnswer(invocation -> {
             TranscriptionCallback callback = invocation.getArgument(2);
             callback.onStepUpdate(TranscriptionStep.CONVERTING_AUDIO, Locale.GERMAN);
-            callback.onPartialResult(Collections.singletonList(new TranscriptionParagraph("partial", null)));
+            callback.onPartialResult(Collections.singletonList(new TranscriptionParagraph("partial")));
             callback.onSmartFormattingProgress(1, 1, resultParagraphs);
             callback.onComplete(resultParagraphs);
             return null;

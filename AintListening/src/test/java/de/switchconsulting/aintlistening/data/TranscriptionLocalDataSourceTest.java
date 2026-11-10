@@ -55,7 +55,7 @@ public class TranscriptionLocalDataSourceTest {
         List<TranscriptionParagraph> paragraphs = new ArrayList<>();
         TranscriptionParagraph p1 = new TranscriptionParagraph("raw1", "formatted1", "/path/1.wav");
         p1.setShowFormatted(true);
-        TranscriptionParagraph p2 = new TranscriptionParagraph("raw2", null, null);
+        TranscriptionParagraph p2 = new TranscriptionParagraph("raw2");
         p2.setShowFormatted(false);
 
         paragraphs.add(p1);
