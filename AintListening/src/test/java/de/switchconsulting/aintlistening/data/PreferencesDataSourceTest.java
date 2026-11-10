@@ -131,4 +131,11 @@ public class PreferencesDataSourceTest {
         assertFalse(preferencesDataSource.isLanguageEnabled(Locale.GERMAN));
         assertTrue(preferencesDataSource.isLanguageEnabled(Locale.ENGLISH));
     }
+
+    @Test
+    public void testPauseLengthMs() {
+        assertEquals(500L, preferencesDataSource.getPauseLengthMs());
+        preferencesDataSource.setPauseLengthMs(1000L);
+        assertEquals(1000L, preferencesDataSource.getPauseLengthMs());
+    }
 }

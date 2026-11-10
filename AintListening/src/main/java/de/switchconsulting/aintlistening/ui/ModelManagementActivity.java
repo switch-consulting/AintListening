@@ -75,6 +75,9 @@ public class ModelManagementActivity extends AppCompatActivity {
 
     private SwitchMaterial switchRaw;
     private SwitchMaterial switchSmart;
+    private com.google.android.material.slider.Slider sliderPauseLength;
+    private android.widget.TextView textPauseLengthLabel;
+    private android.widget.TextView textPauseLengthValue;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -140,6 +143,52 @@ public class ModelManagementActivity extends AppCompatActivity {
         });
 
         updateSmartFormattingSwitchState();
+
+        sliderPauseLength = findViewById(R.id.sliderPauseLength);
+        textPauseLengthLabel = findViewById(R.id.textPauseLengthLabel);
+        textPauseLengthValue = findViewById(R.id.textPauseLengthValue);
+
+        long currentPauseMs = preferencesDataSource.getPauseLengthMs();
+        sliderPauseLength.setValue(currentPauseMs);
+        updatePauseLengthValueText(currentPauseMs);
+
+        sliderPauseLength.addOnChangeListener((com.google.android.material.slider.Slider slider, float value, boolean fromUser) -> {
+            long ms = (long) value;
+            updatePauseLengthValueText(ms);
+            if (fromUser) {
+                preferencesDataSource.setPauseLengthMs(ms);
+            }
+        });
+
+        updatePauseLengthSliderState();
+    }
+
+    private void updatePauseLengthValueText(long ms) {
+        if (textPauseLengthValue != null) {
+            textPauseLengthValue.setText(getString(R.string.label_pause_length_value, ms));
+        }
+    }
+
+    private void updatePauseLengthSliderState() {
+        boolean supportsPause = false;
+        for (LanguageSupport lang : modelRepository.getSupportedLanguages()) {
+            TranscriberType type = modelRepository.getActiveTranscriberType(lang);
+            de.switchconsulting.aintlistening.transcription.Transcriber transcriber = transcriberRegistry.getTranscriber(type);
+            if (transcriber != null && transcriber.supportsPauseLengthConfiguration()) {
+                supportsPause = true;
+                break;
+            }
+        }
+
+        if (sliderPauseLength != null) {
+            sliderPauseLength.setEnabled(supportsPause);
+        }
+        if (textPauseLengthLabel != null) {
+            textPauseLengthLabel.setEnabled(supportsPause);
+        }
+        if (textPauseLengthValue != null) {
+            textPauseLengthValue.setEnabled(supportsPause);
+        }
     }
 
     /**
@@ -268,6 +317,7 @@ public class ModelManagementActivity extends AppCompatActivity {
             adapter.refresh();
         }
         updateSmartFormattingSwitchState();
+        updatePauseLengthSliderState();
     }
 
     /**

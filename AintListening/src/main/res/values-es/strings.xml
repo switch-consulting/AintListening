@@ -71,5 +71,7 @@
     <string name="label_show_copy">Mostrar botón de copiar</string>
     <string name="label_show_raw">Mostrar transcripción sin procesar</string>
     <string name="label_show_smart">Mostrar formato inteligente</string>
+    <string name="label_pause_length">Duración de pausa de párrafo</string>
+    <string name="label_pause_length_value">%1$d ms</string>
     <string name="message_at_least_one_mode">Al menos un modo de visualización debe estar activo</string>
 </resources>

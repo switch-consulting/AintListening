@@ -46,6 +46,7 @@ public class PreferencesDataSource {
     private static final String KEY_SHOW_SMART_TEXT = "show_smart_text";
     private static final String KEY_TRANSCRIBER_TYPE = "transcriber_type";
     private static final String KEY_LANGUAGE_ENABLED_PREFIX = "lang_enabled_";
+    private static final String KEY_PAUSE_LENGTH_MS = "pause_length_ms";
 
     private final RxDataStore<Preferences> dataStore;
 
@@ -125,6 +126,39 @@ public class PreferencesDataSource {
      */
     private void setString(String key, String value) {
         Preferences.Key<String> prefKey = PreferencesKeys.stringKey(key);
+        dataStore.updateDataAsync(prefs -> {
+            MutablePreferences mutable = prefs.toMutablePreferences();
+            mutable.set(prefKey, value);
+            return Single.just(mutable);
+        }).ignoreElement().blockingAwait();
+    }
+
+    /**
+     * Retrieves a long preference value synchronously.
+     *
+     * @param key          The preference key.
+     * @param defaultValue The default value if not set or on error.
+     * @return The long value.
+     */
+    private long getLong(String key, long defaultValue) {
+        try {
+            Preferences.Key<Long> prefKey = PreferencesKeys.longKey(key);
+            Preferences prefs = dataStore.data().firstOrError().blockingGet();
+            Long val = prefs.get(prefKey);
+            return val != null ? val : defaultValue;
+        } catch (Exception e) {
+            return defaultValue;
+        }
+    }
+
+    /**
+     * Sets a long preference value asynchronously.
+     *
+     * @param key   The preference key.
+     * @param value The long value to set.
+     */
+    private void setLong(String key, long value) {
+        Preferences.Key<Long> prefKey = PreferencesKeys.longKey(key);
         dataStore.updateDataAsync(prefs -> {
             MutablePreferences mutable = prefs.toMutablePreferences();
             mutable.set(prefKey, value);
@@ -283,5 +317,23 @@ public class PreferencesDataSource {
      */
     public void setLanguageEnabled(Locale locale, boolean enabled) {
         setBoolean(KEY_LANGUAGE_ENABLED_PREFIX + locale.toLanguageTag(), enabled);
+    }
+
+    /**
+     * Returns the pause length in milliseconds for paragraph detection.
+     *
+     * @return The pause length in milliseconds (defaults to 500ms).
+     */
+    public long getPauseLengthMs() {
+        return getLong(KEY_PAUSE_LENGTH_MS, 500L);
+    }
+
+    /**
+     * Sets the pause length in milliseconds for paragraph detection.
+     *
+     * @param pauseLengthMs The pause length in milliseconds.
+     */
+    public void setPauseLengthMs(long pauseLengthMs) {
+        setLong(KEY_PAUSE_LENGTH_MS, pauseLengthMs);
     }
 }

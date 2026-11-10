@@ -50,6 +50,7 @@ public class WhisperTranscriber implements Transcriber {
     private final ModelCatalogRepository modelRepository;
     private AndroidWhisperer whisperer;
     private Locale loadedLocale;
+    private long pauseLengthMs = 500L;
 
     /**
      * Constructs a new WhisperTranscriber instance.
@@ -116,7 +117,7 @@ public class WhisperTranscriber implements Transcriber {
         TranscriptionResult result;
         try {
             AndroidWhispererOptions options = new AndroidWhispererOptions(
-                    PauseMode.BOTH, 500, 100, loadedLocale);
+                    PauseMode.BOTH, (int) pauseLengthMs, 100, loadedLocale);
             result = whisperer.transcribe(samples, options);
         } finally {
             whisperer.removeListener(whisperListener);
@@ -208,6 +209,26 @@ public class WhisperTranscriber implements Transcriber {
     @Override
     public boolean providesPunctuation() {
         return true;
+    }
+
+    /**
+     * Returns whether Whisper supports pause length configuration for paragraph detection.
+     *
+     * @return True because Whisper supports configurable pause detection thresholds.
+     */
+    @Override
+    public boolean supportsPauseLengthConfiguration() {
+        return true;
+    }
+
+    /**
+     * Sets the pause length in milliseconds for paragraph detection.
+     *
+     * @param pauseLengthMs The pause length in milliseconds.
+     */
+    @Override
+    public void setPauseLengthMs(long pauseLengthMs) {
+        this.pauseLengthMs = pauseLengthMs;
     }
 
     /**

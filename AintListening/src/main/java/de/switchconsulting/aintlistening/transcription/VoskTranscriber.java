@@ -293,6 +293,26 @@ public class VoskTranscriber implements Transcriber {
     }
 
     /**
+     * Returns whether Vosk supports pause length configuration for paragraph detection.
+     *
+     * @return False because Vosk relies on internal endpointing.
+     */
+    @Override
+    public boolean supportsPauseLengthConfiguration() {
+        return false;
+    }
+
+    /**
+     * Sets the pause length in milliseconds for paragraph detection.
+     *
+     * @param pauseLengthMs The pause length in milliseconds.
+     */
+    @Override
+    public void setPauseLengthMs(long pauseLengthMs) {
+        // No-op: Vosk does not support configurable pause length.
+    }
+
+    /**
      * Closes the Vosk model and releases resources.
      */
     @Override

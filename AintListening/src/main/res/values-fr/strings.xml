@@ -71,5 +71,7 @@
     <string name="label_show_copy">Afficher le bouton de copie</string>
     <string name="label_show_raw">Afficher la transcription brute</string>
     <string name="label_show_smart">Afficher le formatage intelligent</string>
+    <string name="label_pause_length">Durée de pause de paragraphe</string>
+    <string name="label_pause_length_value">%1$d ms</string>
     <string name="message_at_least_one_mode">Au moins un mode d\'affichage doit être actif</string>
 </resources>

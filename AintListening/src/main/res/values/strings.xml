@@ -71,6 +71,8 @@
     <string name="label_show_copy">Show Copy Button</string>
     <string name="label_show_raw">Show Raw Transcription</string>
     <string name="label_show_smart">Show Smart Formatting</string>
+    <string name="label_pause_length">Paragraph Pause Length</string>
+    <string name="label_pause_length_value">%1$d ms</string>
     <string name="message_at_least_one_mode">At least one display mode must be active</string>
     <string name="menu_about" translatable="false">About &amp; Licenses</string>
     <string name="dialog_about_title" translatable="false">About Ain\'t Listening</string>

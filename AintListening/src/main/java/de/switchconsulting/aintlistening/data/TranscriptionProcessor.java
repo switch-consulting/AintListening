@@ -147,6 +147,11 @@ public class TranscriptionProcessor {
 
                 activeTranscriber.ensureModelLoaded(context, locale);
 
+                if (activeTranscriber.supportsPauseLengthConfiguration()) {
+                    long pauseLengthMs = repository.getPreferencesDataSource().getPauseLengthMs();
+                    activeTranscriber.setPauseLengthMs(pauseLengthMs);
+                }
+
                 if (Thread.currentThread().isInterrupted()) return;
                 notifyStepUpdate(callback, TranscriptionStep.TRANSCRIBING, locale);
                 boolean providesPunctuation = activeTranscriber.providesPunctuation();

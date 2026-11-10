@@ -71,5 +71,7 @@
     <string name="label_show_copy">Mostra pulsante di copia</string>
     <string name="label_show_raw">Mostra trascrizione grezza</string>
     <string name="label_show_smart">Mostra formattazione intelligente</string>
+    <string name="label_pause_length">Durata pausa paragrafo</string>
+    <string name="label_pause_length_value">%1$d ms</string>
     <string name="message_at_least_one_mode">Almeno una modalità di visualizzazione deve essere attiva</string>
 </resources>

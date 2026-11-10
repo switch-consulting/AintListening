@@ -60,6 +60,20 @@ public interface Transcriber {
     boolean providesPunctuation();
 
     /**
+     * Returns whether this transcriber supports configuring the pause length for paragraph detection.
+     *
+     * @return True if supported, false otherwise.
+     */
+    boolean supportsPauseLengthConfiguration();
+
+    /**
+     * Sets the pause length in milliseconds for paragraph detection.
+     *
+     * @param pauseLengthMs The pause length in milliseconds.
+     */
+    void setPauseLengthMs(long pauseLengthMs);
+
+    /**
      * Releases any resources held by the transcriber.
      */
     void close();
