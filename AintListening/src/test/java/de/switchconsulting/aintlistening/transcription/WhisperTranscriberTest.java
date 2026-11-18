@@ -22,12 +22,17 @@ import static org.mockito.Mockito.mock;
 
 import android.content.Context;
 
+import androidx.annotation.NonNull;
+
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 import de.switchconsulting.aintlistening.data.ModelCatalogRepository;
+import de.switchconsulting.androidwhisperer.model.SegmentResult;
 
 /**
  * Unit tests for {@link WhisperTranscriber}.
@@ -64,5 +69,49 @@ public class WhisperTranscriberTest {
     public void testCloseResetsState() {
         transcriber.close();
         assertEquals(TranscriberType.WHISPER, transcriber.getType());
+    }
+
+    @Test
+    public void testCreateWhisperListenerAccumulatesSegments() {
+        List<PartialRecognitionResult> partialResults = new ArrayList<>();
+        List<PartialRecognitionResult> emitted = new ArrayList<>();
+
+        TranscriptionListener listener = new TranscriptionListener() {
+            @Override
+            public void onPartialRecognition(@NonNull PartialRecognitionResult result) {
+                emitted.add(result);
+            }
+
+            @Override
+            public void onResult(@NonNull FinalRecognitionResult result) {
+            }
+        };
+
+        de.switchconsulting.androidwhisperer.TranscriptionListener whisperListener =
+                transcriber.createWhisperListener(listener, partialResults);
+
+        whisperListener.onNewSegment(
+                new SegmentResult("Hello world", 0, 1000, null),
+                "Hello world"
+        );
+
+        assertEquals(1, emitted.size());
+        assertEquals("Hello world", emitted.get(0).text());
+        assertEquals(0, emitted.get(0).startMs());
+        assertEquals(1000, emitted.get(0).endMs());
+
+        whisperListener.onNewSegment(
+                new SegmentResult("How are you?", 1500, 2500, null),
+                "Hello world How are you?"
+        );
+
+        assertEquals(2, emitted.size());
+        assertEquals("Hello world\n\nHow are you?", emitted.get(1).text());
+        assertEquals(0, emitted.get(1).startMs());
+        assertEquals(2500, emitted.get(1).endMs());
+
+        assertEquals(2, partialResults.size());
+        assertEquals("Hello world", partialResults.get(0).text());
+        assertEquals("How are you?", partialResults.get(1).text());
     }
 }

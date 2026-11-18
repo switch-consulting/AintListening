@@ -164,7 +164,7 @@ public class WhisperTranscriber implements Transcriber {
      * @param partialResults The list accumulating valid partial recognition results.
      * @return The AndroidWhisperer transcription listener instance.
      */
-    private de.switchconsulting.androidwhisperer.TranscriptionListener createWhisperListener(
+    de.switchconsulting.androidwhisperer.TranscriptionListener createWhisperListener(
             TranscriptionListener listener, List<PartialRecognitionResult> partialResults) {
         return new de.switchconsulting.androidwhisperer.TranscriptionListener() {
             @Override
@@ -175,7 +175,17 @@ public class WhisperTranscriber implements Transcriber {
                             text.trim(), segment.getStartMs(), segment.getEndMs());
                     partialResults.add(pr);
                     if (listener != null) {
-                        listener.onPartialRecognition(pr);
+                        StringBuilder accumulated = new StringBuilder();
+                        for (PartialRecognitionResult item : partialResults) {
+                            if (accumulated.length() > 0) {
+                                accumulated.append("\n\n");
+                            }
+                            accumulated.append(item.text());
+                        }
+                        long startMs = partialResults.get(0).startMs();
+                        long endMs = segment.getEndMs();
+                        listener.onPartialRecognition(new PartialRecognitionResult(
+                                accumulated.toString(), startMs, endMs));
                     }
                 }
             }
