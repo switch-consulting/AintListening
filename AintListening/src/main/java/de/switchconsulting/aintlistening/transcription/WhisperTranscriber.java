@@ -35,7 +35,6 @@ import de.switchconsulting.aintlistening.data.ModelCatalogRepository;
 import de.switchconsulting.androidwhisperer.AndroidWhisperer;
 import de.switchconsulting.androidwhisperer.AndroidWhispererOptions;
 import de.switchconsulting.androidwhisperer.AudioUtils;
-import de.switchconsulting.androidwhisperer.PauseMode;
 import de.switchconsulting.androidwhisperer.WhisperModel;
 import de.switchconsulting.androidwhisperer.model.SegmentResult;
 import de.switchconsulting.androidwhisperer.model.TranscriptionResult;
@@ -116,8 +115,9 @@ public class WhisperTranscriber implements Transcriber {
         whisperer.addListener(whisperListener);
         TranscriptionResult result;
         try {
-            AndroidWhispererOptions options = new AndroidWhispererOptions(
-                    PauseMode.BOTH, (int) pauseLengthMs, 100, loadedLocale);
+            AndroidWhispererOptions options = AndroidWhispererOptions.defaults()
+                    .withSegmentPauseThresholdMs((int) pauseLengthMs)
+                    .withLocale(loadedLocale);
             result = whisperer.transcribe(samples, options);
         } finally {
             whisperer.removeListener(whisperListener);
