@@ -17,6 +17,7 @@
 package de.switchconsulting.aintlistening.data;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
@@ -33,9 +34,22 @@ import de.switchconsulting.aintlistening.transcription.TranscriberType;
 public class ModelCatalogTest {
 
     @Test
+    public void testSupportedLanguagesCatalog() {
+        assertNotNull(ModelCatalog.SUPPORTED_LANGUAGES);
+        assertEquals(5, ModelCatalog.SUPPORTED_LANGUAGES.length);
+
+        for (LanguageSupport lang : ModelCatalog.SUPPORTED_LANGUAGES) {
+            assertNotNull(lang.getLocale());
+            assertNotNull(lang.getFormattingModel());
+            assertFalse(lang.getTranscriptionModels().isEmpty());
+        }
+    }
+
+    @Test
     public void testGetEngineNameResId() {
         assertEquals(R.string.engine_vosk, ModelCatalog.getEngineNameResId(TranscriberType.VOSK));
         assertEquals(R.string.engine_whisper, ModelCatalog.getEngineNameResId(TranscriberType.WHISPER));
+        assertEquals(R.string.engine_vosk, ModelCatalog.getEngineNameResId(null));
     }
 
     @Test
@@ -44,9 +58,23 @@ public class ModelCatalogTest {
         assertNotNull(german);
         assertEquals(Locale.GERMAN, german.getLocale());
 
+        // Case-insensitive locale matching (e.g. GERMANY has language 'de')
+        LanguageSupport germany = ModelCatalog.getLanguageSupport(Locale.GERMANY);
+        assertNotNull(germany);
+        assertEquals(Locale.GERMAN, germany.getLocale());
+
         LanguageSupport english = ModelCatalog.getLanguageSupport(Locale.ENGLISH);
         assertNotNull(english);
         assertEquals(Locale.ENGLISH, english.getLocale());
+
+        LanguageSupport spanish = ModelCatalog.getLanguageSupport(Locale.forLanguageTag("es"));
+        assertNotNull(spanish);
+
+        LanguageSupport french = ModelCatalog.getLanguageSupport(Locale.FRENCH);
+        assertNotNull(french);
+
+        LanguageSupport italian = ModelCatalog.getLanguageSupport(Locale.ITALIAN);
+        assertNotNull(italian);
 
         LanguageSupport unsupported = ModelCatalog.getLanguageSupport(Locale.JAPANESE);
         assertNull(unsupported);

@@ -21,13 +21,17 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
@@ -90,8 +94,55 @@ public class TranscriptionLocalDataSourceTest {
     }
 
     @Test
-    public void testLoadLastMessageWhenEmpty() {
+    public void testSaveLastMessageNullOrEmptyParagraphsDoesNotInsert() {
+        dataSource.saveLastMessage(null, Locale.GERMAN);
+        verify(transcriptionDao, never()).insertTranscription(any());
+
+        dataSource.saveLastMessage(Collections.emptyList(), Locale.GERMAN);
+        verify(transcriptionDao, never()).insertTranscription(any());
+    }
+
+    @Test
+    public void testSaveLastMessageNullLocale() {
+        List<TranscriptionParagraph> paragraphs = Collections.singletonList(new TranscriptionParagraph("text"));
+        when(transcriptionDao.insertTranscription(any())).thenReturn(1L);
+
+        dataSource.saveLastMessage(paragraphs, null);
+        verify(transcriptionDao).insertTranscription(any());
+        verify(transcriptionDao).insertParagraphs(any());
+    }
+
+    @Test
+    public void testSaveLastMessageHandlesExceptionGracefully() {
+        List<TranscriptionParagraph> paragraphs = Collections.singletonList(new TranscriptionParagraph("text"));
+        doThrow(new RuntimeException("DB error")).when(transcriptionDao).insertTranscription(any());
+
+        // Should log error and not throw exception
+        dataSource.saveLastMessage(paragraphs, Locale.GERMAN);
+    }
+
+    @Test
+    public void testLoadLastMessageWhenSessionNull() {
         when(transcriptionDao.getLatestTranscriptionSession()).thenReturn(null);
+        assertNull(dataSource.loadLastMessage());
+    }
+
+    @Test
+    public void testLoadLastMessageWhenParagraphsNullOrEmpty() {
+        TranscriptionEntity session = new TranscriptionEntity(System.currentTimeMillis(), "de");
+        session.id = 1L;
+        when(transcriptionDao.getLatestTranscriptionSession()).thenReturn(session);
+
+        when(transcriptionDao.getParagraphsForSession(1L)).thenReturn(null);
+        assertNull(dataSource.loadLastMessage());
+
+        when(transcriptionDao.getParagraphsForSession(1L)).thenReturn(Collections.emptyList());
+        assertNull(dataSource.loadLastMessage());
+    }
+
+    @Test
+    public void testLoadLastMessageHandlesExceptionGracefully() {
+        when(transcriptionDao.getLatestTranscriptionSession()).thenThrow(new RuntimeException("DB read error"));
         assertNull(dataSource.loadLastMessage());
     }
 }

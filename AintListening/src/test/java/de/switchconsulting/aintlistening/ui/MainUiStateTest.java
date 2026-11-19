@@ -18,6 +18,7 @@ package de.switchconsulting.aintlistening.ui;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
@@ -87,5 +88,15 @@ public class MainUiStateTest {
         assertEquals("Error occurred", state.statusMessage());
         assertEquals(paragraphs, state.paragraphs());
         assertEquals("Error occurred", state.errorMessage());
+    }
+
+    @Test
+    public void testEqualsHashCodeAndToString() {
+        MainUiState s1 = MainUiState.idle(Collections.emptyList());
+        MainUiState s2 = MainUiState.idle(Collections.emptyList());
+
+        assertEquals(s1, s2);
+        assertEquals(s1.hashCode(), s2.hashCode());
+        assertNotNull(s1.toString());
     }
 }

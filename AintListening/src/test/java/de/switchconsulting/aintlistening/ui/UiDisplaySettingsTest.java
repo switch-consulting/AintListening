@@ -16,7 +16,9 @@
 
 package de.switchconsulting.aintlistening.ui;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
@@ -44,5 +46,15 @@ public class UiDisplaySettingsTest {
         assertTrue(settings.showCopyButton());
         assertTrue(settings.showRawText());
         assertTrue(settings.showSmartText());
+    }
+
+    @Test
+    public void testEqualsHashCodeAndToString() {
+        UiDisplaySettings s1 = UiDisplaySettings.defaultSettings();
+        UiDisplaySettings s2 = UiDisplaySettings.defaultSettings();
+
+        assertEquals(s1, s2);
+        assertEquals(s1.hashCode(), s2.hashCode());
+        assertNotNull(s1.toString());
     }
 }

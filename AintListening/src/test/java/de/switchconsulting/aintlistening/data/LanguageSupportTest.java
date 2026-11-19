@@ -68,9 +68,14 @@ public class LanguageSupportTest {
         LanguageSupport lang2 = new LanguageSupport(Locale.GERMAN, map, null);
         LanguageSupport lang3 = new LanguageSupport(Locale.ENGLISH, map, null);
 
+        // Equal contents
         assertEquals(lang1, lang2);
         assertEquals(lang1.hashCode(), lang2.hashCode());
 
+        // Null comparison
+        assertNotEquals(null, lang1);
+
+        // Different locale
         assertNotEquals(lang1, lang3);
     }
 }

@@ -25,6 +25,7 @@ import android.content.Context;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.File;
 import java.util.Locale;
 
 import de.switchconsulting.aintlistening.data.ModelCatalogRepository;
@@ -46,6 +47,19 @@ public class VoskTranscriberTest {
     public void testGetTypeAndProvidesPunctuation() {
         assertEquals(TranscriberType.VOSK, transcriber.getType());
         assertFalse(transcriber.providesPunctuation());
+        assertFalse(transcriber.supportsPauseLengthConfiguration());
+    }
+
+    @Test
+    public void testSetPauseLengthMsDoesNotThrow() {
+        transcriber.setPauseLengthMs(1000L);
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void testTranscribeWithoutModelLoadedThrowsException() throws Exception {
+        Context context = mock(Context.class);
+        File dummyFile = new File("dummy.wav");
+        transcriber.transcribe(context, dummyFile, null);
     }
 
     @Test(expected = IllegalStateException.class)

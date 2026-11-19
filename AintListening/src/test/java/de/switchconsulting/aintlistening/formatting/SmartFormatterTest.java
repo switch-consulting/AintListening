@@ -17,13 +17,14 @@
 package de.switchconsulting.aintlistening.formatting;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mockStatic;
 
 import android.text.TextUtils;
 
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.MockedStatic;
@@ -94,33 +95,47 @@ public class SmartFormatterTest {
     }
 
     /**
-     * Tests acronym handling.
+     * Tests acronym handling where postPreds == POST_PUNC_ACRONYM_INDEX (1).
      */
     @Test
+    public void testReconstructTextBadCode_Acronym() {
+        String[] tokens = {" usa"};
+        long[] prePreds = {0};
+        long[] postPreds = {OnnxSmartFormatter.POST_PUNC_ACRONYM_INDEX}; // 1 = acronym
+        long[][] capPreds = {
+            {1, 1, 1, 1} // " usa" -> "USA"
+        };
+        long[] sbdPreds = {0};
+
+        String result = OnnxSmartFormatter.reconstructTextBadCode(tokens, prePreds, postPreds, capPreds, sbdPreds);
+        assertEquals("U.S.A.", result);
+    }
+
+    @Test
     public void testIsSpecialToken() {
-        Assert.assertTrue(OnnxSmartFormatter.isSpecialToken("<s>"));
-        Assert.assertTrue(OnnxSmartFormatter.isSpecialToken("</s>"));
-        Assert.assertTrue(OnnxSmartFormatter.isSpecialToken("<pad>"));
-        Assert.assertTrue(OnnxSmartFormatter.isSpecialToken("[CLS]"));
-        Assert.assertTrue(OnnxSmartFormatter.isSpecialToken("[SEP]"));
-        Assert.assertTrue(OnnxSmartFormatter.isSpecialToken("<unk>"));
-        Assert.assertFalse(OnnxSmartFormatter.isSpecialToken(" hello"));
+        assertTrue(OnnxSmartFormatter.isSpecialToken("<s>"));
+        assertTrue(OnnxSmartFormatter.isSpecialToken("</s>"));
+        assertTrue(OnnxSmartFormatter.isSpecialToken("<pad>"));
+        assertTrue(OnnxSmartFormatter.isSpecialToken("[CLS]"));
+        assertTrue(OnnxSmartFormatter.isSpecialToken("[SEP]"));
+        assertTrue(OnnxSmartFormatter.isSpecialToken("<unk>"));
+        assertFalse(OnnxSmartFormatter.isSpecialToken(" hello"));
     }
 
     @Test
     public void testIsNewWord() {
-        Assert.assertTrue(OnnxSmartFormatter.isNewWord(" hello"));
-        Assert.assertTrue(OnnxSmartFormatter.isNewWord("▁hello"));
-        Assert.assertFalse(OnnxSmartFormatter.isNewWord("hello"));
+        assertTrue(OnnxSmartFormatter.isNewWord(" hello"));
+        assertTrue(OnnxSmartFormatter.isNewWord("▁hello"));
+        assertFalse(OnnxSmartFormatter.isNewWord("hello"));
     }
 
     @Test
     public void testIsSentenceEnding() {
-        Assert.assertTrue(OnnxSmartFormatter.isSentenceEnding("."));
-        Assert.assertTrue(OnnxSmartFormatter.isSentenceEnding("?"));
-        Assert.assertTrue(OnnxSmartFormatter.isSentenceEnding(":"));
-        Assert.assertFalse(OnnxSmartFormatter.isSentenceEnding(","));
-        Assert.assertFalse(OnnxSmartFormatter.isSentenceEnding(";"));
+        assertTrue(OnnxSmartFormatter.isSentenceEnding("."));
+        assertTrue(OnnxSmartFormatter.isSentenceEnding("?"));
+        assertTrue(OnnxSmartFormatter.isSentenceEnding(":"));
+        assertFalse(OnnxSmartFormatter.isSentenceEnding(","));
+        assertFalse(OnnxSmartFormatter.isSentenceEnding(";"));
     }
 
     @Test

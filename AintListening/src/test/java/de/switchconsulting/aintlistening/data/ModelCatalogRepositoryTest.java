@@ -21,6 +21,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -32,7 +33,9 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.List;
 import java.util.Locale;
 
 import de.switchconsulting.aintlistening.R;
@@ -47,14 +50,16 @@ public class ModelCatalogRepositoryTest {
     public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
     private Context context;
+    private PreferencesDataSource preferencesDataSource;
     private ModelCatalogRepository repository;
 
     @Before
     public void setUp() throws IOException {
         context = mock(Context.class);
-        PreferencesDataSource preferencesDataSource = mock(PreferencesDataSource.class);
+        preferencesDataSource = mock(PreferencesDataSource.class);
         File filesDir = temporaryFolder.newFolder("filesDir");
         when(context.getFilesDir()).thenReturn(filesDir);
+        when(preferencesDataSource.getDefaultTranscriberType()).thenReturn(TranscriberType.VOSK);
 
         repository = new ModelCatalogRepository(context, preferencesDataSource);
     }
@@ -109,7 +114,7 @@ public class ModelCatalogRepositoryTest {
         assertTrue(whisperDir.mkdirs() || whisperDir.isDirectory());
         File modelFile = new File(whisperDir, "ggml-tiny.bin");
         assertTrue(modelFile.createNewFile());
-        try (java.io.FileOutputStream fos = new java.io.FileOutputStream(modelFile)) {
+        try (FileOutputStream fos = new FileOutputStream(modelFile)) {
             fos.write(1);
         }
 
@@ -122,6 +127,118 @@ public class ModelCatalogRepositoryTest {
     }
 
     @Test
+    public void testIsDownloadedWithNulls() {
+        assertFalse(repository.isDownloaded(null, TranscriberType.VOSK));
+        LanguageSupport german = repository.getLanguageSupport(Locale.GERMAN);
+        assertFalse(repository.isDownloaded(german, null));
+    }
+
+    @Test
+    public void testIsDownloadedForLanguageAndType() {
+        LanguageSupport german = repository.getLanguageSupport(Locale.GERMAN);
+        assertNotNull(german);
+
+        assertFalse(repository.isDownloaded(german, TranscriberType.VOSK));
+
+        File modelDir = new File(context.getFilesDir(), "vosk-model-small-de-0.15");
+        assertTrue(modelDir.mkdir());
+
+        assertTrue(repository.isDownloaded(german, TranscriberType.VOSK));
+    }
+
+    @Test
+    public void testIsFormattingDownloaded() {
+        assertFalse(repository.isFormattingDownloaded(null));
+
+        LanguageSupport german = repository.getLanguageSupport(Locale.GERMAN);
+        assertNotNull(german);
+
+        assertFalse(repository.isFormattingDownloaded(german));
+
+        File puncDir = new File(context.getFilesDir(), "ONNXModel_multilingual");
+        assertTrue(puncDir.mkdir());
+
+        assertTrue(repository.isFormattingDownloaded(german));
+    }
+
+    @Test
+    public void testHasTranscriptionModelDownloaded() {
+        assertFalse(repository.hasTranscriptionModelDownloaded(null));
+
+        LanguageSupport german = repository.getLanguageSupport(Locale.GERMAN);
+        assertNotNull(german);
+
+        assertFalse(repository.hasTranscriptionModelDownloaded(german));
+
+        File modelDir = new File(context.getFilesDir(), "vosk-model-small-de-0.15");
+        assertTrue(modelDir.mkdir());
+
+        assertTrue(repository.hasTranscriptionModelDownloaded(german));
+    }
+
+    @Test
+    public void testGetActiveTranscriberTypePreferredDownloaded() {
+        LanguageSupport german = repository.getLanguageSupport(Locale.GERMAN);
+        assertNotNull(german);
+
+        when(preferencesDataSource.getTranscriberType(Locale.GERMAN)).thenReturn(TranscriberType.VOSK);
+
+        File modelDir = new File(context.getFilesDir(), "vosk-model-small-de-0.15");
+        assertTrue(modelDir.mkdir());
+
+        assertEquals(TranscriberType.VOSK, repository.getActiveTranscriberType(german));
+    }
+
+    @Test
+    public void testGetActiveTranscriberTypePreferredNotDownloadedFallbackToAvailable() throws IOException {
+        LanguageSupport german = repository.getLanguageSupport(Locale.GERMAN);
+        assertNotNull(german);
+
+        when(preferencesDataSource.getTranscriberType(Locale.GERMAN)).thenReturn(TranscriberType.VOSK);
+
+        // Vosk NOT downloaded, but Whisper IS downloaded
+        File whisperDir = new File(context.getFilesDir(), "whisper_models");
+        assertTrue(whisperDir.mkdirs() || whisperDir.isDirectory());
+        File modelFile = new File(whisperDir, "ggml-tiny.bin");
+        assertTrue(modelFile.createNewFile());
+        try (FileOutputStream fos = new FileOutputStream(modelFile)) {
+            fos.write(1);
+        }
+
+        assertEquals(TranscriberType.WHISPER, repository.getActiveTranscriberType(german));
+    }
+
+    @Test
+    public void testGetActiveTranscriberTypeNoModelsDownloadedFallbackToDefault() {
+        LanguageSupport german = repository.getLanguageSupport(Locale.GERMAN);
+        assertNotNull(german);
+
+        when(preferencesDataSource.getTranscriberType(Locale.GERMAN)).thenReturn(TranscriberType.VOSK);
+        when(preferencesDataSource.getDefaultTranscriberType()).thenReturn(TranscriberType.VOSK);
+
+        assertEquals(TranscriberType.VOSK, repository.getActiveTranscriberType(german));
+    }
+
+    @Test
+    public void testGetAvailableLanguageNames() {
+        when(preferencesDataSource.isLanguageEnabled(any())).thenReturn(true);
+
+        // Initially no models downloaded -> empty list
+        assertTrue(repository.getAvailableLanguageNames().isEmpty());
+
+        // Download German Vosk model
+        File germanModelDir = new File(context.getFilesDir(), "vosk-model-small-de-0.15");
+        assertTrue(germanModelDir.mkdir());
+
+        List<String> names = repository.getAvailableLanguageNames();
+        assertEquals(1, names.size());
+
+        // Now disable German in preferences
+        when(preferencesDataSource.isLanguageEnabled(Locale.GERMAN)).thenReturn(false);
+        assertTrue(repository.getAvailableLanguageNames().isEmpty());
+    }
+
+    @Test
     public void testDeleteModelNull() {
         assertFalse(repository.deleteModel(null));
     }
@@ -131,11 +248,26 @@ public class ModelCatalogRepositoryTest {
         ModelInfo model = new ModelInfo("model-to-delete", "http://example.com", Locale.GERMAN, "10MB", TranscriberType.VOSK, true);
         File dir = new File(context.getFilesDir(), "model-to-delete");
         assertTrue(dir.mkdir());
-        File subFile = new File(dir, "data.txt");
+        File subDir = new File(dir, "subdir");
+        assertTrue(subDir.mkdir());
+        File subFile = new File(subDir, "data.txt");
         assertTrue(subFile.createNewFile());
 
         assertTrue(repository.deleteModel(model));
         assertFalse(dir.exists());
+    }
+
+    @Test
+    public void testDeleteModelWhisper() throws IOException {
+        ModelInfo whisperModel = new ModelInfo("ggml-tiny.bin", "http://example.com", Locale.GERMAN, "75MB", TranscriberType.WHISPER, false);
+
+        File whisperDir = new File(context.getFilesDir(), "whisper_models");
+        assertTrue(whisperDir.mkdirs() || whisperDir.isDirectory());
+        File modelFile = new File(whisperDir, "ggml-tiny.bin");
+        assertTrue(modelFile.createNewFile());
+
+        assertTrue(repository.deleteModel(whisperModel));
+        assertFalse(modelFile.exists());
     }
 
     @Test

@@ -27,11 +27,13 @@ import androidx.annotation.NonNull;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
 import de.switchconsulting.aintlistening.data.ModelCatalogRepository;
+import de.switchconsulting.androidwhisperer.TranscriptionException;
 import de.switchconsulting.androidwhisperer.model.SegmentResult;
 
 /**
@@ -51,6 +53,19 @@ public class WhisperTranscriberTest {
     public void testGetTypeAndProvidesPunctuation() {
         assertEquals(TranscriberType.WHISPER, transcriber.getType());
         assertTrue(transcriber.providesPunctuation());
+        assertTrue(transcriber.supportsPauseLengthConfiguration());
+    }
+
+    @Test
+    public void testSetPauseLengthMs() {
+        transcriber.setPauseLengthMs(1000L);
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void testTranscribeWithoutModelLoadedThrowsException() throws Exception {
+        Context context = mock(Context.class);
+        File dummyFile = new File("dummy.wav");
+        transcriber.transcribe(context, dummyFile, null);
     }
 
     @Test(expected = IllegalStateException.class)
@@ -72,7 +87,7 @@ public class WhisperTranscriberTest {
     }
 
     @Test
-    public void testCreateWhisperListenerAccumulatesSegments() {
+    public void testCreateWhisperListenerAccumulatesSegmentsAndHandlesEvents() {
         List<PartialRecognitionResult> partialResults = new ArrayList<>();
         List<PartialRecognitionResult> emitted = new ArrayList<>();
 
@@ -113,5 +128,16 @@ public class WhisperTranscriberTest {
         assertEquals(2, partialResults.size());
         assertEquals("Hello world", partialResults.get(0).text());
         assertEquals("How are you?", partialResults.get(1).text());
+
+        // Test coverage for empty whitespace segment
+        whisperListener.onNewSegment(
+                new SegmentResult("   ", 2600, 3000, null),
+                "   "
+        );
+        assertEquals(2, partialResults.size());
+
+        // Test progress and error callbacks
+        whisperListener.onProgress(50);
+        whisperListener.onError(new TranscriptionException("Test exception"));
     }
 }
